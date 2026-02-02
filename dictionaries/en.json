@@ -1,0 +1,91 @@
+{
+  "common": {
+    "logo_subtitle": "Mechanical Engineering",
+    "contact_btn": "Request a Quote",
+    "read_more": "View Details",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "Japanese Tech - Vietnamese Cost"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Services",
+    "projects": "Projects",
+    "blog": "Blog",
+    "contact": "Contact",
+    "view_all_services": "View All Technical Services"
+  },
+  "hero": {
+    "badge": "Operating under Japanese quality standards",
+    "title_line1": "Reliable Engineering",
+    "title_highlight": "Efficiency",
+    "title_line2": "Exceeding Expectations",
+    "description": "ZINITEK provides optimal solutions for <span class='text-white font-medium'>CNC machining, mold making</span> and <span class='text-white font-medium'>automation</span>. We combine hands-on technical experience with strict control processes to ensure quality at the most competitive cost.",
+    "cta_primary": "Explore Services",
+    "cta_secondary": "Featured Projects",
+    "scroll_text": "Scroll Down",
+    "stats": {
+      "projects": "Completed Projects",
+      "experience": "Years of Experience",
+      "quality": "Standard Products",
+      "experts": "Expert Engineers"
+    }
+  },
+  "services": {
+    "cnc": {
+      "title": "Precision CNC Machining",
+      "desc": "Milling, Turning, Wire EDM strictly adhering to drawing tolerances. Consistent quality on selected pre-owned Japanese machinery."
+    },
+    "molds": {
+      "title": "Mold & Die Design",
+      "desc": "Precision Cold Stamping Dies, Progressive Dies for automotive and electronics industries."
+    },
+    "3d_scan": {
+      "title": "3D Scan & Reverse Engineering",
+      "desc": "Reverse Engineering services using Geomagic Design X, converting physical objects into CAD drawings."
+    },
+    "plc": {
+      "title": "PLC & Automation",
+      "desc": "Mitsubishi / Siemens system programming. Comprehensive automation line integration."
+    },
+    "coils": {
+      "title": "Copper Coils",
+      "desc": "Manufacturing high-quality Toroidal coils, Transformers, and Inductors for the electronics industry."
+    },
+    "ems": {
+      "title": "Electronics Manufacturing Services (EMS)",
+      "desc": "PCB Assembly, SMT/DIP services from prototyping to mass production with strict control."
+    },
+    "it_software": {
+      "title": "Industrial IT & Software",
+      "desc": "Mastercam / Solidworks / Creo solutions and factory network infrastructure construction."
+    }
+  },
+  "news_section": {
+    "badge": "Knowledge & News",
+    "title_main": "Expert",
+    "title_highlight": "Perspectives",
+    "description": "Updates on mechanical technology trends and hands-on machining experience from the ZINITEK team.",
+    "view_all": "View All Articles"
+  },
+  "about_page": {
+    "meta_title": "About ZINITEK | Reliable Mechanical Solutions",
+    "header_title": "About Us",
+    "header_subtitle": "Hands-on Engineering - Reliable Quality",
+    "header_desc": "We focus on realizing technical drawings with high finishing levels and optimal costs for businesses."
+  },
+  "footer": {
+    "description": "A trusted partner in precision mechanical machining, mold design, and automation according to Japanese standards.",
+    "quick_links": "Quick Links",
+    "factory_address": "Factory Address",
+    "newsletter": "Newsletter",
+    "newsletter_desc": "Subscribe to receive the latest technology news and offers.",
+    "placeholder_email": "Your email",
+    "copyright": "© 2026 ZINITEK. All rights reserved.",
+    "address_label": "My Phuoc 3 IP, Ben Cat, Binh Duong",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_use": "Terms of Use",
+    "cookie_policy": "Cookie Policy"
+  }
+}

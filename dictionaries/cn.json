@@ -1,0 +1,91 @@
+{
+  "common": {
+    "logo_subtitle": "机械工程",
+    "contact_btn": "询价单",
+    "read_more": "查看详情",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "日本技术 - 越南成本"
+  },
+  "navigation": {
+    "home": "首页",
+    "about": "关于我们",
+    "services": "服务项目",
+    "projects": "项目案例",
+    "blog": "博客新闻",
+    "contact": "联系我们",
+    "view_all_services": "查看所有技术服务"
+  },
+  "hero": {
+    "badge": "按照日本质量标准运营",
+    "title_line1": "可靠的技术",
+    "title_highlight": "高效方案",
+    "title_line2": "超越客户期待",
+    "description": "ZINITEK 提供 <span class='text-white font-medium'>CNC 加工、模具制造</span> 和 <span class='text-white font-medium'>自动化</span> 的最佳解决方案。我们将实战技术经验与严格的控制流程相结合，以最具竞争力的成本确保品质。",
+    "cta_primary": "探索服务",
+    "cta_secondary": "典型项目",
+    "scroll_text": "向下滑动",
+    "stats": {
+      "projects": "已完成项目",
+      "experience": "行业经验",
+      "quality": "标准达标产品",
+      "experts": "专家工程师"
+    }
+  },
+  "services": {
+    "cnc": {
+      "title": "精密 CNC 加工",
+      "desc": "严格遵守图纸公差的铣削、车削、线切割 (EDM) 加工。通过精选的日本二手机械设备确保品质稳定性。"
+    },
+    "molds": {
+      "title": "模具设计与制造",
+      "desc": "用于汽车和电子行业的精密冷冲压模具、级进模 (Progressive Die)。"
+    },
+    "3d_scan": {
+      "title": "3D 扫描与逆向工程",
+      "desc": "使用 Geomagic Design X 的逆向工程服务，将实物转换为 CAD 图纸。"
+    },
+    "plc": {
+      "title": "PLC 与自动化",
+      "desc": "三菱 (Mitsubishi) / 西门子 (Siemens) 系统编程。提供全面的自动化生产线集成。"
+    },
+    "coils": {
+      "title": "铜线圈",
+      "desc": "为电子行业制造高质量的环形线圈、变压器和电感器。"
+    },
+    "ems": {
+      "title": "电子制造服务 (EMS)",
+      "desc": "提供从原型到批量生产的 PCB 组装、SMT/DIP 服务，并实施严格的流程控制。"
+    },
+    "it_software": {
+      "title": "工业 IT 与软件",
+      "desc": "Mastercam / Solidworks / Creo 解决方案及工厂网络基础设施建设。"
+    }
+  },
+  "news_section": {
+    "badge": "知识与新闻",
+    "title_main": "专家",
+    "title_highlight": "视角",
+    "description": "获取 ZINITEK 团队带来的机械技术趋势更新和实战加工经验。",
+    "view_all": "查看所有文章"
+  },
+  "about_page": {
+    "meta_title": "关于 ZINITEK | 可靠的机械解决方案",
+    "header_title": "关于我们",
+    "header_subtitle": "实战工程 - 可靠品质",
+    "header_desc": "我们致力于以高完成度和最优成本，为企业将技术图纸转化为现实。"
+  },
+  "footer": {
+    "description": "精密机械加工、模具设计和符合日本标准的自动化领域中值得信赖的合作伙伴。",
+    "quick_links": "快速链接",
+    "factory_address": "工厂地址",
+    "newsletter": "邮件订阅",
+    "newsletter_desc": "订阅以获取最新的技术动态和优惠信息。",
+    "placeholder_email": "您的电子邮箱",
+    "copyright": "© 2026 ZINITEK. 版权所有。",
+    "address_label": "平阳省苯吉市美福3工业区",
+    "privacy_policy": "隐私政策",
+    "terms_of_use": "使用条款",
+    "cookie_policy": "Cookie 政策"
+  }
+}

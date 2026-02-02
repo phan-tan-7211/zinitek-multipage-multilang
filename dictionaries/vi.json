@@ -1,0 +1,115 @@
+{
+  "common": {
+    "logo_subtitle": "Kỹ Thuật Cơ Khí",
+    "contact_btn": "Yêu cầu báo giá",
+    "read_more": "Xem chi tiết",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "Kỹ thuật Nhật Bản - Chi phí Việt Nam"
+  },
+  "navigation": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "services": "Dịch vụ",
+    "projects": "Dự án",
+    "blog": "Blog",
+    "contact": "Liên hệ",
+    "view_all_services": "Xem tất cả dịch vụ kỹ thuật"
+    
+  },
+  "hero": {
+    "badge": "Vận hành theo tiêu chuẩn chất lượng Nhật Bản",
+    "title_line1": "Kỹ thuật tin cậy",
+    "title_highlight": "Hiệu quả",
+    "title_line2": "Vượt mong đợi",
+    "description": "ZINITEK mang đến giải pháp <span class='text-white font-medium'>gia công CNC, khuôn mẫu</span> và <span class='text-white font-medium'>tự động hóa</span> tối ưu. Chúng tôi kết hợp kinh nghiệm kỹ thuật thực chiến cùng quy trình kiểm soát chặt chẽ để đảm bảo chất lượng với chi phí cạnh tranh nhất.",
+    "cta_primary": "Khám phá dịch vụ",
+    "cta_secondary": "Dự án tiêu biểu",
+    "scroll_text": "Cuộn xuống",
+    "stats": {
+      "projects": "Dự án hoàn thành",
+      "experience": "Năm kinh nghiệm",
+      "quality": "Sản phẩm đạt chuẩn",
+      "experts": "Kỹ sư chuyên gia"
+    }
+  },
+  "services": {
+    "cnc": {
+      "title": "Gia công CNC chính xác",
+      "desc": "Phay, Tiện, Cắt dây EDM bám sát dung sai bản vẽ. Chất lượng ổn định trên hệ thống máy Nhật bãi tuyển chọn."
+    },
+    "molds": {
+      "title": "Thiết kế khuôn mẫu",
+      "desc": "Khuôn dập nguội chính xác, khuôn dập liên hoàn (Progressive Die) cho ô tô, điện tử."
+    },
+    "3d_scan": {
+      "title": "Quét 3D & Phân tích ngược",
+      "desc": "Dịch vụ Reverse Engineering sử dụng Geomagic Design X, chuyển đổi mẫu vật thành bản vẽ CAD."
+    },
+    "plc": {
+      "title": "PLC & Tự động hóa",
+      "desc": "Lập trình hệ thống Mitsubishi / Siemens. Tích hợp dây chuyền tự động hóa toàn diện."
+    },
+    "coils": {
+      "title": "Cuộn dây đồng",
+      "desc": "Sản xuất cuộn Toroidal, Biến áp, Cuộn cảm chất lượng cao cho ngành điện tử."
+    },
+    "ems": {
+      "title": "Lắp ráp điện tử (EMS)",
+      "desc": "Dịch vụ lắp ráp PCB, SMT/DIP từ mẫu thử đến sản xuất hàng loạt với kiểm soát nghiêm ngặt."
+    },
+    "it_software": {
+      "title": "CNTT & Phần mềm CN",
+      "desc": "Giải pháp Mastercam / Solidworks / Creo và thi công hạ tầng mạng nhà máy."
+    }
+  },
+  "about_summary": {
+    "badge": "Về ZINITEK",
+    "title_main": "Chúng tôi tạo ra",
+    "title_highlight": "giá trị bền vững",
+    "description": "Với nền tảng kỹ thuật vững chắc và hệ thống máy móc hiện đại, ZINITEK tự hào là đối tác tin cậy trong lĩnh vực cơ khí chính xác tại Việt Nam.",
+    "exp_label": "Năm kinh nghiệm",
+    "cta_text": "Tìm hiểu thêm",
+    "feature1_title": "Giải pháp tối ưu",
+    "feature1_desc": "Tư vấn kỹ thuật giúp giảm 20% chi phí vật liệu.",
+    "feature2_title": "Độ chính xác cao",
+    "feature2_desc": "Sai số cực thấp, đáp ứng tiêu chuẩn khắt khe.",
+    "feature3_title": "Cam kết tiến độ",
+    "feature3_desc": "Giao hàng đúng hẹn, quy trình kiểm soát chặt chẽ."
+  },
+  "featured_projects": {
+    "badge": "Dự án tiêu biểu",
+    "title_main": "Năng lực",
+    "title_highlight": "thực tế",
+    "description": "Minh chứng cho chất lượng gia công và kinh nghiệm thực chiến của ZINITEK qua các sản phẩm thực tế cho đối tác lớn.",
+    "view_all": "Xem tất cả",
+    "view_details": "Xem chi tiết"
+  },
+  "news_section": {
+    "badge": "Kiến thức & Tin tức",
+    "title_main": "Góc nhìn",
+    "title_highlight": "Chuyên gia",
+    "description": "Cập nhật xu hướng công nghệ cơ khí và kinh nghiệm gia công thực chiến từ đội ngũ ZINITEK.",
+    "view_all": "Xem tất cả bài viết"
+  },
+  "about_page": {
+    "meta_title": "Về ZINITEK | Giải Pháp Cơ Khí Tin Cậy",
+    "header_title": "Về Chúng Tôi",
+    "header_subtitle": "Kỹ thuật thực chiến - Chất lượng tin cậy",
+    "header_desc": "Chúng tôi tập trung vào việc hiện thực hóa bản vẽ kỹ thuật với độ hoàn thiện cao và chi phí tối ưu nhất cho doanh nghiệp."
+  },
+  "footer": {
+    "description": "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác, thiết kế khuôn mẫu và tự động hóa theo tiêu chuẩn Nhật Bản.",
+    "quick_links": "Liên kết nhanh",
+    "factory_address": "Địa chỉ nhà máy",
+    "newsletter": "Bản tin",
+    "newsletter_desc": "Đăng ký nhận tin tức công nghệ và ưu đãi mới nhất.",
+    "placeholder_email": "Email của bạn",
+    "copyright": "© 2026 ZINITEK. Tất cả quyền được bảo lưu.",
+    "address_label": "KCN Mỹ Phước 3, Bến Cát, Bình Dương",
+    "privacy_policy": "Chính sách bảo mật",
+    "terms_of_use": "Điều khoản sử dụng",
+    "cookie_policy": "Chính sách cookie"
+ 
+  }
+}
