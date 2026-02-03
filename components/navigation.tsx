@@ -108,7 +108,7 @@ export function Navigation({ lang, dict }: NavigationProps) {
 
   return (
     <>
-      // ĐOẠN CODE MỚI (Đã sửa)
+      // WEB demo (By Phan Tấn)
         <motion.header
           initial={{ y: -100 }}
           animate={{ y: 0 }}
