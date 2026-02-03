@@ -21,7 +21,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://zinitek.com'), 
+  metadataBase: new URL(
+    process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000'
+  ),
   title: {
     default: 'ZINITEK - Kỹ Thuật Cơ Khí Chính Xác & Tự Động Hóa',
     template: '%s | ZINITEK'
