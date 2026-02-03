@@ -4,6 +4,8 @@ import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { Quote, Star } from "lucide-react"
 
+// Giả định testimonials này sẽ được fetch từ Sanity sau này
+// Hiện tại giữ để render cấu trúc card
 const testimonials = [
   {
     id: 1,
@@ -31,6 +33,10 @@ const testimonials = [
   },
 ]
 
+interface TestimonialsSectionProps {
+  dict: any // Nhận dictionary từ page/layout
+}
+
 function TestimonialCard({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
@@ -43,26 +49,21 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
       transition={{ duration: 0.6, delay: index * 0.15 }}
       className="relative group"
     >
-      {/* Glass card */}
       <div className="relative bg-[#0f172a]/80 backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-white/10 hover:border-[#f97316]/30 transition-all duration-500">
-        {/* Quote icon */}
         <div className="absolute -top-4 left-6 w-8 h-8 bg-[#f97316] rounded-lg flex items-center justify-center">
           <Quote className="w-4 h-4 text-[#020617]" />
         </div>
 
-        {/* Rating */}
         <div className="flex gap-1 mb-4 pt-2">
           {[...Array(testimonial.rating)].map((_, i) => (
             <Star key={i} className="w-4 h-4 fill-[#f97316] text-[#f97316]" />
           ))}
         </div>
 
-        {/* Content */}
         <p className="text-foreground leading-relaxed mb-6 italic">
           &ldquo;{testimonial.content}&rdquo;
         </p>
 
-        {/* Author */}
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#f97316] to-[#ea580c] flex items-center justify-center text-lg font-bold text-[#020617]">
             {testimonial.author.charAt(0)}
@@ -80,7 +81,6 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
           </div>
         </div>
 
-        {/* Decorative corner */}
         <div className="absolute bottom-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
           <div className="absolute bottom-4 right-4 w-10 h-10 border-r-2 border-b-2 border-[#f97316]/30 rounded-br-lg" />
         </div>
@@ -89,17 +89,25 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
   )
 }
 
-export function TestimonialsSection() {
+export function TestimonialsSection({ dict }: TestimonialsSectionProps) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
+  // Tách text từ dict để code gọn hơn
+  const { 
+    badge, 
+    title_part1, 
+    title_highlight, 
+    description, 
+    trusted_by 
+  } = dict.testimonials
+
   return (
     <section className="relative py-24 lg:py-32 bg-gradient-to-b from-[#020617] to-[#0f172a]/50 overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#f97316]/5 rounded-full blur-[150px] pointer-events-none" />
 
       <div ref={ref} className="container mx-auto px-4 lg:px-6 relative z-10">
-        {/* Header */}
+        {/* Header Section - Đã chuyển sang đa ngôn ngữ */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -109,17 +117,17 @@ export function TestimonialsSection() {
           <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-12 h-px bg-gradient-to-r from-transparent to-[#f97316]" />
             <span className="text-[#f97316] text-sm font-medium uppercase tracking-widest">
-              Khách hàng
+              {badge}
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
           </div>
           
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
-            Đối tác <span className="italic text-[#f97316]">tin cậy</span>
+            {title_part1} <span className="italic text-[#f97316]">{title_highlight}</span>
           </h2>
           
           <p className="text-muted-foreground text-base lg:text-lg">
-            Những đánh giá từ các đối tác đã đồng hành cùng ZINITEK trong nhiều năm qua.
+            {description}
           </p>
         </motion.div>
 
@@ -130,7 +138,7 @@ export function TestimonialsSection() {
           ))}
         </div>
 
-        {/* Client logos */}
+        {/* Trusted By Section - Đã chuyển sang đa ngôn ngữ */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -138,7 +146,7 @@ export function TestimonialsSection() {
           className="mt-20 pt-12 border-t border-[#334155]/50"
         >
           <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider">
-            Được tin tưởng bởi các doanh nghiệp hàng đầu
+            {trusted_by}
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-16 opacity-50">
             {["Toyota", "Samsung", "Panasonic", "LG", "VinFast", "Thaco"].map((brand) => (

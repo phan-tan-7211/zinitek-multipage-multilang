@@ -1,91 +1,153 @@
 {
   "common": {
+    "home": "首页",
     "logo_subtitle": "机械工程",
-    "contact_btn": "询价单",
+    "contact_btn": "索取报价",
     "read_more": "查看详情",
     "phone_label": "+84 274 123 456",
     "email_label": "info@zinitek.vn",
-    "slogan_top": "日本技术 - 越南成本"
+    "slogan_top": "日本技术 · 越南成本"
   },
   "navigation": {
     "home": "首页",
     "about": "关于我们",
     "services": "服务项目",
-    "projects": "项目案例",
-    "blog": "博客新闻",
+    "projects": "工程案例",
+    "blog": "行业动态",
     "contact": "联系我们",
     "view_all_services": "查看所有技术服务"
   },
   "hero": {
-    "badge": "按照日本质量标准运营",
-    "title_line1": "可靠的技术",
-    "title_highlight": "高效方案",
-    "title_line2": "超越客户期待",
-    "description": "ZINITEK 提供 <span class='text-white font-medium'>CNC 加工、模具制造</span> 和 <span class='text-white font-medium'>自动化</span> 的最佳解决方案。我们将实战技术经验与严格的控制流程相结合，以最具竞争力的成本确保品质。",
+    "badge": "遵循日本质量管理标准运行",
+    "title_line1": "可靠技术",
+    "title_highlight": "高效",
+    "title_line2": "超越期待",
+    "description": "ZINITEK 提供优化的 <span class='text-white font-medium'>CNC 精密加工、模具制造</span> 及 <span class='text-white font-medium'>工厂自动化</span> 解决方案。我们将实战技术经验与严耕的质量控制流程相结合，以最具竞争力的成本确保卓越品质。",
     "cta_primary": "探索服务",
     "cta_secondary": "典型项目",
     "scroll_text": "向下滑动",
     "stats": {
-      "projects": "已完成项目",
+      "projects": "完成项目",
       "experience": "行业经验",
-      "quality": "标准达标产品",
+      "quality": "达标产品",
       "experts": "专家工程师"
     }
   },
   "services": {
+    "title_main": "技术",
+    "title_highlight": "服务",
+    "hub_description": "从机械加工到工厂自动化的全方位解决方案，融合日本工艺与最优成本控制。",
+    "read_more": "了解详情",
+    "meta_title": "技术服务 - ZINITEK",
+    "meta_desc": "ZINITEK 提供符合日本质量标准的 CNC 加工、模具制造及自动化解决方案。",
     "cnc": {
-      "title": "精密 CNC 加工",
-      "desc": "严格遵守图纸公差的铣削、车削、线切割 (EDM) 加工。通过精选的日本二手机械设备确保品质稳定性。"
+      "title": "CNC 精密加工",
+      "desc": "铣削、车削、电火花线切割 (EDM)，严格遵循图纸公差。凭借精选的日本进口高性能设备，确保品质稳定。"
     },
     "molds": {
       "title": "模具设计与制造",
-      "desc": "用于汽车和电子行业的精密冷冲压模具、级进模 (Progressive Die)。"
+      "desc": "精密冷冲压模具、汽车及电子行业连续模 (Progressive Die)。"
     },
     "3d_scan": {
       "title": "3D 扫描与逆向工程",
-      "desc": "使用 Geomagic Design X 的逆向工程服务，将实物转换为 CAD 图纸。"
+      "desc": "利用 Geomagic Design X 提供逆向工程服务，将实物样本精准转化为 CAD 图纸。"
     },
     "plc": {
       "title": "PLC 与自动化",
-      "desc": "三菱 (Mitsubishi) / 西门子 (Siemens) 系统编程。提供全面的自动化生产线集成。"
+      "desc": "三菱 (Mitsubishi) / 西门子 (Siemens) 系统编程。全方位自动化生产线集成。"
     },
     "coils": {
-      "title": "铜线圈",
-      "desc": "为电子行业制造高质量的环形线圈、变压器和电感器。"
+      "title": "铜线线圈",
+      "desc": "为电子行业生产高品质环形线圈 (Toroidal)、变压器及电感器。"
     },
     "ems": {
       "title": "电子制造服务 (EMS)",
-      "desc": "提供从原型到批量生产的 PCB 组装、SMT/DIP 服务，并实施严格的流程控制。"
+      "desc": "提供从样机到量产的 PCB 组装、SMT/DIP 服务，执行严格的质量监控。"
     },
     "it_software": {
-      "title": "工业 IT 与软件",
+      "title": "IT 与工业软件",
       "desc": "Mastercam / Solidworks / Creo 解决方案及工厂网络基础设施建设。"
     }
+  },
+  "about_summary": {
+    "badge": "关于 ZINITEK",
+    "title_main": "我们创造",
+    "title_highlight": "可持续价值",
+    "description": "凭借深厚的技术底蕴和先进的机械设备，ZINITEK 荣幸成为越南精密机械领域值得信赖的合作伙伴。",
+    "exp_label": "年行业经验",
+    "cta_text": "进一步了解",
+    "feature1_title": "优化方案",
+    "feature1_desc": "技术咨询助力降低 20% 的材料成本。",
+    "feature2_title": "高精准度",
+    "feature2_desc": "极低误差，满足最苛刻的行业标准。",
+    "feature3_title": "进度承诺",
+    "feature3_desc": "准时交货，流程管控严谨规范。"
+  },
+  "featured_projects": {
+    "badge": "典型项目",
+    "title_main": "实战",
+    "title_highlight": "能力",
+    "description": "通过为各大合作伙伴提供的实际产品，彰显 ZINITEK 的加工品质与实战经验。",
+    "view_all": "查看全部",
+    "view_details": "查看详情"
   },
   "news_section": {
     "badge": "知识与新闻",
     "title_main": "专家",
     "title_highlight": "视角",
-    "description": "获取 ZINITEK 团队带来的机械技术趋势更新和实战加工经验。",
+    "description": "更新机械技术趋势，分享 ZINITEK 团队的实战加工经验。",
     "view_all": "查看所有文章"
   },
   "about_page": {
     "meta_title": "关于 ZINITEK | 可靠的机械解决方案",
     "header_title": "关于我们",
-    "header_subtitle": "实战工程 - 可靠品质",
-    "header_desc": "我们致力于以高完成度和最优成本，为企业将技术图纸转化为现实。"
+    "header_subtitle": "品牌故事",
+    "header_top_desc": "从传统机械作坊蜕变为国际标准精密加工合作伙伴的成长历程。",
+    "header_desc": "ZINITEK 起源于 Dong Thanh Phu 机械作坊，历经深度转型，现已成为日本、韩国及国际企业在精密加工领域信赖的合作伙伴。",
+    "description_2": "凭借扎实的技术基础和现代化的设备系统，ZINITEK 为能够成为越南精密机械行业的佼佼者而感到自豪。",
+    "commitment": "我们致力于通过经验丰富的工程师团队，提供最高精度的技术方案，满足客户的所有严苛要求。"
   },
   "footer": {
-    "description": "精密机械加工、模具设计和符合日本标准的自动化领域中值得信赖的合作伙伴。",
+    "description": "精密机械加工、模具设计及日本标准自动化的可靠合作伙伴。",
     "quick_links": "快速链接",
     "factory_address": "工厂地址",
-    "newsletter": "邮件订阅",
+    "newsletter": "电子报",
     "newsletter_desc": "订阅以获取最新的技术动态和优惠信息。",
     "placeholder_email": "您的电子邮箱",
     "copyright": "© 2026 ZINITEK. 版权所有。",
-    "address_label": "平阳省苯吉市美福3工业区",
+    "address_label": "越南平阳省，本葛市，美福3工业区",
     "privacy_policy": "隐私政策",
     "terms_of_use": "使用条款",
     "cookie_policy": "Cookie 政策"
+  },
+  "portfolio": {
+    "title": "项目案例",
+    "subtitle": "卓越成就",
+    "description": "探索 ZINITEK 典型的精密机械加工与自动化解决方案项目。"
+  },
+  "blog": {
+    "title": "新闻资讯",
+    "subtitle": "深度知识",
+    "description": "更新技术趋势，分享来自 ZINITEK 工程师团队的经验。",
+    "meta_title": "技术博客与新闻 - ZINITEK",
+    "meta_desc": "获取精密机械加工技术趋势及 ZINITEK 工程师团队的实战经验分享。"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "在线沟通",
+    "description": "ZINITEK 随时准备为您倾听并提供项目最优技术方案咨询。"
+  },
+  "nav": {
+    "services": "服务",
+    "cnc_machining": "CNC 加工",
+    "mold_making": "模具制造",
+    "automation": "自动化解决方案"
+  },
+  "testimonials": {
+  "badge": "客户评价",
+  "title_part1": "值得信赖的",
+  "title_highlight": "合作伙伴",
+  "description": "来自多年来与 ZINITEK 携手并进的合作伙伴的真实评价。",
+  "trusted_by": "深受领先企业的信赖"
   }
 }

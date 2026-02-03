@@ -6,9 +6,14 @@ import { services } from "@/lib/services-data"
 import { ArrowRight } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
 
-export const metadata = {
-  title: "Dịch vụ kỹ thuật - ZINITEK",
-  description: "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  
+  return {
+    title: dict.services?.meta_title || "Dịch vụ - ZINITEK",
+    description: dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
+  }
 }
 
 export default async function ServicesHubPage({

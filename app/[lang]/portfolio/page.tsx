@@ -36,9 +36,11 @@ export default async function PortfolioPage({
       
       <div className="relative z-10">
         <PageHeader 
-          title={dict.portfolio?.title || "Dự án"}
+          title={dict.portfolio?.title || (lang === 'vi' ? "Dự án" : "Projects")}
           subtitle={dict.portfolio?.subtitle || "Thành tựu tiêu biểu"}
           description={dict.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."}
+          lang={lang}
+          dict={dict}
         />
         
         {/* Truyền dữ liệu vào PortfolioSection nếu có đa ngôn ngữ */}

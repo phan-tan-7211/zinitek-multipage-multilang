@@ -5,15 +5,21 @@ import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
 
 interface PageHeaderProps {
-  title: string
-  subtitle: string
-  description: string
+  title: string;
+  subtitle: string;
+  description: string;
+  lang: string;
+  dict: any;
   breadcrumbs?: { name: string; href: string }[]
 }
 
-export function PageHeader({ title, subtitle, description, breadcrumbs }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, description, lang, dict, breadcrumbs }: PageHeaderProps) {
   const defaultBreadcrumbs = [
-    { name: "Trang chủ", href: "/" },
+    { 
+      // Thứ tự: 1. Lấy từ dict | 2. Nếu ko có lấy Tiếng Anh | 3. Cuối cùng là Tiếng Việt
+      name: dict.common?.home || (lang === 'vi' ? "Trang chủ" : "Home"), // Lấy từ file JSON
+      href: `/${lang}`                       // Đường dẫn động theo ngôn ngữ
+    },
     { name: title, href: "#" },
   ]
 

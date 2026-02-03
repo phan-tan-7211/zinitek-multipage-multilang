@@ -1,5 +1,6 @@
 {
   "common": {
+    "home": "Trang chủ",
     "logo_subtitle": "Kỹ Thuật Cơ Khí",
     "contact_btn": "Yêu cầu báo giá",
     "read_more": "Xem chi tiết",
@@ -15,7 +16,6 @@
     "blog": "Blog",
     "contact": "Liên hệ",
     "view_all_services": "Xem tất cả dịch vụ kỹ thuật"
-    
   },
   "hero": {
     "badge": "Vận hành theo tiêu chuẩn chất lượng Nhật Bản",
@@ -34,6 +34,12 @@
     }
   },
   "services": {
+    "title_main": "Dịch vụ",
+    "title_highlight": "Kỹ thuật",
+    "hub_description": "Giải pháp toàn diện từ gia công cơ khí đến tự động hóa nhà máy với kỹ thuật Nhật Bản và chi phí tối ưu.",
+    "read_more": "Tìm hiểu chi tiết",
+    "meta_title": "Dịch vụ kỹ thuật - ZINITEK",
+    "meta_desc": "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
     "cnc": {
       "title": "Gia công CNC chính xác",
       "desc": "Phay, Tiện, Cắt dây EDM bám sát dung sai bản vẽ. Chất lượng ổn định trên hệ thống máy Nhật bãi tuyển chọn."
@@ -95,8 +101,11 @@
   "about_page": {
     "meta_title": "Về ZINITEK | Giải Pháp Cơ Khí Tin Cậy",
     "header_title": "Về Chúng Tôi",
-    "header_subtitle": "Kỹ thuật thực chiến - Chất lượng tin cậy",
-    "header_desc": "Chúng tôi tập trung vào việc hiện thực hóa bản vẽ kỹ thuật với độ hoàn thiện cao và chi phí tối ưu nhất cho doanh nghiệp."
+    "header_subtitle": "Câu chuyện thương hiệu",
+    "header_top_desc": "Hành trình vươn mình từ xưởng cơ khí truyền thống trở thành đối tác gia công chính xác tiêu chuẩn quốc tế.",
+    "header_desc": "Khởi nguồn từ xưởng cơ khí Đồng Thanh Phú, ZINITEK đã trải qua hành trình chuyển đổi mạnh mẽ để trở thành đối tác tin cậy của các doanh nghiệp Nhật Bản, Hàn Quốc và quốc tế trong lĩnh vực gia công chính xác.",
+    "description_2": "Với nền tảng kỹ thuật vững chắc và hệ thống máy móc hiện đại, ZINITEK tự hào là đối tác tin cậy trong lĩnh vực cơ khí chính xác tại Việt Nam.",
+    "commitment": "Chúng tôi cam kết mang đến các giải pháp kỹ thuật với độ chính xác cao nhất, đáp ứng mọi yêu cầu khắt khe của khách hàng thông qua đội ngũ kỹ sư giàu kinh nghiệm."
   },
   "footer": {
     "description": "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác, thiết kế khuôn mẫu và tự động hóa theo tiêu chuẩn Nhật Bản.",
@@ -110,6 +119,35 @@
     "privacy_policy": "Chính sách bảo mật",
     "terms_of_use": "Điều khoản sử dụng",
     "cookie_policy": "Chính sách cookie"
- 
+  },
+  "portfolio": {
+    "title": "Dự án",
+    "subtitle": "Thành tựu tiêu biểu",
+    "description": "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."
+  },
+  "blog": {
+    "title": "Tin tức",
+    "subtitle": "Kiến thức chuyên sâu",
+    "description": "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.",
+    "meta_title": "Blog Kỹ Thuật & Tin Tức - ZINITEK",
+    "meta_desc": "Cập nhật các xu hướng công nghệ gia công cơ khí chính xác và chia sẻ kinh nghiệm thực tế từ đội ngũ kỹ sư ZINITEK."
+  },
+  "contact": {
+    "title": "Liên hệ",
+    "subtitle": "Kết nối với chúng tôi",
+    "description": "ZINITEK luôn sẵn sàng lắng nghe và tư vấn các giải pháp kỹ thuật tối ưu cho dự án của bạn."
+  },
+  "nav": {
+    "services": "Dịch vụ",
+    "cnc_machining": "Gia công CNC",
+    "mold_making": "Chế tạo khuôn mẫu",
+    "automation": "Giải pháp tự động hóa"
+  },
+  "testimonials": {
+    "badge": "Khách hàng",
+    "title_part1": "Đối tác",
+    "title_highlight": "tin cậy",
+    "description": "Những đánh giá từ các đối tác đã đồng hành cùng ZINITEK trong nhiều năm qua.",
+    "trusted_by": "Được tin tưởng bởi các doanh nghiệp hàng đầu"
   }
 }

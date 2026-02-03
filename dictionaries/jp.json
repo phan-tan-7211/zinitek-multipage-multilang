@@ -1,11 +1,12 @@
 {
   "common": {
-    "logo_subtitle": "機械工学",
-    "contact_btn": "見積もり依頼",
+    "home": "ホーム",
+    "logo_subtitle": "機械工学・精密技術",
+    "contact_btn": "お見積り依頼",
     "read_more": "詳細を見る",
     "phone_label": "+84 274 123 456",
     "email_label": "info@zinitek.vn",
-    "slogan_top": "日本の技術 ・ ベトナムのコスト"
+    "slogan_top": "日本品質の技術 ── ベトナムのコストパフォーマンス"
   },
   "navigation": {
     "home": "ホーム",
@@ -14,78 +15,139 @@
     "projects": "実績紹介",
     "blog": "ブログ",
     "contact": "お問い合わせ",
-    "view_all_services": "全技術サービスを見る"
+    "view_all_services": "技術サービス一覧"
   },
   "hero": {
-    "badge": "日本品質基準に基づいた運用",
-    "title_line1": "信頼の技術",
+    "badge": "日本品質基準による徹底した運営管理",
+    "title_line1": "信頼の技術、",
     "title_highlight": "高効率",
-    "title_line2": "期待を超えるソリューション",
-    "description": "ZINITEKは、<span class='text-white font-medium'>CNC機械加工、金型製作</span>、および<span class='text-white font-medium'>自動化</span>の最適なソリューションを提供します。実戦的な技術経験と厳格な管理プロセスを組み合わせ、競争力のあるコストで高品質を保証します。",
-    "cta_primary": "サービスを見る",
-    "cta_secondary": "代表的なプロジェクト",
+    "title_line2": "期待を超える価値",
+    "description": "ZINITEKは、最適な <span class='text-white font-medium'>CNC加工、金型製作、</span> および <span class='text-white font-medium'>自動化ソリューション</span> を提供します。実戦で培った技術経験と厳格な品質管理プロセスを融合させ、競争力のある価格で高品質を保証します。",
+    "cta_primary": "サービス詳細",
+    "cta_secondary": "主要プロジェクト",
     "scroll_text": "スクロール",
     "stats": {
       "projects": "完了プロジェクト数",
-      "experience": "実務経験年数",
-      "quality": "標準適合製品",
-      "experts": "専門技術者"
+      "experience": "業歴（年）",
+      "quality": "品質基準達成率",
+      "experts": "専門エンジニア"
     }
   },
   "services": {
+    "title_main": "技術",
+    "title_highlight": "サービス",
+    "hub_description": "機械加工から工場自動化まで、日本基準の技術と最適化されたコストで包括的なソリューションを提供します。",
+    "read_more": "詳しく見る",
+    "meta_title": "技術サービス - ZINITEK",
+    "meta_desc": "ZINITEKが提供する日本品質のCNC加工、金型製作、自動化ソリューション。",
     "cnc": {
-      "title": "精密CNC機械加工",
-      "desc": "図面の公差を厳守したフライス、旋盤、ワイヤー放電加工（EDM）。厳選された日本製中古機械による安定した品質を提供。"
+      "title": "精密CNC加工",
+      "desc": "マシニング、旋盤、ワイヤー放電加工（EDM）に対応。厳選された日本製中古設備を活用し、図面公差を厳守した安定品質を実現します。"
     },
     "molds": {
       "title": "金型設計・製作",
-      "desc": "精密冷間プレス金型、自動車・電子部品用順送金型（Progressive Die）。"
+      "desc": "高精度な冷間プレス金型、および自動車・電子部品向けの順送金型（Progressive Die）の設計・製作。"
     },
     "3d_scan": {
-      "title": "3Dスキャン＆リバースエンジニアリング",
-      "desc": "Geomagic Design Xを活用し、実物をCADデータへ変換するリバースエンジニアリングサービス。"
+      "title": "3Dスキャン＆逆設計",
+      "desc": "Geomagic Design Xを用いたリバースエンジニアリング。現物からのCADデータ化をサポートします。"
     },
     "plc": {
-      "title": "PLC＆自動化",
-      "desc": "三菱電機 / シーメンス等のシステム設計・プログラミング。総合的な自動化ラインの構築。"
+      "title": "PLC・自動化システム",
+      "desc": "三菱電機・シーメンス等のシステム設計・プログラミング。自動化ラインの包括的な統合を実現します。"
     },
     "coils": {
       "title": "銅線コイル製造",
-      "desc": "電子機器向けの高品質トロイダルコイル、変圧器、インダクタの製造。"
+      "desc": "電子機器用トロイダルコイル、変圧器、インダクタ等の高品質な製造。"
     },
     "ems": {
       "title": "電子機器受託製造（EMS）",
-      "desc": "試作から量産まで、厳格な管理体制下での基板実装（PCB）、SMT/DIPサービス。"
+      "desc": "試作から量産まで、厳格な品質管理体制のもとでのPCB実装、SMT/DIPサービス。"
     },
     "it_software": {
-      "title": "産業用IT＆ソフトウェア",
-      "desc": "Mastercam / Solidworks / Creoのソリューション提供および工場ネットワークインフラ構築。"
+      "title": "IT・産業用ソフトウェア",
+      "desc": "Mastercam / Solidworks / Creoを活用した設計支援および工場ネットワーク構築。"
     }
+  },
+  "about_summary": {
+    "badge": "ZINITEKについて",
+    "title_main": "持続可能な",
+    "title_highlight": "価値の創造",
+    "description": "確かな技術基盤と最新鋭の設備を備えたZINITEKは、ベトナムにおける精密機械加工の信頼できるパートナーとして歩んでいます。",
+    "exp_label": "年間の実績",
+    "cta_text": "詳細を見る",
+    "feature1_title": "最適解の提案",
+    "feature1_desc": "技術コンサルティングにより、材料コストを最大20%削減。",
+    "feature2_title": "高度な加工精度",
+    "feature2_desc": "厳しい規格に適合する、極めて微細な誤差範囲での加工。",
+    "feature3_title": "納期遵守の徹底",
+    "feature3_desc": "厳格な進捗管理プロセスにより、確実な納期対応を約束。"
+  },
+  "featured_projects": {
+    "badge": "実績紹介",
+    "title_main": "確かな",
+    "title_highlight": "技術力",
+    "description": "大手パートナー企業への納入実績を通じて、ZINITEKの加工品質と実戦経験を証明します。",
+    "view_all": "すべて見る",
+    "view_details": "詳細を見る"
   },
   "news_section": {
     "badge": "ナレッジ＆ニュース",
     "title_main": "専門家による",
-    "title_highlight": "インサイト",
-    "description": "最新の機械技術トレンドと、ZINITEKチームによる実戦的な加工ノウハウをお届けします。",
-    "view_all": "記事一覧を見る"
+    "title_highlight": "視点",
+    "description": "最新の機械技術トレンドや、ZINITEKチームによる現場の加工ノウハウを発信します。",
+    "view_all": "記事一覧へ"
   },
   "about_page": {
-    "meta_title": "ZINITEKについて | 信頼される機械ソリューション",
-    "header_title": "私たちについて",
-    "header_subtitle": "実戦的なエンジニアリング ・ 信頼の品質",
-    "header_desc": "私たちは、高い完成度と企業にとって最適なコストで、設計図面を具現化することに注力しています。"
+    "meta_title": "ZINITEKについて | 信頼の機械加工ソリューション",
+    "header_title": "会社案内",
+    "header_subtitle": "ブランドストーリー",
+    "header_top_desc": "伝統的な鉄工所から、国際基準を満たす精密加工パートナーへの歩み。",
+    "header_desc": "Dong Thanh Phu鉄工所として創業以来、ZINITEKは力強い変革を遂げ、現在では日本、韓国をはじめとするグローバル企業の信頼されるパートナーとなりました。",
+    "description_2": "強固な技術基盤と近代的な設備システムにより、ベトナムの精密機械分野におけるリーディングカンパニーを目指しています。",
+    "commitment": "経験豊富なエンジニアチームが、お客様の厳しい要求に対し、最高精度の技術ソリューションでお応えすることをお約束します。"
   },
   "footer": {
-    "description": "日本基準の精密機械加工、金型設計、自動化分野における信頼できるパートナー。",
+    "description": "精密機械加工、金型設計、自動化ソリューションを日本品質で提供する信頼のパートナー。",
     "quick_links": "クイックリンク",
     "factory_address": "工場所在地",
-    "newsletter": "ニュースレター",
-    "newsletter_desc": "最新の技術ニュースやお得な情報を受け取るために購読する。",
-    "placeholder_email": "メールアドレス",
+    "newsletter": "メールマガジン",
+    "newsletter_desc": "最新の技術ニュースやお得な情報をお届けします。",
+    "placeholder_email": "メールアドレスを入力",
     "copyright": "© 2026 ZINITEK. All rights reserved.",
-    "address_label": "ビンズオン省ベンカット、ミーフック3工業団地",
+    "address_label": "ベトナム ビンズオン省 ベンカット ミーフック3工業団地",
     "privacy_policy": "プライバシーポリシー",
     "terms_of_use": "利用規約",
     "cookie_policy": "クッキーポリシー"
+  },
+  "portfolio": {
+    "title": "プロジェクト実績",
+    "subtitle": "主要な成果",
+    "description": "ZINITEKが手掛けた精密機械加工および自動化ソリューションの代表事例。"
+  },
+  "blog": {
+    "title": "ニュース",
+    "subtitle": "技術ナレッジ",
+    "description": "技術トレンドの更新とエンジニアチームによるノウハウ共有。",
+    "meta_title": "技術ブログ＆ニュース - ZINITEK",
+    "meta_desc": "精密機械加工のトレンドやZINITEKエンジニアによる実戦経験の共有。"
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "subtitle": "パートナーシップの構築",
+    "description": "プロジェクトに最適な技術ソリューションをご提案します。お気軽にご相談ください。"
+  },
+  "nav": {
+    "services": "サービス",
+    "cnc_machining": "CNC精密加工",
+    "mold_making": "金型製作",
+    "automation": "自動化システム"
+  },
+  "testimonials": {
+  "badge": "고객 후기",
+  "title_part1": "신뢰할 수 있는",
+  "title_highlight": "파트너",
+  "description": "지난 수년간 ZINITEK과 함께해 온 파트너사들의 소중한 평가입니다.",
+  "trusted_by": "글로벌 선도 기업들이 신뢰하는 파트너"
   }
 }

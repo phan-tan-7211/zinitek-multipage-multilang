@@ -6,9 +6,14 @@ import { PageHeader } from "@/components/page-header"
 // Import hàm lấy từ điển
 import { getDictionary } from "@/lib/get-dictionary"
 
-export const metadata = {
-  title: "Blog - ZINITEK",
-  description: "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.",
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  
+  return {
+    title: dict.blog?.meta_title || "Blog - ZINITEK",
+    description: dict.blog?.meta_desc || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.",
+  }
 }
 
 // Chuyển sang async function và nhận params
@@ -39,6 +44,8 @@ export default async function BlogPage({
           title={dict.blog?.title || "Blog"}
           subtitle={dict.blog?.subtitle || "Kiến thức chuyên sâu"}
           description={dict.blog?.description || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK."}
+          lang={lang}
+          dict={dict}
         />
         
         {/* Truyền dữ liệu vào BlogSection để hiển thị bài viết theo ngôn ngữ */}

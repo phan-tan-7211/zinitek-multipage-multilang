@@ -35,9 +35,11 @@ export default async function ContactPage({
       
       <div className="relative z-10">
         <PageHeader 
-          title={dict.contact?.title || "Liên hệ"}
-          subtitle={dict.contact?.subtitle || "Yêu cầu báo giá"}
-          description={dict.contact?.description || "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn."}
+          title={dict.contact?.title || (lang === 'vi' ? "Liên hệ" : "Contact")}
+          subtitle={dict.contact?.subtitle || (lang === 'vi' ? "Kết nối" : "Get in touch")}
+          description={dict.contact?.description || (lang === 'vi' ? "ZINITEK luôn sẵn sàng lắng nghe và tư vấn các giải pháp kỹ thuật tối ưu cho dự án của bạn." : "ZINITEK is always ready to listen and provide optimal technical solutions for your projects.")}
+          lang={lang}
+          dict={dict}
         />
         
         {/* Truyền dữ liệu vào ContactSection nếu component này có đa ngôn ngữ */}

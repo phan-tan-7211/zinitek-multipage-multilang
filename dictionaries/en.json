@@ -1,91 +1,153 @@
 {
   "common": {
+    "home": "Home",
     "logo_subtitle": "Mechanical Engineering",
     "contact_btn": "Request a Quote",
-    "read_more": "View Details",
+    "read_more": "Learn More",
     "phone_label": "+84 274 123 456",
     "email_label": "info@zinitek.vn",
-    "slogan_top": "Japanese Tech - Vietnamese Cost"
+    "slogan_top": "Japanese Engineering - Optimized Costs"
   },
   "navigation": {
     "home": "Home",
     "about": "About Us",
     "services": "Services",
     "projects": "Projects",
-    "blog": "Blog",
+    "blog": "Insights",
     "contact": "Contact",
-    "view_all_services": "View All Technical Services"
+    "view_all_services": "View All Engineering Services"
   },
   "hero": {
-    "badge": "Operating under Japanese quality standards",
-    "title_line1": "Reliable Engineering",
+    "badge": "Operating Under Japanese Quality Standards",
+    "title_line1": "Reliable Engineering.",
     "title_highlight": "Efficiency",
-    "title_line2": "Exceeding Expectations",
-    "description": "ZINITEK provides optimal solutions for <span class='text-white font-medium'>CNC machining, mold making</span> and <span class='text-white font-medium'>automation</span>. We combine hands-on technical experience with strict control processes to ensure quality at the most competitive cost.",
+    "title_line2": "Beyond Expectations",
+    "description": "ZINITEK provides optimized solutions for <span class='text-white font-medium'>CNC machining, mold making,</span> and <span class='text-white font-medium'>industrial automation</span>. We combine hands-on technical expertise with rigorous quality control to ensure premium quality at competitive costs.",
     "cta_primary": "Explore Services",
     "cta_secondary": "Featured Projects",
     "scroll_text": "Scroll Down",
     "stats": {
       "projects": "Completed Projects",
       "experience": "Years of Experience",
-      "quality": "Standard Products",
+      "quality": "Standardized Products",
       "experts": "Expert Engineers"
     }
   },
   "services": {
+    "title_main": "Our",
+    "title_highlight": "Services",
+    "hub_description": "Comprehensive solutions from precision machining to factory automation, powered by Japanese engineering and cost-effective operations.",
+    "read_more": "View Details",
+    "meta_title": "Engineering Services - ZINITEK",
+    "meta_desc": "Professional CNC machining, mold design, and automation solutions with Japanese quality standards at ZINITEK.",
     "cnc": {
       "title": "Precision CNC Machining",
-      "desc": "Milling, Turning, Wire EDM strictly adhering to drawing tolerances. Consistent quality on selected pre-owned Japanese machinery."
+      "desc": "Milling, Turning, and Wire-cut EDM with tight tolerances. Consistent quality delivered via selected high-end Japanese machinery."
     },
     "molds": {
-      "title": "Mold & Die Design",
-      "desc": "Precision Cold Stamping Dies, Progressive Dies for automotive and electronics industries."
+      "title": "Mold Design & Fabrication",
+      "desc": "High-precision cold stamping dies and Progressive Dies for the automotive and electronics industries."
     },
     "3d_scan": {
-      "title": "3D Scan & Reverse Engineering",
-      "desc": "Reverse Engineering services using Geomagic Design X, converting physical objects into CAD drawings."
+      "title": "3D Scanning & Reverse Engineering",
+      "desc": "Advanced Reverse Engineering using Geomagic Design X to convert physical samples into accurate CAD models."
     },
     "plc": {
-      "title": "PLC & Automation",
-      "desc": "Mitsubishi / Siemens system programming. Comprehensive automation line integration."
+      "title": "PLC & Industrial Automation",
+      "desc": "Mitsubishi and Siemens system programming. Comprehensive integration of automated production lines."
     },
     "coils": {
-      "title": "Copper Coils",
-      "desc": "Manufacturing high-quality Toroidal coils, Transformers, and Inductors for the electronics industry."
+      "title": "Copper Coil Manufacturing",
+      "desc": "Production of high-quality Toroidal coils, transformers, and inductors for the electronics sector."
     },
     "ems": {
-      "title": "Electronics Manufacturing Services (EMS)",
-      "desc": "PCB Assembly, SMT/DIP services from prototyping to mass production with strict control."
+      "title": "Electronic Manufacturing Services (EMS)",
+      "desc": "PCB assembly, SMT/DIP services from prototyping to mass production with strict quality assurance."
     },
     "it_software": {
       "title": "Industrial IT & Software",
-      "desc": "Mastercam / Solidworks / Creo solutions and factory network infrastructure construction."
+      "desc": "Mastercam, Solidworks, and Creo solutions combined with factory network infrastructure deployment."
     }
+  },
+  "about_summary": {
+    "badge": "About ZINITEK",
+    "title_main": "We Create",
+    "title_highlight": "Sustainable Value",
+    "description": "With a solid technical foundation and modern machinery, ZINITEK is proud to be a trusted partner in Vietnam's precision engineering sector.",
+    "exp_label": "Years of Experience",
+    "cta_text": "Discover More",
+    "feature1_title": "Optimized Solutions",
+    "feature1_desc": "Technical consultancy helping to reduce material costs by up to 20%.",
+    "feature2_title": "High Precision",
+    "feature2_desc": "Ultra-low tolerances, meeting the most rigorous industrial standards.",
+    "feature3_title": "Timely Delivery",
+    "feature3_desc": "Committed deadlines supported by a streamlined control process."
+  },
+  "featured_projects": {
+    "badge": "Featured Projects",
+    "title_main": "Proven",
+    "title_highlight": "Capabilities",
+    "description": "A showcase of ZINITEK's machining quality and practical experience through successful projects for major partners.",
+    "view_all": "View All",
+    "view_details": "View Details"
   },
   "news_section": {
     "badge": "Knowledge & News",
     "title_main": "Expert",
     "title_highlight": "Perspectives",
-    "description": "Updates on mechanical technology trends and hands-on machining experience from the ZINITEK team.",
+    "description": "Stay updated with the latest mechanical technology trends and machining insights from the ZINITEK team.",
     "view_all": "View All Articles"
   },
   "about_page": {
-    "meta_title": "About ZINITEK | Reliable Mechanical Solutions",
+    "meta_title": "About ZINITEK | Reliable Engineering Solutions",
     "header_title": "About Us",
-    "header_subtitle": "Hands-on Engineering - Reliable Quality",
-    "header_desc": "We focus on realizing technical drawings with high finishing levels and optimal costs for businesses."
+    "header_subtitle": "Our Brand Story",
+    "header_top_desc": "A journey from a traditional workshop to an international standard precision machining partner.",
+    "header_desc": "Originating from the Dong Thanh Phu workshop, ZINITEK has undergone a powerful transformation to become a trusted partner for Japanese, Korean, and international enterprises.",
+    "description_2": "Utilizing a robust technical core and modern equipment, ZINITEK stands as a premier precision engineering partner in Vietnam.",
+    "commitment": "We are committed to delivering engineering solutions with the highest precision, meeting every demanding requirement through our team of seasoned engineers."
   },
   "footer": {
-    "description": "A trusted partner in precision mechanical machining, mold design, and automation according to Japanese standards.",
+    "description": "Your trusted partner in precision machining, mold design, and automation following Japanese quality standards.",
     "quick_links": "Quick Links",
     "factory_address": "Factory Address",
     "newsletter": "Newsletter",
-    "newsletter_desc": "Subscribe to receive the latest technology news and offers.",
-    "placeholder_email": "Your email",
+    "newsletter_desc": "Subscribe to receive the latest technology updates and exclusive offers.",
+    "placeholder_email": "Your email address",
     "copyright": "© 2026 ZINITEK. All rights reserved.",
     "address_label": "My Phuoc 3 IP, Ben Cat, Binh Duong",
     "privacy_policy": "Privacy Policy",
     "terms_of_use": "Terms of Use",
     "cookie_policy": "Cookie Policy"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "subtitle": "Key Achievements",
+    "description": "Explore ZINITEK’s flagship precision engineering projects and automation solutions."
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Technical Insights",
+    "description": "Latest technology trends and shared expertise from ZINITEK’s engineering team.",
+    "meta_title": "Technical Blog & News - ZINITEK",
+    "meta_desc": "Stay updated with precision machining trends and practical engineering insights from ZINITEK."
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Connect With Us",
+    "description": "ZINITEK is ready to provide optimized technical consultancy for your next project."
+  },
+  "nav": {
+    "services": "Services",
+    "cnc_machining": "CNC Machining",
+    "mold_making": "Mold Making",
+    "automation": "Automation Solutions"
+  },
+  "testimonials": {
+  "badge": "Testimonials",
+  "title_part1": "Trusted",
+  "title_highlight": "Partners",
+  "description": "Feedback from partners who have collaborated with ZINITEK over the years.",
+  "trusted_by": "Trusted by Leading Enterprises"
   }
 }

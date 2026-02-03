@@ -4,12 +4,17 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { AboutSection } from "@/components/about-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { PageHeader } from "@/components/page-header"
-// SỬA DÒNG NÀY: Thêm "get-" vào trước dictionary
 import { getDictionary } from "@/lib/get-dictionary" 
 
-export const metadata = {
-  title: "Giới thiệu - ZINITEK",
-  description: "Câu chuyện về hành trình từ Đồng Thanh Phú đến ZINITEK - đối tác tin cậy trong gia công cơ khí chính xác.",
+// SỬA METADATA: Chuyển thành function để hỗ trợ đa ngôn ngữ cho SEO
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  
+  return {
+    title: dict.about_page?.meta_title || "Giới thiệu - ZINITEK",
+    description: dict.about_page?.header_desc || "Câu chuyện về hành trình ZINITEK",
+  }
 }
 
 export default async function AboutPage({ 
@@ -17,11 +22,9 @@ export default async function AboutPage({
 }: { 
   params: Promise<{ lang: string }> | { lang: string } 
 }) {
-  // 1. Lấy lang an toàn (hỗ trợ Next.js 15+)
   const resolvedParams = await params
   const { lang } = resolvedParams
   
-  // 2. Lấy nội dung từ điển
   const dict = await getDictionary(lang)
 
   return (
@@ -30,18 +33,21 @@ export default async function AboutPage({
         <BlueprintBackground />
       </div>
 
-      {/* 3. Truyền đủ props để không bị lỗi "undefined navigation" */}
       <Navigation lang={lang} dict={dict} />
       
       <div className="relative z-10">
         <PageHeader 
-          title={dict.about?.title || "Giới thiệu"}
-          subtitle={dict.about?.subtitle || "Câu chuyện ZINITEK"}
-          description={dict.about?.description || "Hành trình từ xưởng cơ khí truyền thống đến đối tác tin cậy của các doanh nghiệp quốc tế."}
+          // SỬA CHỖ NÀY: Khớp với Key trong file JSON bạn đã gửi
+          title={dict.about_page?.header_title || "Giới thiệu"}
+          subtitle={dict.about_page?.header_subtitle || "Câu chuyện ZINITEK"}
+          description={dict.about_page?.header_top_desc || "Hành trình từ xưởng cơ khí đến đối tác quốc tế."}
+          lang={lang} // TRUYỀN THÊM DÒNG NÀY
+          dict={dict} // TRUYỀN THÊM DÒNG NÀY
         />
         
-        {/* Truyền dict vào các section nếu các section đó có dùng đa ngôn ngữ */}
+        {/* AboutSection đã nhận lang và dict, nó sẽ tự xử lý nội dung bên trong */}
         <AboutSection lang={lang} dict={dict} />
+        
         <TestimonialsSection lang={lang} dict={dict} />
       </div>
 
