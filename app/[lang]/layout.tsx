@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Montserrat, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import '../globals.css' 
+import TrackingProvider from "@/components/analytics";
 
 // TỐI ƯU HÓA FONT:
 // 1. Giảm weights: Chỉ giữ lại 400 (thường), 600 (semi-bold), 700 (bold)
