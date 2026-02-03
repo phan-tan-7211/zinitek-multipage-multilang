@@ -107,6 +107,12 @@ export default async function RootLayout({
       <body className="font-sans antialiased">
         {children}
         <Analytics />
+
+
+        {/* Clarity  https://clarity.microsoft.com/Quản lý toàn bộ tracking ở đây, cần xóa chỉ cần comment dòng này */}
+        <TrackingProvider />
+
+
       </body>
     </html>
   )
