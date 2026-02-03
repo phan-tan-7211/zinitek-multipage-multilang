@@ -99,9 +99,9 @@ export function Navigation({ lang, dict }: NavigationProps) {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.1, ease: "easeOut" }} // Sửa từ 0.6 thành 0.3 Navigation xổ xuống nhanh hơn
         className={cn(
-          "fixed top-0 left-0 right-0 z-[100] transition-all duration-500",
+          "fixed top-0 left-0 right-0 z-[100] transition-all duration-500", // Sửa duration-500 thành 300 ở đây nữa
           isMobileMenuOpen ? "opacity-0 pointer-events-none" : (
             isScrolled
             ? "bg-[#020617]/90 backdrop-blur-xl border-b border-[#f97316]/20 shadow-lg"
@@ -178,15 +178,16 @@ export function Navigation({ lang, dict }: NavigationProps) {
 
                   <AnimatePresence>
                     {item.hasMega && isMegaOpen && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 group">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 pt-1 group"> {/* hãy giảm pt-2 xuống thành pt-1 để menu sát với thanh chữ hơn, giúp kích hoạt hover nhanh hơn.*/}
                         {/* Invisible Bridge: Cầu nối vô hình giúp giữ trạng thái hover khi di chuyển chuột xuống */}
                         <div className="absolute -top-2 left-0 right-0 h-4 bg-transparent" />
                         
                         <motion.div
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 5 }} // Giảm y từ 10 xuống 5 để quãng đường ngắn hơn
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 5 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
+                          transition={{ duration: 0.15, ease: "easeOut" }} // Sửa từ 0.2 xuống 0.15 để hiện ra gần như tức thì
+                          className="relative w-[720px] p-6 ..."
                           className="relative w-[720px] p-6 bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl pointer-events-auto"
                         >
                           <div className="grid grid-cols-2 gap-3">
