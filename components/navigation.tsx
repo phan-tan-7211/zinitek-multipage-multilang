@@ -5,23 +5,11 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Menu,
-  X,
-  ChevronDown,
-  Cog,
-  Box,
-  ScanLine,
-  Cpu,
-  CircleDot,
-  CircuitBoard,
-  Monitor,
-  Globe,
-  Phone,
-  Mail,
+  Menu, X, ChevronDown, Cog, Box, ScanLine, Cpu,
+  CircleDot, CircuitBoard, Monitor, Globe, Phone, Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-
 const languages = [
   { code: "vi", name: "Tiếng Việt", flag: "VN" },
   { code: "en", name: "English", flag: "US" },
@@ -35,6 +23,8 @@ interface NavigationProps {
   dict: any
 }
 
+// Bắt đầu hàm Navigation luôn, không lặp lại đoạn trên nữa
+
 export function Navigation({ lang, dict }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -42,6 +32,16 @@ export function Navigation({ lang, dict }: NavigationProps) {
   const [isLangOpen, setIsLangOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+// Hàm xử lý tải trước ngôn ngữ khi rê chuột
+  const handlePrefetchLang = (targetLang: string) => {
+    const segments = pathname.split("/")
+    segments[1] = targetLang
+    const newPath = segments.join("/")
+    router.prefetch(newPath)
+  }
+
+
 
   // 1. TỐI ƯU PREFETCH: Tải trước các trang quan trọng sau 2 giây để giữ điểm hiệu năng
   useEffect(() => {
@@ -189,7 +189,8 @@ export function Navigation({ lang, dict }: NavigationProps) {
                 >
                   <Link
                     href={item.href}
-                    prefetch={true}
+                    prefetch={true} // Ép Next.js luôn tải trước
+                    onMouseEnter={() => router.prefetch(item.href)} // Tải ngay khi vừa chạm chuột
                     className={cn(
                       "flex items-center gap-1 px-4 py-3 text-sm font-medium transition-colors relative group",
                       isActive(item.href) ? "text-[#f97316]" : "text-slate-300 hover:text-[#f97316]"
@@ -263,6 +264,12 @@ export function Navigation({ lang, dict }: NavigationProps) {
               <div className="relative">
                 <button
                   onClick={() => setIsLangOpen(!isLangOpen)}
+                  onMouseEnter={() => {
+                    // Tải trước tất cả các ngôn ngữ khác ngay khi khách rê chuột vào nút chính
+                    languages.forEach(l => {
+                      if(l.code !== lang) handlePrefetchLang(l.code)
+                    })
+                  }}
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground border border-white/10 rounded-lg bg-[#0f172a]/50 hover:border-[#f97316]/30 transition-all",
                     isLangOpen && "border-[#f97316]/50 text-white"
@@ -270,12 +277,7 @@ export function Navigation({ lang, dict }: NavigationProps) {
                 >
                   <Globe className="w-4 h-4" />
                   <span className="font-medium">{currentLang.flag}</span>
-                  <ChevronDown
-                    className={cn(
-                      "w-4 h-4 transition-transform duration-300",
-                      isLangOpen && "rotate-180"
-                    )}
-                  />
+                  <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isLangOpen && "rotate-180")} />
                 </button>
                 <AnimatePresence>
                   {isLangOpen && (
@@ -302,11 +304,18 @@ export function Navigation({ lang, dict }: NavigationProps) {
                   )}
                 </AnimatePresence>
               </div>
+              {/* Right Side Tools - Desktop */}
               <Button
                 asChild
                 className="bg-[#f97316] text-[#020617] font-bold hover:scale-105 hover:bg-[#fb923c] transition-all shadow-lg shadow-[#f97316]/20"
               >
-                <Link href={`/${lang}/contact`}>{dict.common.contact_btn}</Link>
+                <Link 
+                  href={`/${lang}/contact`}
+                  prefetch={true}
+                  onMouseEnter={() => router.prefetch(`/${lang}/contact`)}
+                >
+                  {dict.common.contact_btn}
+                </Link>
               </Button>
             </div>
 
@@ -418,9 +427,14 @@ export function Navigation({ lang, dict }: NavigationProps) {
 
               <div className="pt-4">
                 <Button asChild className="w-full h-16 bg-[#f97316] text-[#020617] font-black text-xl rounded-2xl shadow-xl shadow-[#f97316]/10">
-                  <Link href={`/${lang}/contact`} onClick={() => setIsMobileMenuOpen(false)}>
-                    {dict.common.contact_btn}
-                  </Link>
+                  <Link 
+                  href={`/${lang}/contact`} 
+                  prefetch={true} // Ép trình duyệt tải trước dữ liệu trang contact
+                  onMouseEnter={() => router.prefetch(`/${lang}/contact`)} // Tải ngay khi ngón tay/chuột vừa chạm vào vùng nút
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {dict.common.contact_btn}
+                </Link>
                 </Button>
               </div>
             </div>
