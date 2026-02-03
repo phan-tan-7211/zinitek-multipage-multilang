@@ -149,5 +149,75 @@
   "title_highlight": "파트너",
   "description": "지난 수년간 ZINITEK과 함께해 온 파트너사들의 소중한 평가입니다.",
   "trusted_by": "글로벌 선도 기업들이 신뢰하는 파트너"
-  }
+  },
+  "contact_section": {
+  "badge": "お問い合わせ",
+  "title": "お見積り",
+  "title_highlight": "のご依頼",
+  "description": "プロジェクトに関する無料相談および詳細なお見積りについては、お気軽にお問い合わせください。",
+  "working_hours": {
+    "title": "営業時間",
+    "monday_friday": "月曜日 - 金曜日",
+    "saturday": "土曜日",
+    "sunday": "日曜日",
+    "closed": "定休日"
+  },
+  "form": {
+    "step": "ステップ",
+    "info_title": "お客様情報",
+    "service_title": "ご希望のサービス",
+    "file_title": "資料添付",
+    "labels": {
+      "name": "氏名 *",
+      "company": "貴社名",
+      "email": "メールアドレス *",
+      "phone": "電話番号 *",
+      "service": "サービスを選択 *",
+      "message": "ご依頼内容の詳細",
+      "file": "CAD/3D図面添付 (任意)"
+    },
+    "placeholders": {
+      "name": "山田 太郎",
+      "company": "株式会社〇〇",
+      "email": "email@company.com",
+      "phone": "090-1234-5678",
+      "service_default": "-- サービスを選択してください --",
+      "message": "プロジェクトの具体的な要件や仕様について...",
+      "file_hint": "ファイルをドラッグ＆ドロップ、またはクリックして選択",
+      "file_types": "対応形式: DWG, DXF, STEP, IGES, STL, PDF (最大50MB)"
+    },
+    "buttons": {
+      "next": "次へ",
+      "prev": "戻る",
+      "submit": "送信する"
+    },
+    "summary": {
+      "title": "入力内容の確認",
+      "name": "お名前",
+      "email": "メールアドレス",
+      "service": "サービス"
+    },
+    "success_msg": "ありがとうございます。24時間以内に担当者よりご連絡いたします。"
+  },
+  "offices": [
+    {
+      "name": "メイン工場",
+      "address": "ビンズオン省ベンカット ミーフック3工業団地"
+    },
+    {
+      "name": "ホーチミン事務所",
+      "address": "ホーチミン市7区グエンヴァンリン通り123"
+    }
+  ],
+  "services_list": [
+    "精密CNC加工",
+    "金型設計・製作",
+    "3Dスキャン＆逆設計",
+    "PLC・自動化",
+    "銅線コイル製造",
+    "電子機器組立",
+    "産業用IT・ソフトウェア",
+    "その他"
+  ]
+}
 }

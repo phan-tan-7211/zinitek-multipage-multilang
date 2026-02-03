@@ -149,5 +149,75 @@
   "title_highlight": "Partners",
   "description": "Feedback from partners who have collaborated with ZINITEK over the years.",
   "trusted_by": "Trusted by Leading Enterprises"
-  }
+  },
+  "contact_section": {
+  "badge": "Contact Us",
+  "title": "Request a",
+  "title_highlight": "Quote",
+  "description": "Contact us today for a free consultation and a detailed quote for your project.",
+  "working_hours": {
+    "title": "Working Hours",
+    "monday_friday": "Monday - Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "closed": "Closed"
+  },
+  "form": {
+    "step": "Step",
+    "info_title": "Contact Information",
+    "service_title": "Service Interests",
+    "file_title": "Document Attachment",
+    "labels": {
+      "name": "Full Name *",
+      "company": "Company",
+      "email": "Email *",
+      "phone": "Phone Number *",
+      "service": "Select Service *",
+      "message": "Project Description",
+      "file": "Attach CAD/3D Drawings (Optional)"
+    },
+    "placeholders": {
+      "name": "John Doe",
+      "company": "Your Company Name",
+      "email": "email@company.com",
+      "phone": "+84 ...",
+      "service_default": "-- Select a service --",
+      "message": "Detailed description of your project requirements...",
+      "file_hint": "Drag and drop files or click to select",
+      "file_types": "Supported: DWG, DXF, STEP, IGES, STL, PDF (Max 50MB)"
+    },
+    "buttons": {
+      "next": "Next",
+      "prev": "Back",
+      "submit": "Submit Request"
+    },
+    "summary": {
+      "title": "Summary",
+      "name": "Name",
+      "email": "Email",
+      "service": "Service"
+    },
+    "success_msg": "Thank you! We will contact you within 24 hours."
+  },
+  "offices": [
+    {
+      "name": "Main Factory",
+      "address": "My Phuoc 3 Industrial Park, Ben Cat, Binh Duong"
+    },
+    {
+      "name": "HCMC Office",
+      "address": "123 Nguyen Van Linh St., District 7, Ho Chi Minh City"
+    }
+  ],
+  "services_list": [
+    "Precision CNC Machining",
+    "Mold Design & Fabrication",
+    "3D Scanning & Reverse Engineering",
+    "PLC & Automation",
+    "Copper Coil Manufacturing",
+    "Electronic Assembly",
+    "Industrial IT & Software",
+    "Others"
+  ]
+}
 }

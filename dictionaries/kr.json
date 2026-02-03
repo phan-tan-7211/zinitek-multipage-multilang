@@ -150,5 +150,75 @@
   "title_highlight": "파트너",
   "description": "지난 수년간 ZINITEK과 함께해 온 파트너사들의 소중한 평가입니다.",
   "trusted_by": "글로벌 선도 기업들이 신뢰하는 파트너"
-  }
+  },
+  "contact_section": {
+  "badge": "문의하기",
+  "title": "견적",
+  "title_highlight": "요청",
+  "description": "무료 상담 및 프로젝트 상세 견적을 위해 지금 바로 문의해 주십시오.",
+  "working_hours": {
+    "title": "영업 시간",
+    "monday_friday": "월요일 - 금요일",
+    "saturday": "토요일",
+    "sunday": "일요일",
+    "closed": "휴무"
+  },
+  "form": {
+    "step": "단계",
+    "info_title": "연락처 정보",
+    "service_title": "관심 서비스",
+    "file_title": "파일 첨부",
+    "labels": {
+      "name": "성함 *",
+      "company": "회사명",
+      "email": "이메일 *",
+      "phone": "전화번호 *",
+      "service": "서비스 선택 *",
+      "message": "요청 내용 설명",
+      "file": "CAD/3D 도면 첨부 (선택 사항)"
+    },
+    "placeholders": {
+      "name": "홍길동",
+      "company": "회사명 입력",
+      "email": "email@company.com",
+      "phone": "010-1234-5678",
+      "service_default": "-- 서비스를 선택하세요 --",
+      "message": "프로젝트 요구 사항에 대한 상세 설명...",
+      "file_hint": "파일을 드래그하거나 클릭하여 선택",
+      "file_types": "지원 형식: DWG, DXF, STEP, IGES, STL, PDF (최대 50MB)"
+    },
+    "buttons": {
+      "next": "다음",
+      "prev": "이전",
+      "submit": "견적 요청하기"
+    },
+    "summary": {
+      "title": "요청 요약",
+      "name": "이름",
+      "email": "이메일",
+      "service": "서비스"
+    },
+    "success_msg": "감사합니다! 24시간 이내에 담당자가 연락드리겠습니다."
+  },
+  "offices": [
+    {
+      "name": "메인 공장",
+      "address": "빈증성 벤깟 미푹 3 산업단지"
+    },
+    {
+      "name": "호치민 사무소",
+      "address": "호치민시 7군 응웬반린 123"
+    }
+  ],
+  "services_list": [
+    "CNC 정밀 가공",
+    "금형 설계 및 제작",
+    "3D 스캐닝 및 역설계",
+    "PLC 및 자동화",
+    "구리 코일 제조",
+    "전자제품 조립",
+    "산업용 IT 및 소프트웨어",
+    "기타"
+  ]
+}
 }

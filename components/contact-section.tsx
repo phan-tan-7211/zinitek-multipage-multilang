@@ -1,9 +1,7 @@
 "use client"
 
-import React from "react"
-
-import { useState, useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import React, { useState, useRef } from "react"
+import { motion, useInView, AnimatePresence } from "framer-motion"
 import { 
   MapPin, 
   Phone, 
@@ -21,33 +19,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
-const offices = [
-  {
-    name: "Nhà máy chính",
-    address: "Khu công nghiệp Mỹ Phước 3, Thị xã Bến Cát, Bình Dương",
-    phone: "+84 274 123 456",
-    email: "factory@zinitek.vn",
-  },
-  {
-    name: "Văn phòng TP.HCM",
-    address: "123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
-    phone: "+84 28 1234 5678",
-    email: "hcm@zinitek.vn",
-  },
-]
-
-const serviceOptions = [
-  "Gia công CNC chính xác",
-  "Thiết kế khuôn mẫu",
-  "Quét 3D & Phân tích ngược",
-  "PLC & Tự động hóa",
-  "Cuộn dây đồng",
-  "Lắp ráp điện tử",
-  "CNTT & Phần mềm CN",
-  "Khác",
-]
-
-export function ContactSection() {
+export function ContactSection({ dict }: { dict: any }) {
+  // Truy xuất dữ liệu từ dictionary theo cấu trúc file JSON đã cung cấp
+  const t = dict?.contact_section;
+  
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     name: "",
@@ -74,14 +49,13 @@ export function ContactSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
     console.log(formData)
-    alert("Cảm ơn bạn! Chúng tôi sẽ liên hệ trong 24 giờ.")
+    alert(t?.form?.success_msg || "Cảm ơn bạn! Chúng tôi sẽ liên hệ trong 24 giờ.")
   }
 
   return (
     <section className="relative py-24 lg:py-32 bg-[#020617]">
-      {/* Background */}
+      {/* Background Decor */}
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[#f97316]/3 blur-[150px] rounded-full pointer-events-none" />
 
       <div ref={ref} className="container mx-auto px-4 lg:px-6 relative z-10">
@@ -95,17 +69,17 @@ export function ContactSection() {
           <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-12 h-px bg-gradient-to-r from-transparent to-[#f97316]" />
             <span className="text-[#f97316] text-sm font-medium uppercase tracking-widest">
-              Liên hệ
+              {t?.badge}
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
           </div>
           
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
-            Yêu cầu <span className="italic text-[#f97316]">báo giá</span>
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
+            {t?.title} <span className="italic text-[#f97316]">{t?.title_highlight}</span>
           </h2>
           
-          <p className="text-muted-foreground text-base lg:text-lg">
-            Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn.
+          <p className="text-slate-400 text-base lg:text-lg">
+            {t?.description}
           </p>
         </motion.div>
 
@@ -117,25 +91,25 @@ export function ContactSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="lg:col-span-2 space-y-6"
           >
-            {/* Office cards */}
-            {offices.map((office, index) => (
+            {/* Office cards từ JSON */}
+            {t?.offices?.map((office: any, index: number) => (
               <div 
-                key={office.name}
+                key={index}
                 className="p-6 bg-[#0f172a] rounded-xl border border-[#334155]/50 hover:border-[#f97316]/30 transition-colors"
               >
-                <h3 className="font-serif font-bold text-foreground mb-4 flex items-center gap-2">
+                <h3 className="font-serif font-bold text-white mb-4 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-[#f97316]" />
                   {office.name}
                 </h3>
                 <div className="space-y-3 text-sm">
-                  <p className="text-muted-foreground">{office.address}</p>
-                  <a href={`tel:${office.phone}`} className="flex items-center gap-2 text-foreground hover:text-[#f97316] transition-colors">
+                  <p className="text-slate-400 leading-relaxed">{office.address}</p>
+                  <a href={`tel:${dict?.common?.phone || "+84 274 123 456"}`} className="flex items-center gap-2 text-slate-200 hover:text-[#f97316] transition-colors">
                     <Phone className="w-4 h-4" />
-                    {office.phone}
+                    {dict?.common?.phone || "+84 274 123 456"}
                   </a>
-                  <a href={`mailto:${office.email}`} className="flex items-center gap-2 text-foreground hover:text-[#f97316] transition-colors">
+                  <a href={`mailto:${dict?.common?.email || "info@zinitek.vn"}`} className="flex items-center gap-2 text-slate-200 hover:text-[#f97316] transition-colors">
                     <Mail className="w-4 h-4" />
-                    {office.email}
+                    {dict?.common?.email || "info@zinitek.vn"}
                   </a>
                 </div>
               </div>
@@ -143,22 +117,22 @@ export function ContactSection() {
 
             {/* Working hours */}
             <div className="p-6 bg-[#0f172a] rounded-xl border border-[#334155]/50">
-              <h3 className="font-serif font-bold text-foreground mb-4 flex items-center gap-2">
+              <h3 className="font-serif font-bold text-white mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-[#f97316]" />
-                Giờ làm việc
+                {t?.working_hours?.title}
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Thứ 2 - Thứ 6</span>
-                  <span className="text-foreground">7:30 - 17:00</span>
+                  <span className="text-slate-400">{t?.working_hours?.monday_friday}</span>
+                  <span className="text-slate-200">7:30 - 17:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Thứ 7</span>
-                  <span className="text-foreground">7:30 - 12:00</span>
+                  <span className="text-slate-400">{t?.working_hours?.saturday}</span>
+                  <span className="text-slate-200">7:30 - 12:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Chủ nhật</span>
-                  <span className="text-[#f97316]">Nghỉ</span>
+                  <span className="text-slate-400">{t?.working_hours?.sunday}</span>
+                  <span className="text-[#f97316]">{t?.working_hours?.closed}</span>
                 </div>
               </div>
             </div>
@@ -173,21 +147,11 @@ export function ContactSection() {
                 <a
                   key={index}
                   href={social.href}
-                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#0f172a] border border-[#334155]/50 text-muted-foreground hover:text-[#f97316] hover:border-[#f97316]/50 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#0f172a] border border-[#334155]/50 text-slate-400 hover:text-[#f97316] hover:border-[#f97316]/50 transition-colors"
                 >
                   <social.icon className="w-5 h-5" />
                 </a>
               ))}
-            </div>
-
-            {/* Map placeholder */}
-            <div className="aspect-video bg-[#0f172a] rounded-xl border border-[#334155]/50 overflow-hidden relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-[#f97316]/50 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Bản đồ vị trí</p>
-                </div>
-              </div>
             </div>
           </motion.div>
 
@@ -206,7 +170,7 @@ export function ContactSection() {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                       step >= s 
                         ? "bg-[#f97316] text-[#020617]" 
-                        : "bg-[#1e293b] text-muted-foreground"
+                        : "bg-[#1e293b] text-slate-500"
                     }`}>
                       {s}
                     </div>
@@ -220,213 +184,214 @@ export function ContactSection() {
               </div>
 
               <form onSubmit={handleSubmit}>
-                {/* Step 1: Basic Info */}
-                {step === 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-5"
-                  >
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-6">
-                      Thông tin liên hệ
-                    </h3>
-                    
-                    <div className="grid sm:grid-cols-2 gap-4">
+                <AnimatePresence mode="wait">
+                  {/* Step 1: Basic Info */}
+                  {step === 1 && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-5"
+                    >
+                      <h3 className="font-serif text-xl font-bold text-white mb-6">
+                        {t?.form?.info_title}
+                      </h3>
+                      
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="name" className="text-slate-200">{t?.form?.labels?.name}</Label>
+                          <Input
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            placeholder={t?.form?.placeholders?.name}
+                            required
+                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="company" className="text-slate-200">{t?.form?.labels?.company}</Label>
+                          <Input
+                            id="company"
+                            name="company"
+                            value={formData.company}
+                            onChange={handleInputChange}
+                            placeholder={t?.form?.placeholders?.company}
+                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-slate-200">{t?.form?.labels?.email}</Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder={t?.form?.placeholders?.email}
+                            required
+                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-slate-200">{t?.form?.labels?.phone}</Label>
+                          <Input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            placeholder={t?.form?.placeholders?.phone}
+                            required
+                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4">
+                        <Button 
+                          type="button"
+                          onClick={() => setStep(2)}
+                          className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] font-semibold"
+                        >
+                          {t?.form?.buttons?.next}
+                          <ChevronRight className="w-4 h-4 ml-1" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 2: Service Selection */}
+                  {step === 2 && (
+                    <motion.div
+                      key="step2"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-5"
+                    >
+                      <h3 className="font-serif text-xl font-bold text-white mb-6">
+                        {t?.form?.service_title}
+                      </h3>
+                      
                       <div className="space-y-2">
-                        <Label htmlFor="name">Họ và tên *</Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          value={formData.name}
+                        <Label htmlFor="service" className="text-slate-200">{t?.form?.labels?.service}</Label>
+                        <select
+                          id="service"
+                          name="service"
+                          value={formData.service}
                           onChange={handleInputChange}
-                          placeholder="Nguyễn Văn A"
                           required
-                          className="bg-[#1e293b] border-[#334155] focus:border-[#f97316]"
-                        />
+                          className="w-full h-10 px-3 rounded-md bg-[#1e293b] border border-[#334155] text-white focus:border-[#f97316] focus:outline-none focus:ring-1 focus:ring-[#f97316] transition-colors"
+                        >
+                          <option value="">{t?.form?.placeholders?.service_default}</option>
+                          {t?.services_list?.map((service: string) => (
+                            <option key={service} value={service}>{service}</option>
+                          ))}
+                        </select>
                       </div>
+
                       <div className="space-y-2">
-                        <Label htmlFor="company">Công ty</Label>
-                        <Input
-                          id="company"
-                          name="company"
-                          value={formData.company}
+                        <Label htmlFor="message" className="text-slate-200">{t?.form?.labels?.message}</Label>
+                        <Textarea
+                          id="message"
+                          name="message"
+                          value={formData.message}
                           onChange={handleInputChange}
-                          placeholder="Tên công ty"
-                          className="bg-[#1e293b] border-[#334155] focus:border-[#f97316]"
+                          placeholder={t?.form?.placeholders?.message}
+                          rows={4}
+                          className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] resize-none transition-colors"
                         />
                       </div>
-                    </div>
 
-                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="flex justify-between pt-4">
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          onClick={() => setStep(1)}
+                          className="border-[#334155] hover:border-[#f97316]/50 bg-transparent text-white"
+                        >
+                          {t?.form?.buttons?.prev}
+                        </Button>
+                        <Button 
+                          type="button"
+                          onClick={() => setStep(3)}
+                          className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] font-semibold"
+                        >
+                          {t?.form?.buttons?.next}
+                          <ChevronRight className="w-4 h-4 ml-1" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 3: File Upload & Submit */}
+                  {step === 3 && (
+                    <motion.div
+                      key="step3"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-5"
+                    >
+                      <h3 className="font-serif text-xl font-bold text-white mb-6">
+                        {t?.form?.file_title}
+                      </h3>
+                      
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="email@company.com"
-                          required
-                          className="bg-[#1e293b] border-[#334155] focus:border-[#f97316]"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Số điện thoại *</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          placeholder="0912 345 678"
-                          required
-                          className="bg-[#1e293b] border-[#334155] focus:border-[#f97316]"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end pt-4">
-                      <Button 
-                        type="button"
-                        onClick={() => setStep(2)}
-                        className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617]"
-                      >
-                        Tiếp theo
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Step 2: Service Selection */}
-                {step === 2 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-5"
-                  >
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-6">
-                      Dịch vụ quan tâm
-                    </h3>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="service">Chọn dịch vụ *</Label>
-                      <select
-                        id="service"
-                        name="service"
-                        value={formData.service}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full h-10 px-3 rounded-md bg-[#1e293b] border border-[#334155] text-foreground focus:border-[#f97316] focus:outline-none focus:ring-1 focus:ring-[#f97316]"
-                      >
-                        <option value="">-- Chọn dịch vụ --</option>
-                        {serviceOptions.map((service) => (
-                          <option key={service} value={service}>{service}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Mô tả yêu cầu</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        placeholder="Mô tả chi tiết về dự án hoặc yêu cầu của bạn..."
-                        rows={4}
-                        className="bg-[#1e293b] border-[#334155] focus:border-[#f97316] resize-none"
-                      />
-                    </div>
-
-                    <div className="flex justify-between pt-4">
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        onClick={() => setStep(1)}
-                        className="border-[#334155] hover:border-[#f97316]/50 bg-transparent"
-                      >
-                        Quay lại
-                      </Button>
-                      <Button 
-                        type="button"
-                        onClick={() => setStep(3)}
-                        className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617]"
-                      >
-                        Tiếp theo
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Step 3: File Upload & Submit */}
-                {step === 3 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-5"
-                  >
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-6">
-                      Đính kèm tài liệu
-                    </h3>
-                    
-                    <div className="space-y-2">
-                      <Label>Đính kèm bản vẽ CAD/3D (tùy chọn)</Label>
-                      <div className="border-2 border-dashed border-[#334155] hover:border-[#f97316]/50 rounded-xl p-8 text-center transition-colors cursor-pointer">
-                        <input
-                          type="file"
-                          id="file"
-                          name="file"
-                          onChange={handleFileChange}
-                          accept=".dwg,.dxf,.step,.stp,.iges,.igs,.stl,.pdf,.zip,.rar"
-                          className="hidden"
-                        />
-                        <label htmlFor="file" className="cursor-pointer">
-                          <Upload className="w-10 h-10 text-[#f97316]/50 mx-auto mb-3" />
-                          <p className="text-foreground font-medium mb-1">
-                            {formData.file ? formData.file.name : "Kéo thả file hoặc click để chọn"}
+                        <Label className="text-slate-200">{t?.form?.labels?.file}</Label>
+                        <div className="border-2 border-dashed border-[#334155] hover:border-[#f97316]/50 rounded-xl p-8 text-center transition-colors cursor-pointer relative group">
+                          <input
+                            type="file"
+                            id="file"
+                            onChange={handleFileChange}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                          />
+                          <Upload className="w-10 h-10 text-[#f97316]/50 mx-auto mb-3 group-hover:text-[#f97316] transition-colors" />
+                          <p className="text-slate-200 font-medium mb-1">
+                            {formData.file ? formData.file.name : t?.form?.placeholders?.file_hint}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            Hỗ trợ: DWG, DXF, STEP, IGES, STL, PDF (Max 50MB)
+                          <p className="text-sm text-slate-500">
+                            {t?.form?.placeholders?.file_types}
                           </p>
-                        </label>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Summary */}
-                    <div className="p-4 bg-[#1e293b]/50 rounded-lg">
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Tóm tắt</h4>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="text-muted-foreground">Tên:</span> <span className="text-foreground">{formData.name || "-"}</span></p>
-                        <p><span className="text-muted-foreground">Email:</span> <span className="text-foreground">{formData.email || "-"}</span></p>
-                        <p><span className="text-muted-foreground">Dịch vụ:</span> <span className="text-[#f97316]">{formData.service || "-"}</span></p>
+                      {/* Summary */}
+                      <div className="p-4 bg-[#1e293b]/50 rounded-lg border border-[#334155]/30">
+                        <h4 className="text-sm font-medium text-slate-500 mb-2 uppercase tracking-wider">{t?.form?.summary?.title}</h4>
+                        <div className="space-y-1 text-sm">
+                          <p><span className="text-slate-500">{t?.form?.summary?.name}:</span> <span className="text-slate-200">{formData.name || "-"}</span></p>
+                          <p><span className="text-slate-500">{t?.form?.summary?.email}:</span> <span className="text-slate-200">{formData.email || "-"}</span></p>
+                          <p><span className="text-slate-500">{t?.form?.summary?.service}:</span> <span className="text-[#f97316]">{formData.service || "-"}</span></p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex justify-between pt-4">
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        onClick={() => setStep(2)}
-                        className="border-[#334155] hover:border-[#f97316]/50 bg-transparent"
-                      >
-                        Quay lại
-                      </Button>
-                      <Button 
-                        type="submit"
-                        className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[#020617] shadow-lg shadow-[#f97316]/25"
-                      >
-                        <Send className="w-4 h-4 mr-2" />
-                        Gửi yêu cầu
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
+                      <div className="flex justify-between pt-4">
+                        <Button 
+                          type="button"
+                          variant="outline"
+                          onClick={() => setStep(2)}
+                          className="border-[#334155] hover:border-[#f97316]/50 bg-transparent text-white"
+                        >
+                          {t?.form?.buttons?.prev}
+                        </Button>
+                        <Button 
+                          type="submit"
+                          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[#020617] font-bold shadow-lg shadow-[#f97316]/25"
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          {t?.form?.buttons?.submit}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </form>
             </div>
           </motion.div>
