@@ -5,17 +5,16 @@ import { i18n } from "./lib/i18n-config"
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // 1. CHẶN TUYỆT ĐỐI: Nếu là file tĩnh trong thư mục public thì cho qua ngay
-  // Kiểm tra nếu pathname có đuôi file (có dấu chấm)
+  // 1. Cho qua các file tĩnh (ảnh, icon, font, hoặc file có dấu chấm)
   const isPublicFile = pathname.includes('.')
   if (isPublicFile) return NextResponse.next()
 
-  // 2. Kiểm tra ngôn ngữ
+  // 2. Kiểm tra xem URL đã có mã ngôn ngữ chưa
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   )
 
-  // 3. Chuyển hướng nếu thiếu locale
+  // 3. Chuyển hướng nếu thiếu mã ngôn ngữ (mặc định về /vi)
   if (pathnameIsMissingLocale) {
     const locale = i18n.defaultLocale
     return NextResponse.redirect(
@@ -27,7 +26,7 @@ export default function middleware(request: NextRequest) {
   }
 }
 
+// KHỐI CONFIG DUY NHẤT - KHÔNG ĐƯỢC LẶP LẠI
 export const config = {
-  // Loại trừ các thư mục hệ thống của Next.js
-  matcher: ["/((?!api|_next/static|_next/image|icon-light.svg|icon-dark.svg|grid.svg|.*\\..*).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 }

@@ -35,28 +35,36 @@ export function Navigation({ lang, dict }: NavigationProps) {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // 2. KHÓA CUỘN NÂNG CAO: Ngăn chặn triệt để lỗi cuộn nền trên iOS và Android
+  // 2. KHÓA CUỘN NÂNG CAO (ĐÃ TỐI ƯU CHO iOS): 
+  // Sử dụng kỹ thuật lưu vị trí cuộn để ngăn trang web bị nhảy lên đầu trên Safari iPhone
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // Khóa cuộn trang chính hoàn toàn
-      document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none"; // Ngăn chặn thao tác chạm cuộn nền
-      document.body.style.position = "fixed";    // Ép trang đứng yên tại chỗ
-      document.body.style.width = "100%";        // Giữ layout không bị co lại khi chuyển sang fixed
+      const scrollY = window.scrollY; // Lưu lại vị trí cuộn hiện tại
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`; // Cố định trang tại vị trí đang đứng
+      document.body.style.width = '100%';
+      document.body.style.overflowY = 'hidden';
+      document.body.style.touchAction = "none";
     } else {
-      // Trả lại trạng thái bình thường khi đóng menu
-      document.body.style.overflow = "unset";
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflowY = '';
       document.body.style.touchAction = "auto";
-      document.body.style.position = "";
-      document.body.style.width = "";
+      
+      // Trả trang về đúng vị trí cũ khi đóng menu
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     }
 
-    // Cleanup function: Đảm bảo trang web hoạt động bình thường nếu component bị unmount
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflowY = '';
       document.body.style.touchAction = "auto";
-      document.body.style.position = "";
-      document.body.style.width = "";
     };
   }, [isMobileMenuOpen])
 
@@ -70,13 +78,20 @@ export function Navigation({ lang, dict }: NavigationProps) {
   ]
   const currentLang = languages.find((l) => l.code === lang) || languages[0]
 
+  // 3. TỐI ƯU CHUYỂN NGÔN NGỮ: Đảm bảo đóng tất cả menu trước khi chuyển trang
   const handleLangChange = (newLang: string) => {
-    const segments = pathname.split("/")
-    segments[1] = newLang
-    router.push(segments.join("/"))
-    setIsLangOpen(false)
-    setIsMobileMenuOpen(false)
-  }
+    if (newLang === lang) return;
+
+    // Đóng các menu đang mở ngay lập tức để UI mượt mà
+    setIsLangOpen(false);
+    setIsMobileMenuOpen(false);
+
+    const segments = pathname.split("/");
+    segments[1] = newLang;
+    
+    // Thực hiện chuyển hướng
+    router.push(segments.join("/"));
+  };
 
   const menuItems = [
     { name: dict.navigation.home, href: `/${lang}` },
@@ -102,7 +117,6 @@ export function Navigation({ lang, dict }: NavigationProps) {
 
   return (
     <>
-      {/* 1. HEADER BAR: Chỉ chứa thanh điều hướng ngang */}
       <header 
         style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', zIndex: 9998 }}
         className={cn(
@@ -136,7 +150,7 @@ export function Navigation({ lang, dict }: NavigationProps) {
             />
           </div>
 
-          {/* MOBILE: NAVIGATION BAR (Chỉ chứa Logo & Nút mở menu) */}
+          {/* MOBILE: NAVIGATION BAR */}
           <div className="lg:hidden container mx-auto px-4 py-4 flex items-center justify-between">
             <Link href={`/${lang}`} className="flex items-center gap-2 relative z-[110]">
               <div className="w-9 h-9 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded flex items-center justify-center">
@@ -160,10 +174,6 @@ export function Navigation({ lang, dict }: NavigationProps) {
           </div>
         </motion.div>
       </header>
-
-      {/* LƯU Ý QUAN TRỌNG: 
-        MobileNavigation chứa cả nút bấm và phần Overlay đã tối ưu z-index 99999.
-      */}
     </>
   )
 }
