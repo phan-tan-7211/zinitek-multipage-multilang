@@ -8,82 +8,89 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const controls = useAnimation();
-  
-  // Trạng thái cho phép vuốt trên Desktop
   const [desktopSwipeEnabled, setDesktopSwipeEnabled] = useState(false);
 
+  const mainRoutes = [`/${lang}`, `/${lang}/about`, `/${lang}/services`, `/${lang}/portfolio`, `/${lang}/blog`, `/${lang}/contact` ];
+  const subServices = [`/${lang}/services/cnc`, `/${lang}/services/molds`, `/${lang}/services/3d-scan`, `/${lang}/services/plc`, `/${lang}/services/coils`, `/${lang}/services/ems`, `/${lang}/services/it-software` ];
+
   useEffect(() => {
-    // 1. Kiểm tra trạng thái lưu trữ khi load trang
     const checkStatus = () => {
       const saved = localStorage.getItem("desktop-swipe");
       setDesktopSwipeEnabled(saved === "true");
     };
-
     checkStatus();
-
-    // 2. Lắng nghe sự kiện thay đổi từ công tắc ở Navigation
     window.addEventListener("storage", checkStatus);
     return () => window.removeEventListener("storage", checkStatus);
   }, []);
 
-  const menuRoutes = [
-    `/${lang}`,
-    `/${lang}/about`,
-    `/${lang}/services`,
-    `/${lang}/portfolio`,
-    `/${lang}/blog`,
-    `/${lang}/contact`,
-  ];
+  const bind = useDrag(({ active, movement: [mx], velocity: [vx] }) => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent("swipe-active", { 
+        detail: { active, velocity: vx, distance: mx } 
+      }));
+    }
 
-  const currentIndex = menuRoutes.indexOf(pathname);
-
-  const bind = useDrag(({ active, movement: [mx, my], velocity: [vx], direction: [dx], cancel }) => {
-    if (currentIndex === -1) return;
-
-    // LOGIC NÂNG CẤP: Kiểm tra thiết bị
-    const isDesktop = window.innerWidth >= 1024; // lg breakpoint
-    
-    // Nếu là Desktop mà công tắc đang TẮT thì không làm gì cả
+    const isDesktop = window.innerWidth >= 1024;
     if (isDesktop && !desktopSwipeEnabled) return;
 
-    if (Math.abs(my) > Math.abs(mx)) {
-      cancel();
-      return;
-    }
-
     if (!active) {
-      if (Math.abs(vx) > 0.4 && Math.abs(mx) > 60) {
-        if (dx < 0 && currentIndex < menuRoutes.length - 1) {
-          router.push(menuRoutes[currentIndex + 1]);
-        } else if (dx > 0 && currentIndex > 0) {
-          router.push(menuRoutes[currentIndex - 1]);
-        } else {
-          controls.start({ x: 0 });
+      const distance = Math.abs(mx);
+      const isRight = mx > 0; // Kéo sang phải (Về trước)
+      const isLeft = mx < 0;  // Kéo sang trái (Tiếp theo)
+      
+      // ĐỒNG BỘ NGƯỠNG TUYỆT ĐỐI
+      const isCamThreshold = distance > 250; // Khoảng cách để chuyển trang CHA (Màu Cam)
+      const isWhiteThreshold = distance > 70; // Khoảng cách để chuyển trang CON (Màu Trắng)
+
+      if (isCamThreshold || isWhiteThreshold) {
+        const subIndex = subServices.indexOf(pathname);
+        const isOnSubPage = subIndex !== -1;
+
+        // 1. ƯU TIÊN CHUYỂN TRANG CHA (CAM)
+        if (isCamThreshold) {
+          const mainIndex = mainRoutes.findIndex(r => r === `/${lang}` ? pathname === r : pathname.startsWith(r));
+          if (mainIndex !== -1) {
+            if (isLeft && mainIndex < mainRoutes.length - 1) {
+              triggerHaptic(40);
+              return router.push(mainRoutes[mainIndex + 1]);
+            }
+            if (isRight && mainIndex > 0) {
+              triggerHaptic(40);
+              return router.push(mainRoutes[mainIndex - 1]);
+            }
+          }
+        } 
+        // 2. CHUYỂN TRANG CON (TRẮNG)
+        else if (isOnSubPage && isWhiteThreshold) {
+          if (isLeft && subIndex < subServices.length - 1) {
+            triggerHaptic(10);
+            return router.push(subServices[subIndex + 1]);
+          }
+          if (isRight && subIndex > 0) {
+            triggerHaptic(10);
+            return router.push(subServices[subIndex - 1]);
+          }
         }
-      } else {
-        controls.start({ x: 0 });
       }
+      
+      controls.start({ x: 0, transition: { type: "spring", stiffness: 450, damping: 35 } });
     } else {
-      const isBoundary = (dx < 0 && currentIndex === menuRoutes.length - 1) || (dx > 0 && currentIndex === 0);
-      controls.set({ x: isBoundary ? mx / 10 : mx / 2 }); 
+      controls.set({ x: mx / 3.8 }); 
     }
-  }, { 
-    axis: 'x', 
-    pointer: { touch: true },
-    filterTaps: true // Ngăn chặn nhảy trang khi chỉ click chuột vào link
-  });
+  }, { axis: 'x', pointer: { touch: true }, filterTaps: true });
+
+  const triggerHaptic = (ms: number) => {
+    if (typeof window !== 'undefined' && window.navigator.vibrate) {
+      window.navigator.vibrate(ms);
+    }
+  };
 
   useEffect(() => {
-    controls.set({ x: 0 });
+    controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } });
   }, [pathname, controls]);
 
   return (
-    <motion.div 
-      {...bind()} 
-      animate={controls} 
-      className="touch-pan-y will-change-transform"
-      style={{ touchAction: 'pan-y' }}
-    >
+    <motion.div {...bind()} animate={controls} className="touch-pan-y will-change-transform" style={{ touchAction: 'pan-y' }}>
       {children}
     </motion.div>
   );

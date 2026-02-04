@@ -6,8 +6,9 @@ import '../globals.css'
 import TrackingProvider from "@/components/analytics";
 import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper"
 
-// 1. IMPORT THÊM NAVIGATION VÀ GETDICTIONARY
+// IMPORT CÁC COMPONENT ĐIỀU HƯỚNG VÀ CHỈ BÁO
 import { Navigation } from "@/components/navigation"
+import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator"
 import { getDictionary } from "@/lib/get-dictionary"
 
 // TỐI ƯU HÓA FONT:
@@ -24,69 +25,77 @@ const inter = Inter({
   display: 'swap', 
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000'
-  ),
-  title: {
-    default: 'ZINITEK - Kỹ Thuật Cơ Khí Chính Xác & Tự Động Hóa',
-    template: '%s | ZINITEK'
-  },
-  description: 'ZINITEK chuyên gia công CNC chính xác, thiết kế khuôn mẫu và giải pháp tự động hóa công nghiệp. Cam kết chất lượng cao, nâng tầm sản xuất.',
-  generator: 'ByPhanTan',
-  applicationName: 'ZINITEK',
-  referrer: 'origin-when-cross-origin',
-  keywords: ['gia công CNC', 'cơ khí chính xác', 'thiết kế khuôn mẫu', 'tự động hóa', 'Zinitek', 'Bình Dương'],
-  authors: [{ name: 'ZINITEK Team' }],
-  creator: 'ZINITEK',
-  publisher: 'ZINITEK',
-  openGraph: {
-    title: 'ZINITEK - Kỹ Thuật Cơ Khí Chính Xác',
-    description: 'Giải pháp kỹ thuật chính xác cho sự xuất sắc trong công nghiệp.',
-    url: 'https://zinitek.com',
-    siteName: 'ZINITEK',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'ZINITEK Precision Engineering',
-      },
-    ],
-    locale: 'vi_VN',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'ZINITEK - Kỹ Thuật Cơ Khí Chính Xác',
-    description: 'Giải pháp kỹ thuật chính xác cho sự xuất sắc trong công nghiệp.',
-    images: ['/og-image.jpg'],
-  },
-  icons: {
-    icon: [
-      { url: '/icon-light.svg?v=2', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark.svg?v=2', media: '(prefers-color-scheme: dark)' },
-    ],
-    shortcut: '/icon-light.svg',
-    apple: '/icon-light.svg',
-    other: {
-      rel: 'apple-touch-icon-precomposed',
-      url: '/icon-light.svg',
+// --- TỐI ƯU SEO QUỐC TẾ (DYNAMIC METADATA) ---
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+
+  // Xử lý loại bỏ thẻ HTML <span> khỏi description để SEO đẹp hơn
+  const cleanDescription = dict.hero.description.replace(/<[^>]*>?/gm, '');
+  const siteTitle = `ZINITEK - ${dict.hero.title_line1} ${dict.hero.title_highlight}`;
+
+  return {
+    metadataBase: new URL(
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+    ),
+    title: {
+      default: siteTitle,
+      template: `%s | ZINITEK`
     },
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+    description: cleanDescription,
+    keywords: ['CNC Machining', 'Precision Engineering', 'Mold Design', 'Automation', 'Zinitek', 'Bình Dương', 'Vietnam Factory'],
+    authors: [{ name: 'ZINITEK Team' }],
+    
+    // Thẻ Hreflang giúp Google nhận diện các bản dịch khác nhau
+    alternates: {
+      canonical: `/${lang}`,
+      languages: {
+        'vi-VN': '/vi',
+        'en-US': '/en',
+        'ja-JP': '/jp',
+        'ko-KR': '/kr',
+        'zh-CN': '/cn',
+      },
+    },
+
+    openGraph: {
+      title: siteTitle,
+      description: cleanDescription,
+      url: `/${lang}`,
+      siteName: 'ZINITEK',
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+      locale: lang,
+      type: 'website',
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title: siteTitle,
+      description: cleanDescription,
+      images: ['/og-image.jpg'],
+    },
+
+    icons: {
+      icon: [
+        { url: '/icon-light.svg?v=2', media: '(prefers-color-scheme: light)' },
+        { url: '/icon-dark.svg?v=2', media: '(prefers-color-scheme: dark)' },
+      ],
+      shortcut: '/icon-light.svg',
+      apple: '/icon-light.svg',
+    },
+
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
+  }
 }
 
 export async function generateStaticParams() {
@@ -101,25 +110,34 @@ export default async function RootLayout({
   params: Promise<{ lang: string }> 
 }) {
   const { lang } = await params;
-  
-  // 2. FETCH DỮ LIỆU NGÔN NGỮ TẠI LAYOUT
+
+  // FETCH DỮ LIỆU NGÔN NGỮ
   const dict = await getDictionary(lang)
 
   return (
     <html lang={lang} className={`${montserrat.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
+        {/* Hreflang x-default cho các ngôn ngữ không xác định sẽ về tiếng Anh */}
+        <link rel="alternate" href="/en" hrefLang="x-default" />
         <link rel="icon" href="/icon-light.svg?v=1" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon-light.svg" />
       </head>
       
-      <body className="font-sans antialiased bg-[#020617]">
-        {/* BƯỚC QUAN TRỌNG: Navigation nằm NGOÀI SmartSwipeWrapper để giữ thuộc tính FIXED tuyệt đối */}
+      <body className="font-sans antialiased bg-[#020617] text-white">
+        {/* 1. NAVIGATION CỐ ĐỊNH Ở TRÊN */}
         <Navigation lang={lang} dict={dict} />
 
+        {/* 2. WRAPPER QUẢN LÝ VUỐT CHUYỂN TRANG (MOBILE OPTIMIZED) */}
         <SmartSwipeWrapper lang={lang}>
-          {children}
+          <main className="min-h-screen">
+            {children}
+          </main>
         </SmartSwipeWrapper>
 
+        {/* 3. CHỈ BÁO WIDGET MOBILE CỐ ĐỊNH Ở DƯỚI */}
+        <MobileWidgetIndicator lang={lang} dict={dict} />
+
+        {/* CÁC CÔNG CỤ THEO DÕI & PHÂN TÍCH */}
         <Analytics />
         <TrackingProvider />
       </body>
