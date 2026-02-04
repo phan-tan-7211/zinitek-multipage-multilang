@@ -27,8 +27,8 @@ export function MobileWidgetIndicator({ lang, dict }: { lang: string, dict: any 
   const raw = swipeData.rawDistance;
 
   // ĐỒNG BỘ NGƯỠNG 1:1 VỚI WRAPPER
-  const isMainThreshold = d > 250; // Cam
-  const isSubThreshold = d > 70;   // Trắng
+  const isMainThreshold = d > 130; // Màu Cam
+  const isSubThreshold = d > 30;   // Màu Trắng
   const isMoving = d > 5;
 
   let arrowColor = "#ffffff";

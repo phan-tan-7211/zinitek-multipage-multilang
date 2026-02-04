@@ -39,8 +39,8 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
       const isLeft = mx < 0;  // Kéo sang trái (Tiếp theo)
       
       // ĐỒNG BỘ NGƯỠNG TUYỆT ĐỐI
-      const isCamThreshold = distance > 250; // Khoảng cách để chuyển trang CHA (Màu Cam)
-      const isWhiteThreshold = distance > 70; // Khoảng cách để chuyển trang CON (Màu Trắng)
+      const isCamThreshold = distance > 130; // Khoảng cách để chuyển trang CHA (Màu Cam)
+      const isWhiteThreshold = distance > 30; // Khoảng cách để chuyển trang CON (Màu Trắng)
 
       if (isCamThreshold || isWhiteThreshold) {
         const subIndex = subServices.indexOf(pathname);
