@@ -86,10 +86,17 @@
     @apply border-border outline-ring/50;
   }
   html {
-    scroll-behavior: smooth;
+    /* Tạm thời tắt smooth scroll để kiểm tra, hoặc chỉ bật khi không có swipe wrapper */
+    scroll-behavior: auto; 
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
   }
 }
 

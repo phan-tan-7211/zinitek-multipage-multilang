@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { services } from "@/lib/services-data"
@@ -34,10 +33,12 @@ export default async function ServicesHubPage({
         <BlueprintBackground />
       </div>
 
-      {/* 3. Truyền dict để Navigation không bị crash */}
-      <Navigation lang={lang} dict={dict} />
+      {/* LƯU Ý: Đã xóa component <Navigation /> ở đây. 
+          Navbar hiện tại được quản lý duy nhất tại file layout.tsx 
+          để đảm bảo không bị nhân đôi và giữ tính năng cố định (fixed).
+      */}
 
-      {/* Hero Section của trang Dịch vụ */}
+      {/* Hero Section - Đã có sẵn pt-32 nên đủ khoảng trống cho Navbar fixed */}
       <section className="pt-32 pb-16 relative z-10">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-6 uppercase">
@@ -57,12 +58,10 @@ export default async function ServicesHubPage({
             {services.map((service) => (
               <Link 
                 key={service.slug} 
-                // 4. Thêm ${lang} vào href để giữ ngôn ngữ khi chuyển trang chi tiết
                 href={`/${lang}/services/${service.slug}`}
                 className="group bg-[#0f172a]/50 border border-[#334155]/50 p-8 rounded-2xl hover:border-[#f97316]/50 transition-all duration-300 flex flex-col h-full"
               >
                 <h3 className="text-2xl font-serif font-bold text-white mb-4 group-hover:text-[#f97316] transition-colors">
-                  {/* Nếu services-data của bạn có đa ngôn ngữ, hãy xử lý ở đây */}
                   {service.title}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-grow">

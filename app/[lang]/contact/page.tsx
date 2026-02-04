@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { ContactSection } from "@/components/contact-section"
@@ -30,10 +29,13 @@ export default async function ContactPage({
         <BlueprintBackground />
       </div>
 
-      {/* 4. Truyền lang và dict vào Navigation để hết lỗi 'undefined navigation' */}
-      <Navigation lang={lang} dict={dict} />
+      {/* LƯU Ý: Đã xóa component <Navigation /> ở đây.
+        Navbar hiện tại được quản lý tập trung tại file layout.tsx 
+        để đảm bảo tính năng cố định (fixed) hoạt động tốt nhất.
+      */}
       
-      <div className="relative z-10">
+      {/* 4. Thêm pt-20 lg:pt-28 để nội dung bắt đầu dưới thanh Navigation cố định */}
+      <div className="relative z-10 pt-20 lg:pt-28">
         <PageHeader 
           title={dict.contact?.title || (lang === 'vi' ? "Liên hệ" : "Contact")}
           subtitle={dict.contact?.subtitle || (lang === 'vi' ? "Kết nối" : "Get in touch")}
@@ -42,7 +44,7 @@ export default async function ContactPage({
           dict={dict}
         />
         
-        {/* Truyền dữ liệu vào ContactSection nếu component này có đa ngôn ngữ */}
+        {/* Truyền dữ liệu vào ContactSection */}
         <ContactSection lang={lang} dict={dict} />
       </div>
 

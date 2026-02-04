@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, Cog, Globe, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react" // Đã thêm useState và useEffect
 
 const languages = [
   { code: "vi", name: "Tiếng Việt", flag: "VN" },
@@ -48,6 +49,18 @@ export function DesktopNavigation({
 }: DesktopNavigationProps) {
   const router = useRouter()
 
+  // --- LOGIC XỬ LÝ HYDRATION CHO LOCALSTORAGE ---
+  const [mounted, setMounted] = useState(false)
+  const [isSwipeEnabled, setIsSwipeEnabled] = useState(false)
+
+  useEffect(() => {
+    // Đánh dấu component đã mount lên client
+    setMounted(true)
+    // Đọc giá trị từ localStorage sau khi đã mount để tránh mismatch với Server
+    const saved = localStorage.getItem("desktop-swipe") === "true"
+    setIsSwipeEnabled(saved)
+  }, [])
+
   const isActive = (href: string) => {
     if (href === `/${lang}`) return pathname === `/${lang}`
     return pathname.startsWith(href)
@@ -55,9 +68,10 @@ export function DesktopNavigation({
 
   return (
     <>
-      {/* Top bar Desktop */}
+      {/* --- PHẦN 1: TOP BAR DESKTOP --- */}
       <div className="hidden lg:block border-b border-[#334155]/50 bg-[#0f172a]/50">
         <div className="container mx-auto px-6 py-2 flex justify-between items-center text-sm">
+          {/* Thông tin liên hệ bên trái */}
           <div className="flex items-center gap-6 text-muted-foreground">
             <a
               href={`tel:${dict.common.phone_label}`}
@@ -74,13 +88,54 @@ export function DesktopNavigation({
               <span>{dict.common.email_label}</span>
             </a>
           </div>
-          <p className="text-muted-foreground italic">
-            <span className="text-[#f97316]">{">"}</span> {dict.common.slogan_top}
-          </p>
+
+          {/* Slogan và Nút Toggle bên phải */}
+          <div className="flex items-center gap-6">
+            <p className="text-muted-foreground italic">
+              <span className="text-[#f97316]">{">"}</span> {dict.common.slogan_top}
+            </p>
+
+            {/* --- NÚT CÔNG TẮC (TOGGLE) VUỐT TRANG DESKTOP --- */}
+            <div className="flex items-center gap-3 border-l border-white/10 pl-6 group">
+              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold group-hover:text-slate-400 transition-colors">
+                Swipe Desktop
+              </span>
+              <button
+                onClick={() => {
+                  const newValue = !isSwipeEnabled;
+                  setIsSwipeEnabled(newValue); // Cập nhật state ngay lập tức để UI mượt mà
+                  localStorage.setItem("desktop-swipe", String(newValue));
+                  
+                  // Phát sự kiện storage để SmartSwipeWrapper nhận diện
+                  window.dispatchEvent(new Event("storage"));
+                  
+                  // Refresh router để đồng bộ server components nếu cần
+                  router.refresh(); 
+                }}
+                className={cn(
+                  "relative w-9 h-5 rounded-full transition-all duration-300 shadow-inner",
+                  // Kiểm tra mounted để đảm bảo không lỗi màu sắc khi SSR
+                  mounted && isSwipeEnabled 
+                    ? "bg-[#f97316]" 
+                    : "bg-slate-700"
+                )}
+              >
+                {/* Viên bi di chuyển của nút Toggle */}
+                <div
+                  className={cn(
+                    "absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 shadow-md",
+                    mounted && isSwipeEnabled
+                      ? "translate-x-4"
+                      : "translate-x-0"
+                  )}
+                />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Desktop Nav */}
+      {/* --- PHẦN 2: CHÍNH NAVIGATION --- */}
       <nav className="hidden lg:block container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
@@ -105,7 +160,7 @@ export function DesktopNavigation({
             </div>
           </Link>
 
-          {/* Menu Items */}
+          {/* Menu chính */}
           <div className="flex items-center gap-1">
             {menuItems.map((item) => (
               <div
@@ -129,6 +184,7 @@ export function DesktopNavigation({
                       className={cn("w-4 h-4 transition-transform duration-300", isMegaOpen && "rotate-180")}
                     />
                   )}
+                  {/* Thanh gạch chân hiệu ứng */}
                   <span
                     className={cn(
                       "absolute bottom-1 left-4 right-4 h-0.5 bg-gradient-to-r from-[#f97316] to-[#fb923c] transition-transform origin-left duration-300",
@@ -137,12 +193,11 @@ export function DesktopNavigation({
                   />
                 </Link>
 
-                {/* Mega Menu Services */}
+                {/* Mega Menu Services (Dịch vụ) */}
                 <AnimatePresence>
                   {item.hasMega && isMegaOpen && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 pt-1 group">
                       <div className="absolute -top-2 left-0 right-0 h-4 bg-transparent" />
-
                       <motion.div
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -184,8 +239,9 @@ export function DesktopNavigation({
             ))}
           </div>
 
-          {/* Right Side Tools */}
+          {/* Cụm công cụ bên phải (Ngôn ngữ & Nút Liên hệ) */}
           <div className="flex items-center gap-4">
+            {/* Dropdown Ngôn ngữ */}
             <div className="relative">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
@@ -202,6 +258,7 @@ export function DesktopNavigation({
                 <span className="font-medium">{currentLang.flag}</span>
                 <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isLangOpen && "rotate-180")} />
               </button>
+              
               <AnimatePresence>
                 {isLangOpen && (
                   <motion.div
@@ -227,6 +284,8 @@ export function DesktopNavigation({
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Nút Contact chính */}
             <Button
               asChild
               className="bg-[#f97316] text-[#020617] font-bold hover:scale-105 hover:bg-[#fb923c] transition-all shadow-lg shadow-[#f97316]/20"

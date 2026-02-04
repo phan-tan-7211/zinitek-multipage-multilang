@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation"
 import { HeroSection } from "@/components/hero-section"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
@@ -6,32 +5,35 @@ import { FeaturedProjects } from "@/components/featured-projects"
 import { AboutSummary } from "@/components/about-summary"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { getDictionary } from "@/lib/get-dictionary" // Hãy đảm bảo file này tồn tại
+import { getDictionary } from "@/lib/get-dictionary"
 
 export default async function Home({
   params,
 }: {
   params: Promise<{ lang: string }> | { lang: string }
 }) {
-  // 1. Chờ lấy ngôn ngữ từ URL (Hỗ trợ cả Promise và Object để tương thích Next.js 15+)
+  // 1. Chờ lấy ngôn ngữ từ URL
   const resolvedParams = await params
   const { lang } = resolvedParams
   
-  // 2. Lấy nội dung từ điển dựa trên ngôn ngữ
+  // 2. Lấy nội dung từ điển
   const dict = await getDictionary(lang)
 
   return (
+    /* LƯU Ý: Đã xóa <Navigation /> ở đây. 
+       Navbar hiện tại được quản lý tập trung tại file layout.tsx 
+       ngang hàng với SmartSwipeWrapper để đảm bảo tính năng fixed hoạt động 100%.
+    */
     <main className="min-h-screen bg-[#020617] text-white relative overflow-x-hidden">
       {/* Nền Blueprint - Đảm bảo nó nằm dưới cùng */}
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />
       </div>
       
-      {/* 3. Navigation - Truyền dict để hiển thị menu đa ngôn ngữ */}
-      <Navigation lang={lang} dict={dict} /> 
-      
-      {/* Nội dung chính - Dùng z-10 để nổi lên trên nền */}
-      <div className="relative z-10">
+      {/* 3. Thêm pt-20 lg:pt-28 để bù đắp diện tích cho Navbar cố định.
+        Nếu không có padding này, phần Hero sẽ bị menu che khuất một phần.
+      */}
+      <div className="relative z-10 pt-20 lg:pt-28">
         
         {/* Hero Section */}
         <HeroSection dict={dict} lang={lang} />
@@ -134,7 +136,6 @@ export default async function Home({
             </div>
           </div>
         </section>
-
       </div>
 
       <Footer lang={lang} dict={dict} />

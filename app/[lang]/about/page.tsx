@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { AboutSection } from "@/components/about-section"
@@ -29,25 +28,26 @@ export default async function AboutPage({
 
   return (
     <main className="min-h-screen bg-[#020617] text-foreground relative overflow-hidden">
+      {/* Nền Blueprint */}
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />
       </div>
 
-      <Navigation lang={lang} dict={dict} />
+      {/* LƯU Ý: Đã xóa <Navigation /> tại đây vì nó đã được gọi ở file Layout chung.
+      */}
       
-      <div className="relative z-10">
+      {/* Bổ sung pt-20 lg:pt-28 vào div này để nội dung không bị Navbar che khuất */}
+      <div className="relative z-10 pt-20 lg:pt-28">
         <PageHeader 
-          // SỬA CHỖ NÀY: Khớp với Key trong file JSON bạn đã gửi
           title={dict.about_page?.header_title || "Giới thiệu"}
           subtitle={dict.about_page?.header_subtitle || "Câu chuyện ZINITEK"}
           description={dict.about_page?.header_top_desc || "Hành trình từ xưởng cơ khí đến đối tác quốc tế."}
-          lang={lang} // TRUYỀN THÊM DÒNG NÀY
-          dict={dict} // TRUYỀN THÊM DÒNG NÀY
+          lang={lang} 
+          dict={dict} 
         />
         
-        {/* AboutSection đã nhận lang và dict, nó sẽ tự xử lý nội dung bên trong */}
+        {/* AboutSection và TestimonialsSection giữ nguyên */}
         <AboutSection lang={lang} dict={dict} />
-        
         <TestimonialsSection lang={lang} dict={dict} />
       </div>
 

@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
+// Tối ưu: Sử dụng m thay vì motion để giảm bundle size (Lazy Load)
+import { m, AnimatePresence, LazyMotion, domAnimation } from "framer-motion"
 import { X, Cog, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -41,7 +42,8 @@ export function MobileNavigation({
   }
 
   return (
-    <>
+    // Bọc trong LazyMotion để kích hoạt chế độ tải chậm cho m.div
+    <LazyMotion features={domAnimation}>
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(true)}
@@ -53,15 +55,21 @@ export function MobileNavigation({
       {/* --- MOBILE MENU OVERLAY --- */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed inset-0 z-[999] bg-[#020617] lg:hidden flex flex-col"
+            // SỬA TẠI ĐÂY: 
+            // 1. fixed inset-0 để phủ kín màn hình.
+            // 2. touch-none để vô hiệu hóa cuộn mặc định lọt xuống trang chính.
+            // 3. height: 100dvh để khớp chính xác màn hình điện thoại thật.
+            className="fixed inset-0 z-[99999] bg-[#020617] lg:hidden flex flex-col w-full touch-none"
+            style={{ height: '100dvh' }} 
           >
             {/* --- PHẦN 1: LOGO & HEADER MOBILE --- */}
-            <div className="flex items-center justify-between px-4 py-5 border-b border-white/10 bg-[#020617]">
+            {/* Thêm flex-shrink-0 để Header luôn cố định, không bị co lại khi nội dung giữa quá dài */}
+            <div className="flex-shrink-0 flex items-center justify-between px-4 py-5 border-b border-white/10 bg-[#020617]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#f97316] rounded-lg flex items-center justify-center shadow-lg shadow-[#f97316]/20">
                   <Cog className="w-6 h-6 text-[#020617]" />
@@ -83,8 +91,12 @@ export function MobileNavigation({
               </button>
             </div>
 
-            {/* --- PHẦN 2: MENU CHÍNH & NGÔN NGỮ --- */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+            {/* --- PHẦN 2 & 3: MENU CHÍNH & DỊCH VỤ --- */}
+            {/* SỬA TẠI ĐÂY: 
+                - overflow-y-auto cho phép cuộn nội dung.
+                - touch-pan-y cho phép thao tác vuốt dọc mượt mà bên trong vùng này.
+            */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 touch-pan-y">
               <div className="grid grid-cols-10 gap-3">
                 {/* CỘT TRÁI (6/10): MENU CHÍNH */}
                 <div className="col-span-6 bg-[#0f172a] rounded-2xl border border-white/5 overflow-hidden flex flex-col">
@@ -130,7 +142,7 @@ export function MobileNavigation({
                 </div>
               </div>
 
-              {/* --- PHẦN 3: DỊCH VỤ --- */}
+              {/* DỊCH VỤ */}
               <div className="bg-[#0f172a] rounded-2xl border border-white/5 p-4">
                 <p className="text-[11px] uppercase tracking-[0.2em] text-[#f97316] mb-4 px-2 font-bold opacity-80">
                   {dict.navigation.services}
@@ -158,16 +170,17 @@ export function MobileNavigation({
             </div>
 
             {/* --- PHẦN 4: NÚT CONTACT DƯỚI CÙNG --- */}
-            <div className="px-4 py-4 border-t border-white/5">
+            {/* flex-shrink-0 để nút Contact luôn bám đáy và không bị méo */}
+            <div className="flex-shrink-0 px-4 py-4 border-t border-white/5 bg-[#020617]">
               <Button asChild className="w-full h-16 bg-[#f97316] text-[#020617] font-black text-xl rounded-2xl shadow-xl shadow-[#f97316]/10">
                 <Link href={`/${lang}/contact`} onClick={() => setIsMobileMenuOpen(false)}>
                   {dict.common.contact_btn}
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </>
+    </LazyMotion>
   )
 }

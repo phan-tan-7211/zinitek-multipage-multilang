@@ -14,8 +14,6 @@ interface NavigationProps {
   dict: any
 }
 
-
-
 export function Navigation({ lang, dict }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -24,51 +22,45 @@ export function Navigation({ lang, dict }: NavigationProps) {
   const pathname = usePathname()
   const router = useRouter()
 
-  // Hàm xử lý tải trước ngôn ngữ khi rê chuột
-  const handlePrefetchLang = (targetLang: string) => {
-    const segments = pathname.split("/")
-    segments[1] = targetLang
-    const newPath = segments.join("/")
-    router.prefetch(newPath)
-  }
-
-  // 1. TỐI ƯU PREFETCH: Tải trước các trang quan trọng sau 2 giây để giữ điểm hiệu năng
+  // 1. TỐI ƯU SCROLL: Theo dõi cuộn trang để bật/tắt nền
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const routesToPrefetch = [
-        `/${lang}/about`,
-        `/${lang}/services`,
-        `/${lang}/portfolio`,
-        `/${lang}/blog`,
-        `/${lang}/contact`,
-      ]
-      routesToPrefetch.forEach((route) => {
-        router.prefetch(route)
-      })
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [router, lang])
-
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden"
-      document.body.style.touchAction = "none"
-    } else {
-      document.body.style.overflow = "unset"
-      document.body.style.touchAction = "auto"
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
     }
-    return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isMobileMenuOpen])
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // 2. KHÓA CUỘN NÂNG CAO: Ngăn chặn triệt để lỗi cuộn nền trên iOS và Android
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      // Khóa cuộn trang chính hoàn toàn
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none"; // Ngăn chặn thao tác chạm cuộn nền
+      document.body.style.position = "fixed";    // Ép trang đứng yên tại chỗ
+      document.body.style.width = "100%";        // Giữ layout không bị co lại khi chuyển sang fixed
+    } else {
+      // Trả lại trạng thái bình thường khi đóng menu
+      document.body.style.overflow = "unset";
+      document.body.style.touchAction = "auto";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+
+    // Cleanup function: Đảm bảo trang web hoạt động bình thường nếu component bị unmount
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.style.touchAction = "auto";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, [isMobileMenuOpen])
+
+  // --- DỮ LIỆU MENU ---
   const languages = [
     { code: "vi", name: "Tiếng Việt", flag: "VN" },
     { code: "en", name: "English", flag: "US" },
@@ -76,7 +68,6 @@ export function Navigation({ lang, dict }: NavigationProps) {
     { code: "kr", name: "한국어", flag: "KR" },
     { code: "cn", name: "中文", flag: "CN" },
   ]
-
   const currentLang = languages.find((l) => l.code === lang) || languages[0]
 
   const handleLangChange = (newLang: string) => {
@@ -97,68 +88,63 @@ export function Navigation({ lang, dict }: NavigationProps) {
   ]
 
   const serviceItems = [
-    { icon: Cog, slug: "cnc" },
-    { icon: Box, slug: "molds" },
-    { icon: ScanLine, slug: "3d-scan" },
-    { icon: Cpu, slug: "plc" },
-    { icon: CircleDot, slug: "coils" },
-    { icon: CircuitBoard, slug: "ems" },
+    { icon: Cog, slug: "cnc" }, { icon: Box, slug: "molds" },
+    { icon: ScanLine, slug: "3d-scan" }, { icon: Cpu, slug: "plc" },
+    { icon: CircleDot, slug: "coils" }, { icon: CircuitBoard, slug: "ems" },
     { icon: Monitor, slug: "it-software" },
   ]
 
+  const handlePrefetchLang = (targetLang: string) => {
+    const segments = pathname.split("/")
+    segments[1] = targetLang
+    router.prefetch(segments.join("/"))
+  }
+
   return (
     <>
-      // WEB demo (By Phan Tấn)
-        <motion.header
-          initial={{ y: -100 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.1, ease: "easeOut" }}
-          className={cn(
-            "fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
-            isScrolled
-              ? "bg-[#020617]/90 backdrop-blur-xl border-b border-[#f97316]/20 shadow-lg"
-              : "bg-transparent"
-          )}
+      {/* 1. HEADER BAR: Chỉ chứa thanh điều hướng ngang */}
+      <header 
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', zIndex: 9998 }}
+        className={cn(
+          "transition-all duration-500",
+          isScrolled 
+            ? "bg-[#020617]/95 backdrop-blur-md shadow-2xl border-b border-white/5" 
+            : "bg-transparent"
+        )}
+      >
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
-        {/* DESKTOP NAVIGATION */}
-        <DesktopNavigation
-          lang={lang}
-          dict={dict}
-          pathname={pathname}
-          isScrolled={isScrolled}
-          isMegaOpen={isMegaOpen}
-          isLangOpen={isLangOpen}
-          setIsMegaOpen={setIsMegaOpen}
-          setIsLangOpen={setIsLangOpen}
-          handleLangChange={handleLangChange}
-          handlePrefetchLang={handlePrefetchLang}
-          menuItems={menuItems}
-          serviceItems={serviceItems}
-          currentLang={currentLang}
-        />
+          {/* PC: DESKTOP NAVIGATION */}
+          <div className="hidden lg:block">
+            <DesktopNavigation
+              lang={lang}
+              dict={dict}
+              pathname={pathname}
+              isScrolled={isScrolled}
+              isMegaOpen={isMegaOpen}
+              isLangOpen={isLangOpen}
+              setIsMegaOpen={setIsMegaOpen}
+              setIsLangOpen={setIsLangOpen}
+              handleLangChange={handleLangChange}
+              handlePrefetchLang={handlePrefetchLang}
+              menuItems={menuItems}
+              serviceItems={serviceItems}
+              currentLang={currentLang}
+            />
+          </div>
 
-        {/* MOBILE MENU BUTTON */}
-        <nav className="lg:hidden container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href={`/${lang}`} className="flex items-center gap-3 group relative z-[110]">
-              <div className="relative">
-                <motion.div
-                  className="w-10 h-10 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-lg flex items-center justify-center shadow-lg shadow-[#f97316]/20"
-                  whileHover={{ rotate: 180 }}
-                  transition={{ duration: 0.7 }}
-                >
-                  <Cog className="w-6 h-6 text-[#020617]" />
-                </motion.div>
-                <div className="absolute inset-0 bg-[#f97316] rounded-lg blur-lg opacity-40 group-hover:opacity-60 transition-opacity" />
+          {/* MOBILE: NAVIGATION BAR (Chỉ chứa Logo & Nút mở menu) */}
+          <div className="lg:hidden container mx-auto px-4 py-4 flex items-center justify-between">
+            <Link href={`/${lang}`} className="flex items-center gap-2 relative z-[110]">
+              <div className="w-9 h-9 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded flex items-center justify-center">
+                <Cog className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <span className="text-2xl font-serif font-bold tracking-tight text-white">
-                  ZINI<span className="text-[#f97316]">TEK</span>
-                </span>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground -mt-1 font-medium">
-                  {dict.common.logo_subtitle}
-                </p>
-              </div>
+              <span className="text-xl font-bold text-white tracking-tight">
+                ZINI<span className="text-[#f97316]">TEK</span>
+              </span>
             </Link>
 
             <MobileNavigation
@@ -172,8 +158,12 @@ export function Navigation({ lang, dict }: NavigationProps) {
               serviceItems={serviceItems}
             />
           </div>
-        </nav>
-      </motion.header>
+        </motion.div>
+      </header>
+
+      {/* LƯU Ý QUAN TRỌNG: 
+        MobileNavigation chứa cả nút bấm và phần Overlay đã tối ưu z-index 99999.
+      */}
     </>
   )
 }

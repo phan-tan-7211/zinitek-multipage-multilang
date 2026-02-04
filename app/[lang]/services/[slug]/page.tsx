@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { ServicePageContent } from "@/components/service-page-content"
@@ -15,7 +14,6 @@ interface ServicePageProps {
 export async function generateStaticParams() {
   const slugs = getServiceSlugs()
   // Đối với đa ngôn ngữ, static params thường cần cả lang. 
-  // Nếu bạn chỉ có tiếng Việt thì để nguyên, nếu có nhiều lang thì cần map thêm lang vào đây.
   return slugs.map((slug) => ({ slug }))
 }
 
@@ -57,10 +55,12 @@ export default async function ServicePage({ params }: ServicePageProps) {
         <BlueprintBackground />
       </div>
 
-      {/* 4. Truyền lang và dict vào Navigation & Footer để hết lỗi crash */}
-      <Navigation lang={lang} dict={dict} />
+      {/* ĐÃ XÓA <Navigation /> TẠI ĐÂY 
+          để tránh hiện tượng 2 Navbar đè lên nhau do đã có ở Layout chung.
+      */}
       
-      <div className="relative z-10">
+      {/* 4. Thêm pt-20 lg:pt-28 vào div này để bù đắp khoảng trống cho Navbar cố định */}
+      <div className="relative z-10 pt-20 lg:pt-28">
         <ServicePageContent 
           service={service} 
           relatedServices={relatedServices} 

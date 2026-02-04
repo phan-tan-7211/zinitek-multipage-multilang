@@ -4,21 +4,24 @@ import { Montserrat, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import '../globals.css' 
 import TrackingProvider from "@/components/analytics";
+import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper"
+
+// 1. IMPORT THÊM NAVIGATION VÀ GETDICTIONARY
+import { Navigation } from "@/components/navigation"
+import { getDictionary } from "@/lib/get-dictionary"
 
 // TỐI ƯU HÓA FONT:
-// 1. Giảm weights: Chỉ giữ lại 400 (thường), 600 (semi-bold), 700 (bold)
-// 2. Thêm display: 'swap' để text hiện ra ngay lập tức
 const montserrat = Montserrat({ 
   subsets: ["latin"], 
   weight: ["400", "600", "700"], 
   variable: '--font-montserrat',
-  display: 'swap', //
+  display: 'swap', 
 });
 
 const inter = Inter({ 
   subsets: ["latin"],
   variable: '--font-inter',
-  display: 'swap', //
+  display: 'swap', 
 });
 
 export const metadata: Metadata = {
@@ -98,6 +101,9 @@ export default async function RootLayout({
   params: Promise<{ lang: string }> 
 }) {
   const { lang } = await params;
+  
+  // 2. FETCH DỮ LIỆU NGÔN NGỮ TẠI LAYOUT
+  const dict = await getDictionary(lang)
 
   return (
     <html lang={lang} className={`${montserrat.variable} ${inter.variable}`} suppressHydrationWarning>
@@ -105,15 +111,17 @@ export default async function RootLayout({
         <link rel="icon" href="/icon-light.svg?v=1" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon-light.svg" />
       </head>
-      <body className="font-sans antialiased">
-        {children}
+      
+      <body className="font-sans antialiased bg-[#020617]">
+        {/* BƯỚC QUAN TRỌNG: Navigation nằm NGOÀI SmartSwipeWrapper để giữ thuộc tính FIXED tuyệt đối */}
+        <Navigation lang={lang} dict={dict} />
+
+        <SmartSwipeWrapper lang={lang}>
+          {children}
+        </SmartSwipeWrapper>
+
         <Analytics />
-
-
-        {/* Clarity  https://clarity.microsoft.com/Quản lý toàn bộ tracking ở đây, cần xóa chỉ cần comment dòng này */}
         <TrackingProvider />
-
-
       </body>
     </html>
   )

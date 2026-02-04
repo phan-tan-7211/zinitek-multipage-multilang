@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { BlogSection } from "@/components/blog-section"
@@ -30,16 +29,20 @@ export default async function BlogPage({
   const dict = await getDictionary(lang)
 
   return (
+    /* LƯU Ý: Đã xóa <Navigation /> ở đây. 
+       Navbar hiện tại sẽ được gọi duy nhất 1 lần từ file layout.tsx 
+       để tránh lỗi nhân đôi và giữ tính năng cố định (fixed).
+    */
     <main className="min-h-screen bg-[#020617] text-foreground relative overflow-hidden">
       {/* Nền Blueprint */}
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />
       </div>
 
-      {/* 3. Truyền lang và dict vào Navigation để dập lỗi 'undefined' */}
-      <Navigation lang={lang} dict={dict} />
-      
-      <div className="relative z-10">
+      {/* Thêm pt-20 lg:pt-28 để bù đắp khoảng trống cho Navbar 
+         đã được đưa ra ngoài Layout.
+      */}
+      <div className="relative z-10 pt-20 lg:pt-28">
         <PageHeader 
           title={dict.blog?.title || "Blog"}
           subtitle={dict.blog?.subtitle || "Kiến thức chuyên sâu"}

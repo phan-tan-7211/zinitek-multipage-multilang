@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { PortfolioSection } from "@/components/portfolio-section"
@@ -31,10 +30,12 @@ export default async function PortfolioPage({
         <BlueprintBackground />
       </div>
 
-      {/* 3. Truyền 'lang' và 'dict' vào đây để dập lỗi 'undefined navigation' */}
-      <Navigation lang={lang} dict={dict} />
+      {/* LƯU Ý: Đã xóa component <Navigation /> ở đây.
+          Navbar đã được đưa ra file layout.tsx để cố định (fixed) trên đầu trang.
+      */}
       
-      <div className="relative z-10">
+      {/* 3. Thêm pt-20 lg:pt-28 để đẩy PageHeader xuống dưới thanh Navigation cố định */}
+      <div className="relative z-10 pt-20 lg:pt-28">
         <PageHeader 
           title={dict.portfolio?.title || (lang === 'vi' ? "Dự án" : "Projects")}
           subtitle={dict.portfolio?.subtitle || "Thành tựu tiêu biểu"}
