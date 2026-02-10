@@ -1,0 +1,196 @@
+{
+  "common": {
+    "home": "ホーム",
+    "logo_subtitle": "機械技術",
+    "contact_btn": "お見積り依頼",
+    "read_more": "詳細を見る",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "日本技術 - ベトナムコスト"
+  },
+  "testimonials": {
+    "badge": "お客様の声",
+    "title_part1": "信頼される",
+    "title_highlight": "パートナー",
+    "description": "長年にわたりZINITEKと共に歩んできたパートナー様からの評価をご紹介します。",
+    "trusted_by": "大手企業様からの信頼"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "about": "会社概要",
+    "services": "サービス",
+    "products": "製品情報",
+    "projects": "実績紹介",
+    "blog": "ブログ",
+    "contact": "お問い合わせ",
+    "view_all_services": "すべての技術サービスを見る"
+  },
+  "hero": {
+    "badge": "日本品質基準による運営",
+    "title_line1": "信頼の技術",
+    "title_highlight": "効率性",
+    "title_line2": "期待を超える品質",
+    "description": "ZINITEKは、最適な <span class='text-white font-medium'>CNC加工、金型製作</span>、および <span class='text-white font-medium'>自動化</span> ソリューションを提供します。実戦的な技術経験と厳格な管理プロセスを組み合わせ、競争力のあるコストで高品質を保証します。",
+    "cta_primary": "サービスを探索",
+    "cta_secondary": "代表的なプロジェクト",
+    "scroll_text": "スクロール",
+    "stats": {
+      "projects": "完了プロジェクト数",
+      "experience": "経験年数",
+      "quality": "標準達成製品",
+      "experts": "専門エンジニア"
+    }
+  },
+  "services": {
+    "title_main": "技術",
+    "title_highlight": "サービス",
+    "hub_description": "日本技術と最適化されたコストにより、機械加工から工場自動化まで包括的なソリューションを提供します。",
+    "read_more": "詳細はこちら",
+    "meta_title": "技術サービス - ZINITEK",
+    "meta_desc": "ZINITEKが提供する日本品質のCNC加工、金型製作、自動化ソリューション。"
+  },
+  "about_summary": {
+    "badge": "ZINITEKについて",
+    "title_main": "私たちは",
+    "title_highlight": "持続可能な価値",
+    "description": "確かな技術基盤と最新の設備により、ZINITEKはベトナムにおける精密機械分野の信頼できるパートナーとして誇りを持っています。",
+    "exp_label": "経験年数",
+    "cta_text": "詳しく知る",
+    "feature1_title": "最適なソリューション",
+    "feature1_desc": "技術コンサルティングにより、材料コストを20%削減します。",
+    "feature2_title": "高精度",
+    "feature2_desc": "極めて低い公差を実現し、厳しい基準に対応します。",
+    "feature3_title": "納期遵守",
+    "feature3_desc": "厳格な管理プロセスにより、予定通りの納品を約束します。"
+  },
+  "featured_projects": {
+    "badge": "代表的なプロジェクト",
+    "title_main": "確かな",
+    "title_highlight": "実行力",
+    "description": "主要パートナー様へ納品した実際の製品を通じて、ZINITEKの加工品質と実戦経験を証明します。",
+    "view_all": "すべて見る",
+    "view_details": "詳細を見る"
+  },
+  "news_section": {
+    "badge": "インサイト ＆ ニュース",
+    "title_main": "専門家の",
+    "title_highlight": "視点",
+    "description": "機械技術のトレンドや、ZINITEKチームによる実戦的な加工経験をアップデートします。",
+    "view_all": "すべての記事を見る"
+  },
+  "about_page": {
+    "meta_title": "ZINITEKについて | 精密加工 ＆ 自動化の専門家",
+    "header_title": "会社案内",
+    "header_subtitle": "ZINITEK ブランドストーリー",
+    "header_top_desc": "ベトナムの精密機械分野において国際基準を確立し、力強く成長してきた歩み。",
+    "header_desc": "ZINITEKは単なる製造工場ではなく、画期的な技術思考が集まる拠点です。私たちは、最先端のCNC加工と自動化ソリューションを通じて、設計コンセプトと実際の製品の間の障壁を取り除くという使命を持って設立されました。",
+    "description_2": "最新の機械設備と豊富な実務経験を持つエンジニアチームを擁するZINITEKは、日本、韓国の企業や多国籍企業の戦略的パートナーとして歩んできました。",
+    "commitment": "私たちの約束：絶対的な精度 - 期待を超えるスピード - 最適なコスト。ZINITEKは、グローバルな製造価値チェーンの向上において企業様をサポートします。"
+  },
+  "footer": {
+    "description": "日本基準に準拠した精密機械加工、金型設計、自動化分野の信頼できるパートナー。",
+    "quick_links": "クイックリンク",
+    "factory_address": "工場所在地",
+    "newsletter": "ニュースレター",
+    "newsletter_desc": "最新の技術ニュースや特典を受け取るために登録してください。",
+    "placeholder_email": "メールアドレス",
+    "copyright": "© 2026 ZINITEK. All rights reserved.",
+    "address_label": "ビンズオン省 ベンカット ミーフック3工業団地",
+    "privacy_policy": "プライバシーポリシー",
+    "terms_of_use": "利用規約",
+    "cookie_policy": "クッキーポリシー"
+  },
+  "portfolio": {
+    "title": "プロジェクト",
+    "subtitle": "代表的な実績",
+    "description": "ZINITEKの代表的な精密機械加工および自動化ソリューションのプロジェクトをご紹介します。",
+    "back_to_list": "リストに戻る",
+    "project_info": "プロジェクト情報",
+    "client_label": "クライアント",
+    "year_label": "実施年",
+    "service_label": "サービス内容",
+    "gallery_title": "実績ギャラリー"
+  },
+  "blog": {
+    "title": "ニュース",
+    "subtitle": "専門知識",
+    "description": "技術トレンドやZINITEKエンジニアチームによる経験の共有。",
+    "meta_title": "技術ブログ ＆ ニュース - ZINITEK",
+    "meta_desc": "精密機械加工技術のトレンドやZINITEKエンジニアによる実務経験のアップデート。",
+    "read_more": "続きを読む",
+    "back_to_blog": "ブログ一覧に戻る"
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "subtitle": "お問い合わせはこちら",
+    "description": "ZINITEKは、お客様のプロジェクトに最適な技術ソリューションを提案する準備が常に整っています。"
+  },
+  "contact_section": {
+    "badge": "お問い合わせ",
+    "title": "お見積り",
+    "title_highlight": "依頼",
+    "description": "無料相談およびお客様のプロジェクトの詳細な見積もりについては、今すぐお問い合わせください。",
+    "working_hours": {
+      "title": "営業時間",
+      "monday_friday": "月曜日 - 金曜日",
+      "saturday": "土曜日",
+      "sunday": "日曜日",
+      "closed": "定休日"
+    },
+    "form": {
+      "step": "ステップ",
+      "info_title": "連絡先情報",
+      "service_title": "ご関心のあるサービス",
+      "file_title": "資料添付",
+      "labels": {
+        "name": "お名前 *",
+        "company": "貴社名",
+        "email": "メールアドレス *",
+        "phone": "電話番号 *",
+        "service": "サービスを選択 *",
+        "message": "ご要望の詳細",
+        "file": "CAD/3D図面添付 (任意)"
+      },
+      "placeholders": {
+        "name": "例：山田 太郎",
+        "company": "株式会社〇〇",
+        "email": "email@company.com",
+        "phone": "090 1234 5678",
+        "service_default": "-- サービスを選択 --",
+        "message": "プロジェクトの詳細についてご記入ください...",
+        "file_hint": "ファイルをドラッグ＆ドロップ、またはクリックして選択",
+        "file_types": "対応フォーマット: DWG, DXF, STEP, IGES, STL, PDF (最大 50MB)"
+      },
+      "buttons": {
+        "next": "次へ",
+        "prev": "戻る",
+        "submit": "送信する"
+      },
+      "summary": {
+        "title": "内容確認",
+        "name": "お名前",
+        "email": "メールアドレス",
+        "service": "サービス"
+      },
+      "success_msg": "ありがとうございます。24時間以内に担当者よりご連絡いたします。"
+    },
+    "offices": [
+      {
+        "name": "メイン工場",
+        "address": "ビンズオン省 ベンカット ミーフック3工業団地"
+      },
+      {
+        "name": "ホーチミン事務所",
+        "address": "ホーチミン市 7区 グエンヴァンリン通り 123"
+      }
+    ],
+    "services_list": [
+      "精密CNC加工",
+      "金型設計・製作",
+      "PLC ＆ 自動化",
+      "電子機器組立",
+      "IT ＆ 産業用ソフトウェア",
+      "その他"
+    ]
+  }
+}

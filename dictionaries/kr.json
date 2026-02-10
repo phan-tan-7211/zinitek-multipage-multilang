@@ -1,0 +1,207 @@
+{
+  "common": {
+    "home": "홈",
+    "logo_subtitle": "기계 공학 솔루션",
+    "contact_btn": "견적 요청",
+    "read_more": "자세히 보기",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "일본의 기술력 - 베트남의 합리적 비용"
+  },
+  "testimonials": {
+    "badge": "고객 후기",
+    "title_part1": "신뢰할 수 있는",
+    "title_highlight": "파트너",
+    "description": "수년 동안 ZINITEK과 함께해온 파트너사들의 소중한 평가입니다.",
+    "trusted_by": "선도적인 글로벌 기업들이 신뢰하는 기업"
+  },
+  "navigation": {
+    "home": "홈",
+    "about": "회사 소개",
+    "services": "서비스",
+    "products": "제품",
+    "projects": "프로젝트",
+    "blog": "블로그",
+    "contact": "문의하기",
+    "view_all_services": "모든 기술 서비스 보기"
+  },
+  "hero": {
+    "badge": "일본 품질 표준 운영",
+    "title_line1": "신뢰할 수 있는 기술",
+    "title_highlight": "최고의 효율",
+    "title_line2": "기대 그 이상의 가치",
+    "description": "ZINITEK은 최적화된 <span class='text-white font-medium'>CNC 가공, 금형 제작</span> 및 <span class='text-white font-medium'>자동화</span> 솔루션을 제공합니다. 풍부한 현장 기술 경험과 엄격한 품질 관리 프로세스를 결합하여 합리적인 비용으로 최고의 품질을 보장합니다.",
+    "cta_primary": "서비스 탐색",
+    "cta_secondary": "주요 프로젝트",
+    "scroll_text": "스크롤",
+    "stats": {
+      "projects": "완료된 프로젝트",
+      "experience": "기술 경력(년)",
+      "quality": "품질 표준 달성",
+      "experts": "전문 엔지니어"
+    }
+  },
+  "services": {
+    "title_main": "기술",
+    "title_highlight": "서비스",
+    "hub_description": "일본의 정밀 기술과 최적의 비용을 바탕으로 기계 가공부터 공장 자동화까지 포괄적인 솔루션을 제공합니다.",
+    "read_more": "상세 정보",
+    "meta_title": "기술 서비스 - ZINITEK",
+    "meta_desc": "ZINITEK의 일본 품질 표준 CNC 가공, 금형 및 자동화 솔루션."
+  },
+  "about_summary": {
+    "badge": "ZINITEK 소개",
+    "title_main": "우리는",
+    "title_highlight": "지속 가능한 가치",
+    "title_main_suffix": "를 창출합니다",
+    "description": "탄탄한 기술적 토대와 현대적인 설비를 갖춘 ZINITEK은 베트남 정밀 기계 분야의 신뢰할 수 있는 파트너입니다.",
+    "exp_label": "년 경력",
+    "cta_text": "더 알아보기",
+    "feature1_title": "최적의 솔루션",
+    "feature1_desc": "기술 컨설팅을 통한 재료비 20% 절감.",
+    "feature2_title": "고정밀 가공",
+    "feature2_desc": "엄격한 표준을 준수하는 초정밀 오차 관리.",
+    "feature3_title": "납기 준수 보장",
+    "feature3_desc": "철저한 공정 관리를 통한 정시 납품 이행."
+  },
+  "featured_projects": {
+    "badge": "주요 프로젝트",
+    "title_main": "검증된",
+    "title_highlight": "실행 역량",
+    "description": "주요 파트너사를 위한 실제 제품 제작 사례를 통해 ZINITEK의 가공 품질과 현장 경험을 확인하십시오.",
+    "view_all": "전체 보기",
+    "view_details": "상세 보기"
+  },
+  "news_section": {
+    "badge": "지식 및 뉴스",
+    "title_main": "전문가",
+    "title_highlight": "인사이트",
+    "description": "ZINITEK 팀이 전하는 최신 기계 기술 트렌드와 현장 가공 노하우를 확인하세요.",
+    "view_all": "전체 게시글 보기"
+  },
+  "about_page": {
+    "meta_title": "ZINITEK 소개 | 정밀 가공 및 자동화 전문가",
+    "header_title": "회사 소개",
+    "header_subtitle": "ZINITEK 브랜드 스토리",
+    "header_top_desc": "베트남 정밀 기계 분야의 국제 표준을 선도하며 강력하게 성장하고 있습니다.",
+    "header_desc": "ZINITEK은 단순한 생산 공장을 넘어 혁신적인 기술 사고가 모이는 곳입니다. 우리는 최첨단 CNC 가공 및 자동화 솔루션을 통해 설계 아이디어와 실제 제품 사이의 장벽을 허물기 위해 탄생했습니다.",
+    "description_2": "현대적인 설비와 풍부한 현장 경험을 갖춘 엔지니어링 팀을 보유한 ZINITEK은 일본, 한국의 글로벌 기업 및 다국적 기업의 전략적 파트너로 협력하고 있습니다.",
+    "commitment": "우리는 약속합니다: 절대적인 정밀도 - 기대 이상의 납기 준수 - 비용 최적화. ZINITEK은 귀사의 글로벌 생산 가치 사슬을 한 단계 높이는 데 동행하겠습니다."
+  },
+  "footer": {
+    "description": "일본 품질 표준에 따른 정밀 기계 가공, 금형 설계 및 자동화 분야의 신뢰할 수 있는 파트너.",
+    "quick_links": "빠른 링크",
+    "factory_address": "공장 주소",
+    "newsletter": "뉴스레터",
+    "newsletter_desc": "최신 기술 소식과 혜택을 받으려면 구독하세요.",
+    "placeholder_email": "이메일 주소",
+    "copyright": "© 2026 ZINITEK. All rights reserved.",
+
+
+    "address_label": "미푸억 3 산업단지, 벤깟, 빈즈엉",
+
+  "privacy_policy": "개인정보 처리방침",
+
+  "terms_of_use": "이용 약관",
+
+  "cookie_policy": "쿠키 정책"
+},
+
+"portfolio": {
+  "title": "프로젝트",
+  "subtitle": "주요 성과",
+  "description": "ZINITEK의 정밀 기계 가공 및 대표적인 자동화 솔루션 프로젝트를 확인해 보십시오.",
+  "back_to_list": "목록으로 돌아가기",
+  "project_info": "프로젝트 정보",
+  "client_label": "고객사",
+  "year_label": "수행 연도",
+  "service_label": "서비스",
+  "gallery_title": "실제 이미지"
+},
+
+"blog": {
+  "title": "뉴스",
+  "subtitle": "전문 지식",
+  "description": "ZINITEK 엔지니어 팀의 기술 트렌드 업데이트 및 경험 공유.",
+  "meta_title": "기술 블로그 & 뉴스 - ZINITEK",
+  "meta_desc": "정밀 기계 가공 기술 트렌드와 ZINITEK 엔지니어들의 실제 경험을 공유합니다.",
+  "read_more": "더 읽기",
+  "back_to_blog": "블로그로 돌아가기"
+},
+
+"contact": {
+  "title": "문의하기",
+  "subtitle": "저희와 연결하세요",
+  "description": "ZINITEK은 항상 귀하의 프로젝트에 최적화된 기술 솔루션을 상담하고 지원할 준비가 되어 있습니다."
+},
+
+"contact_section": {
+  "badge": "문의",
+  "title": "요청",
+  "title_highlight": "견적",
+  "description": "지금 바로 연락하여 무료 상담과 상세 견적을 받아보세요.",
+  "working_hours": {
+    "title": "근무 시간",
+    "monday_friday": "월요일 - 금요일",
+    "saturday": "토요일",
+    "sunday": "일요일",
+    "closed": "휴무"
+  },
+  "form": {
+    "step": "단계",
+    "info_title": "연락처 정보",
+    "service_title": "관심 서비스",
+    "file_title": "자료 첨부",
+    "labels": {
+      "name": "성명 *",
+      "company": "회사명",
+      "email": "이메일 *",
+      "phone": "전화번호 *",
+      "service": "서비스 선택 *",
+      "message": "요청 설명",
+      "file": "CAD/3D 도면 첨부 (선택 사항)"
+    },
+    "placeholders": {
+      "name": "김철수",
+      "company": "회사명",
+      "email": "email@company.com",
+      "phone": "010-1234-5678",
+      "service_default": "-- 서비스 선택 --",
+      "message": "프로젝트에 대한 상세 설명...",
+      "file_hint": "파일을 드래그하거나 클릭하여 선택",
+      "file_types": "지원 형식: DWG, DXF, STEP, IGES, STL, PDF (최대 50MB)"
+    },
+    "buttons": {
+      "next": "다음",
+      "prev": "뒤로",
+      "submit": "요청 보내기"
+    },
+    "summary": {
+      "title": "요약",
+      "name": "이름",
+      "email": "이메일",
+      "service": "서비스"
+    },
+    "success_msg": "감사합니다! 24시간 내에 연락드리겠습니다."
+  },
+  "offices": [
+    {
+      "name": "본 공장",
+      "address": "미푸억 3 산업단지, 벤깟, 빈즈엉"
+    },
+    {
+      "name": "호치민 사무소",
+      "address": "123 응우옌반린, 7군, 호치민시"
+    }
+  ],
+  "services_list": [
+    "정밀 CNC 가공",
+    "금형 설계",
+    "PLC & 자동화",
+    "전자 조립",
+    "IT & 산업용 소프트웨어",
+    "기타"
+  ]
+
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "common": {
+    "home": "首页",
+    "logo_subtitle": "机械工程",
+    "contact_btn": "索取报价",
+    "read_more": "查看详情",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "日本技术 - 越南成本"
+  },
+  "testimonials": {
+    "badge": "客户见证",
+    "title_part1": "可靠的",
+    "title_highlight": "合作伙伴",
+    "description": "多年来与 ZINITEK 携手同行的合作伙伴给出的评价。",
+    "trusted_by": "深受领先企业的信赖"
+  },
+  "navigation": {
+    "home": "首页",
+    "about": "关于我们",
+    "services": "服务项目",
+    "products": "产品展示",
+    "projects": "项目案例",
+    "blog": "博客新闻",
+    "contact": "联系我们",
+    "view_all_services": "查看所有技术服务"
+  },
+  "hero": {
+    "badge": "按日本质量标准运行",
+    "title_line1": "可靠技术",
+    "title_highlight": "高效",
+    "title_line2": "超越期待",
+    "description": "ZINITEK 提供优化的 <span class='text-white font-medium'>CNC 加工、模具制造</span> 和 <span class='text-white font-medium'>自动化</span> 解决方案。我们将实战技术经验与严密的控制流程相结合，以最具竞争力的成本确保品质。",
+    "cta_primary": "探索服务",
+    "cta_secondary": "代表性项目",
+    "scroll_text": "向下滚动",
+    "stats": {
+      "projects": "完成项目",
+      "experience": "行业经验",
+      "quality": "达标产品",
+      "experts": "专家工程师"
+    }
+  },
+  "services": {
+    "title_main": "服务",
+    "title_highlight": "技术",
+    "hub_description": "提供从机械加工到工厂自动化的全面解决方案，采用日本技术并优化成本。",
+    "read_more": "了解详情",
+    "read_more_long": "查找详细信息",
+    "meta_title": "技术服务 - ZINITEK",
+    "meta_desc": "ZINITEK 提供的日本品质 CNC 加工、模具和自动化解决方案。"
+  },
+  "about_summary": {
+    "badge": "关于 ZINITEK",
+    "title_main": "我们创造",
+    "title_highlight": "可持续价值",
+    "description": "凭借扎实的技术基础和现代化的机械系统，ZINITEK 引以为傲地成为越南精密机械领域可靠的合作伙伴。",
+    "exp_label": "年经验",
+    "cta_text": "了解更多",
+    "feature1_title": "优化方案",
+    "feature1_desc": "技术咨询帮助降低 20% 的材料成本。",
+    "feature2_title": "高精度",
+    "feature2_desc": "极低公差，满足严苛标准。",
+    "feature3_title": "进度承诺",
+    "feature3_desc": "按时交付，流程严格把控。"
+  },
+  "featured_projects": {
+    "badge": "代表性项目",
+    "title_main": "实战",
+    "title_highlight": "能力",
+    "description": "通过为各大合作伙伴提供的实际产品，证明 ZINITEK 的加工质量和实战经验。",
+    "view_all": "查看全部",
+    "view_details": "查看详情"
+  },
+  "news_section": {
+    "badge": "知识与新闻",
+    "title_main": "专家",
+    "title_highlight": "观点",
+    "description": "掌握机械技术趋势，获取 ZINITEK 团队分享的实战加工经验。",
+    "view_all": "查看所有文章"
+  },
+  "about_page": {
+    "meta_title": "关于 ZINITEK | 精密加工与自动化专家",
+    "header_title": "关于我们",
+    "header_subtitle": "ZINITEK 品牌故事",
+    "header_top_desc": "强劲发展历程，确立越南精密机械领域的国际标准。",
+    "header_desc": "ZINITEK 不仅仅是一个生产车间，更是突破性技术思维的聚集地。我们的使命是通过最先进的 CNC 加工和自动化解决方案，消除设计理念与实际产品之间的障碍。",
+    "description_2": "拥有现代化的机械系统和经验丰富的工程师团队，ZINITEK 已成为来自日本、韩国以及跨国集团企业的战略合作伙伴。",
+    "commitment": "我们承诺：绝对精度 - 超越预期的进度 - 优化的成本。ZINITEK 与企业同行，提升全球生产价值链。"
+  },
+  "footer": {
+    "description": "精密机械加工、模具设计及自动化领域可靠的合作伙伴，遵循日本标准。",
+    "quick_links": "快速链接",
+    "factory_address": "工厂地址",
+    "newsletter": "订阅邮件",
+    "newsletter_desc": "订阅以获取最新的技术动态和优惠信息。",
+    "placeholder_email": "您的电子邮箱",
+    "copyright": "© 2026 ZINITEK. 版权所有。",
+    "address_label": "越南平阳省，美福 3 工业区",
+    "privacy_policy": "隐私政策",
+    "terms_of_use": "使用条款",
+    "cookie_policy": "Cookie 政策"
+  },
+  "portfolio": {
+    "title": "项目案例",
+    "subtitle": "代表性成就",
+    "description": "探索 ZINITEK 典型的精密机械加工项目和自动化解决方案。",
+    "back_to_list": "返回列表",
+    "project_info": "项目信息",
+    "client_label": "客户",
+    "year_label": "完成年份",
+    "service_label": "服务类别",
+    "gallery_title": "实物图片"
+  },
+  "blog": {
+    "title": "新闻",
+    "subtitle": "深度知识",
+    "description": "关注技术趋势，分享来自 ZINITEK 工程师团队的经验。",
+    "meta_title": "技术博客与新闻 - ZINITEK",
+    "meta_desc": "获取精密机械加工技术趋势及 ZINITEK 工程师团队的实战经验分享。",
+    "read_more": "阅读更多",
+    "back_to_blog": "返回博客"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "与我们建立联系",
+    "description": "ZINITEK 随时倾听并为您的项目提供优化的技术方案咨询。"
+  },
+  "contact_section": {
+    "badge": "联系我们",
+    "title": "索取",
+    "title_highlight": "报价",
+    "description": "立即联系以获取免费咨询及您项目的详细报价。",
+    "working_hours": {
+      "title": "工作时间",
+      "monday_friday": "周一至周五",
+      "saturday": "周六",
+      "sunday": "周日",
+      "closed": "休息"
+    },
+    "form": {
+      "step": "步骤",
+      "info_title": "联系信息",
+      "service_title": "感兴趣的服务",
+      "file_title": "附件材料",
+      "labels": {
+        "name": "姓名 *",
+        "company": "公司名称",
+        "email": "电子邮箱 *",
+        "phone": "电话号码 *",
+        "service": "选择服务 *",
+        "message": "需求描述",
+        "file": "上传 CAD/3D 图纸 (可选)"
+      },
+      "placeholders": {
+        "name": "张三",
+        "company": "您的公司名称",
+        "email": "email@company.com",
+        "phone": "0912 345 678",
+        "service_default": "-- 请选择服务 --",
+        "message": "请详细描述您的项目需求...",
+        "file_hint": "拖拽文件或点击选择",
+        "file_types": "支持格式：DWG, DXF, STEP, IGES, STL, PDF (最大 50MB)"
+      },
+      "buttons": {
+        "next": "下一步",
+        "prev": "返回",
+        "submit": "提交申请"
+      },
+      "summary": {
+        "title": "信息汇总",
+        "name": "姓名",
+        "email": "邮箱",
+        "service": "服务"
+      },
+      "success_msg": "谢谢！我们将在 24 小时内与您联系。"
+    },
+    "offices": [
+      {
+        "name": "主工厂",
+        "address": "平阳省，美福 3 工业区"
+      },
+      {
+        "name": "胡志明市办事处",
+        "address": "胡志明市，第 7 区，阮文灵路 123 号"
+      }
+    ],
+    "services_list": [
+      "精密 CNC 加工",
+      "模具设计与制造",
+      "PLC 与 自动化",
+      "电子组装",
+      "IT 与 工业软件",
+      "其他"
+    ]
+  }
+}

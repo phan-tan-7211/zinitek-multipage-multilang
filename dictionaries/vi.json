@@ -1,0 +1,196 @@
+{
+  "common": {
+    "home": "Trang chủ",
+    "logo_subtitle": "Kỹ Thuật Cơ Khí",
+    "contact_btn": "Yêu cầu báo giá",
+    "read_more": "Xem chi tiết",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "Kỹ thuật Nhật Bản - Chi phí Việt Nam"
+  },
+  "testimonials": {
+    "badge": "Khách hàng",
+    "title_part1": "Đối tác",
+    "title_highlight": "tin cậy",
+    "description": "Những đánh giá từ các đối tác đã đồng hành cùng ZINITEK trong nhiều năm qua.",
+    "trusted_by": "Được tin tưởng bởi các doanh nghiệp hàng đầu"
+  },
+  "navigation": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "services": "Dịch vụ",
+    "products": "Sản phẩm",
+    "projects": "Dự án",
+    "blog": "Blog",
+    "contact": "Liên hệ",
+    "view_all_services": "Xem tất cả dịch vụ kỹ thuật"
+  },
+  "hero": {
+    "badge": "Vận hành theo tiêu chuẩn chất lượng Nhật Bản",
+    "title_line1": "Kỹ thuật tin cậy",
+    "title_highlight": "Hiệu quả",
+    "title_line2": "Vượt mong đợi",
+    "description": "ZINITEK mang đến giải pháp <span class='text-white font-medium'>gia công CNC, khuôn mẫu</span> và <span class='text-white font-medium'>tự động hóa</span> tối ưu. Chúng tôi kết hợp kinh nghiệm kỹ thuật thực chiến cùng quy trình kiểm soát chặt chẽ để đảm bảo chất lượng với chi phí cạnh tranh nhất.",
+    "cta_primary": "Khám phá dịch vụ",
+    "cta_secondary": "Dự án tiêu biểu",
+    "scroll_text": "Cuộn xuống",
+    "stats": {
+      "projects": "Dự án hoàn thành",
+      "experience": "Năm kinh nghiệm",
+      "quality": "Sản phẩm đạt chuẩn",
+      "experts": "Kỹ sư chuyên gia"
+    }
+  },
+  "services": {
+    "title_main": "Dịch vụ",
+    "title_highlight": "Kỹ thuật",
+    "hub_description": "Giải pháp toàn diện từ gia công cơ khí đến tự động hóa nhà máy với kỹ thuật Nhật Bản và chi phí tối ưu.",
+    "read_more": "Tìm hiểu chi tiết",
+    "meta_title": "Dịch vụ kỹ thuật - ZINITEK",
+    "meta_desc": "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK."
+  },
+  "about_summary": {
+    "badge": "Về ZINITEK",
+    "title_main": "Chúng tôi tạo ra",
+    "title_highlight": "giá trị bền vững",
+    "description": "Với nền tảng kỹ thuật vững chắc và hệ thống máy móc hiện đại, ZINITEK tự hào là đối tác tin cậy trong lĩnh vực cơ khí chính xác tại Việt Nam.",
+    "exp_label": "Năm kinh nghiệm",
+    "cta_text": "Tìm hiểu thêm",
+    "feature1_title": "Giải pháp tối ưu",
+    "feature1_desc": "Tư vấn kỹ thuật giúp giảm 20% chi phí vật liệu.",
+    "feature2_title": "Độ chính xác cao",
+    "feature2_desc": "Sai số cực thấp, đáp ứng tiêu chuẩn khắt khe.",
+    "feature3_title": "Cam kết tiến độ",
+    "feature3_desc": "Giao hàng đúng hẹn, quy trình kiểm soát chặt chẽ."
+  },
+  "featured_projects": {
+    "badge": "Dự án tiêu biểu",
+    "title_main": "Năng lực",
+    "title_highlight": "thực tế",
+    "description": "Minh chứng cho chất lượng gia công và kinh nghiệm thực chiến của ZINITEK qua các sản phẩm thực tế cho đối tác lớn.",
+    "view_all": "Xem tất cả",
+    "view_details": "Xem chi tiết"
+  },
+  "news_section": {
+    "badge": "Kiến thức & Tin tức",
+    "title_main": "Góc nhìn",
+    "title_highlight": "Chuyên gia",
+    "description": "Cập nhật xu hướng công nghệ cơ khí và kinh nghiệm gia công thực chiến từ đội ngũ ZINITEK.",
+    "view_all": "Xem tất cả bài viết"
+  },
+  "about_page": {
+    "meta_title": "Về ZINITEK | Chuyên Gia Gia Công Chính Xác & Tự Động Hóa",
+    "header_title": "Về Chúng Tôi",
+    "header_subtitle": "Câu chuyện thương hiệu ZINITEK",
+    "header_top_desc": "Hành trình vươn mình mạnh mẽ, xác lập tiêu chuẩn quốc tế trong lĩnh vực cơ khí chính xác tại Việt Nam.",
+    "header_desc": "ZINITEK không chỉ là một xưởng sản xuất, mà là nơi hội tụ của tư duy kỹ thuật đột phá. Chúng tôi ra đời với sứ mệnh xóa bỏ rào cản giữa ý tưởng thiết kế và sản phẩm thực tế thông qua những giải pháp gia công CNC và tự động hóa tiên tiến nhất.",
+    "description_2": "Sở hữu hệ thống máy móc hiện đại cùng đội ngũ kỹ sư dày dặn kinh nghiệm thực chiến, ZINITEK đã và đang là đối tác chiến lược của các doanh nghiệp đến từ Nhật Bản, Hàn Quốc và các tập đoàn đa quốc gia.",
+    "commitment": "Chúng tôi cam kết: Độ chính xác tuyệt đối - Tiến độ vượt mong đợi - Chi phí tối ưu. ZINITEK đồng hành cùng doanh nghiệp nâng tầm chuỗi giá trị sản xuất toàn cầu."
+  },
+  "footer": {
+    "description": "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác, thiết kế khuôn mẫu và tự động hóa theo tiêu chuẩn Nhật Bản.",
+    "quick_links": "Liên kết nhanh",
+    "factory_address": "Địa chỉ nhà máy",
+    "newsletter": "Bản tin",
+    "newsletter_desc": "Đăng ký nhận tin tức công nghệ và ưu đãi mới nhất.",
+    "placeholder_email": "Email của bạn",
+    "copyright": "© 2026 ZINITEK. Tất cả quyền được bảo lưu.",
+    "address_label": "KCN Mỹ Phước 3, Bến Cát, Bình Dương",
+    "privacy_policy": "Chính sách bảo mật",
+    "terms_of_use": "Điều khoản sử dụng",
+    "cookie_policy": "Chính sách cookie"
+  },
+  "portfolio": {
+    "title": "Dự án",
+    "subtitle": "Thành tựu tiêu biểu",
+    "description": "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK.",
+    "back_to_list": "Quay lại danh sách",
+    "project_info": "Thông tin dự án",
+    "client_label": "Khách hàng",
+    "year_label": "Năm thực hiện",
+    "service_label": "Dịch vụ",
+    "gallery_title": "Hình ảnh thực tế"
+  },
+  "blog": {
+    "title": "Tin tức",
+    "subtitle": "Kiến thức chuyên sâu",
+    "description": "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.",
+    "meta_title": "Blog Kỹ Thuật & Tin Tức - ZINITEK",
+    "meta_desc": "Cập nhật các xu hướng công nghệ gia công cơ khí chính xác và chia sẻ kinh nghiệm thực tế từ đội ngũ kỹ sư ZINITEK.",
+    "read_more": "Đọc tiếp",
+    "back_to_blog": "Quay lại Blog"
+  },
+  "contact": {
+    "title": "Liên hệ",
+    "subtitle": "Kết nối với chúng tôi",
+    "description": "ZINITEK luôn sẵn sàng lắng nghe và tư vấn các giải pháp kỹ thuật tối ưu cho dự án của bạn."
+  },
+  "contact_section": {
+    "badge": "Liên hệ",
+    "title": "Yêu cầu",
+    "title_highlight": "báo giá",
+    "description": "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn.",
+    "working_hours": {
+      "title": "Giờ làm việc",
+      "monday_friday": "Thứ 2 - Thứ 6",
+      "saturday": "Thứ 7",
+      "sunday": "Chủ nhật",
+      "closed": "Nghỉ"
+    },
+    "form": {
+      "step": "Bước",
+      "info_title": "Thông tin liên hệ",
+      "service_title": "Dịch vụ quan tâm",
+      "file_title": "Đính kèm tài liệu",
+      "labels": {
+        "name": "Họ và tên *",
+        "company": "Công ty",
+        "email": "Email *",
+        "phone": "Số điện thoại *",
+        "service": "Chọn dịch vụ *",
+        "message": "Mô tả yêu cầu",
+        "file": "Đính kèm bản vẽ CAD/3D (tùy chọn)"
+      },
+      "placeholders": {
+        "name": "Nguyễn Văn A",
+        "company": "Tên công ty",
+        "email": "email@company.com",
+        "phone": "0912 345 678",
+        "service_default": "-- Chọn dịch vụ --",
+        "message": "Mô tả chi tiết về dự án...",
+        "file_hint": "Kéo thả file hoặc click để chọn",
+        "file_types": "Hỗ trợ: DWG, DXF, STEP, IGES, STL, PDF (Max 50MB)"
+      },
+      "buttons": {
+        "next": "Tiếp theo",
+        "prev": "Quay lại",
+        "submit": "Gửi yêu cầu"
+      },
+      "summary": {
+        "title": "Tóm tắt",
+        "name": "Tên",
+        "email": "Email",
+        "service": "Dịch vụ"
+      },
+      "success_msg": "Cảm ơn bạn! Chúng tôi sẽ liên hệ trong 24 giờ."
+    },
+    "offices": [
+      {
+        "name": "Nhà máy chính",
+        "address": "Khu công nghiệp Mỹ Phước 3, Thị xã Bến Cát, Bình Dương"
+      },
+      {
+        "name": "Văn phòng TP.HCM",
+        "address": "123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh"
+      }
+    ],
+    "services_list": [
+      "Gia công CNC chính xác",
+      "Thiết kế khuôn mẫu",
+      "PLC & Tự động hóa",
+      "Lắp ráp điện tử",
+      "CNTT & Phần mềm CN",
+      "Khác"
+    ]
+  }
+}

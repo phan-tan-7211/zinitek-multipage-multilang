@@ -1,0 +1,196 @@
+{
+  "common": {
+    "home": "Home",
+    "logo_subtitle": "Mechanical Engineering",
+    "contact_btn": "Request a Quote",
+    "read_more": "View Details",
+    "phone_label": "+84 274 123 456",
+    "email_label": "info@zinitek.vn",
+    "slogan_top": "Japanese Engineering - Vietnamese Cost"
+  },
+  "testimonials": {
+    "badge": "Testimonials",
+    "title_part1": "Trusted",
+    "title_highlight": "Partners",
+    "description": "Feedback from partners who have accompanied ZINITEK over the years.",
+    "trusted_by": "Trusted by leading enterprises"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Services",
+    "products": "Products",
+    "projects": "Projects",
+    "blog": "Blog",
+    "contact": "Contact",
+    "view_all_services": "View all technical services"
+  },
+  "hero": {
+    "badge": "Operating under Japanese quality standards",
+    "title_line1": "Reliable Engineering",
+    "title_highlight": "Efficiency",
+    "title_line2": "Beyond Expectations",
+    "description": "ZINITEK provides optimized solutions for <span class='text-white font-medium'>CNC machining, mold making</span>, and <span class='text-white font-medium'>automation</span>. We combine hands-on technical experience with strict control processes to ensure quality at the most competitive cost.",
+    "cta_primary": "Explore Services",
+    "cta_secondary": "Featured Projects",
+    "scroll_text": "Scroll down",
+    "stats": {
+      "projects": "Completed Projects",
+      "experience": "Years of Experience",
+      "quality": "Standard Products",
+      "experts": "Expert Engineers"
+    }
+  },
+  "services": {
+    "title_main": "Technical",
+    "title_highlight": "Services",
+    "hub_description": "Comprehensive solutions from mechanical machining to factory automation with Japanese engineering and optimized costs.",
+    "read_more": "Learn More",
+    "meta_title": "Technical Services - ZINITEK",
+    "meta_desc": "High-quality CNC machining, mold making, and automation solutions following Japanese standards at ZINITEK."
+  },
+  "about_summary": {
+    "badge": "About ZINITEK",
+    "title_main": "We create",
+    "title_highlight": "Sustainable Value",
+    "description": "With a solid technical foundation and modern machinery systems, ZINITEK is proud to be a reliable partner in the precision engineering field in Vietnam.",
+    "exp_label": "Years of Experience",
+    "cta_text": "Learn More",
+    "feature1_title": "Optimal Solutions",
+    "feature1_desc": "Technical consulting helps reduce material costs by 20%.",
+    "feature2_title": "High Precision",
+    "feature2_desc": "Ultra-low tolerances, meeting the most stringent standards.",
+    "feature3_title": "Timeline Commitment",
+    "feature3_desc": "On-time delivery with a rigorous control process."
+  },
+  "featured_projects": {
+    "badge": "Featured Projects",
+    "title_main": "Proven",
+    "title_highlight": "Capability",
+    "description": "Demonstrating ZINITEK's machining quality and hands-on experience through actual products delivered to major partners.",
+    "view_all": "View All",
+    "view_details": "View Details"
+  },
+  "news_section": {
+    "badge": "Insights & News",
+    "title_main": "Expert",
+    "title_highlight": "Perspectives",
+    "description": "Stay updated with mechanical technology trends and practical machining experience from the ZINITEK team.",
+    "view_all": "View all articles"
+  },
+  "about_page": {
+    "meta_title": "About ZINITEK | Precision Machining & Automation Experts",
+    "header_title": "About Us",
+    "header_subtitle": "ZINITEK Brand Story",
+    "header_top_desc": "A journey of strong growth, establishing international standards in the precision engineering sector in Vietnam.",
+    "header_desc": "ZINITEK is not just a production facility; it is a hub for breakthrough technical thinking. We were founded with the mission to bridge the gap between design concepts and actual products through the most advanced CNC machining and automation solutions.",
+    "description_2": "Equipped with modern machinery and a team of engineers with extensive practical experience, ZINITEK has been a strategic partner for businesses from Japan, Korea, and multi-national corporations.",
+    "commitment": "We commit to: Absolute Precision - Timelines beyond expectations - Optimized costs. ZINITEK accompanies businesses in elevating the global production value chain."
+  },
+  "footer": {
+    "description": "A reliable partner in precision mechanical machining, mold design, and automation following Japanese standards.",
+    "quick_links": "Quick Links",
+    "factory_address": "Factory Address",
+    "newsletter": "Newsletter",
+    "newsletter_desc": "Subscribe to receive the latest technology news and offers.",
+    "placeholder_email": "Your email address",
+    "copyright": "© 2026 ZINITEK. All rights reserved.",
+    "address_label": "My Phuoc 3 Industrial Park, Ben Cat, Binh Duong",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_use": "Terms of Use",
+    "cookie_policy": "Cookie Policy"
+  },
+  "portfolio": {
+    "title": "Projects",
+    "subtitle": "Featured Achievements",
+    "description": "Explore ZINITEK's typical precision machining and automation solution projects.",
+    "back_to_list": "Back to List",
+    "project_info": "Project Information",
+    "client_label": "Client",
+    "year_label": "Completion Year",
+    "service_label": "Service",
+    "gallery_title": "Project Gallery"
+  },
+  "blog": {
+    "title": "News",
+    "subtitle": "In-depth Knowledge",
+    "description": "Technology trends and experience shared by the ZINITEK engineering team.",
+    "meta_title": "Technical Blog & News - ZINITEK",
+    "meta_desc": "Update on precision mechanical machining technology trends and practical experience shared by ZINITEK engineers.",
+    "read_more": "Read More",
+    "back_to_blog": "Back to Blog"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Connect with Us",
+    "description": "ZINITEK is always ready to listen and consult on the most optimal technical solutions for your project."
+  },
+  "contact_section": {
+    "badge": "Contact",
+    "title": "Request a",
+    "title_highlight": "Quote",
+    "description": "Contact us now for a free consultation and a detailed quote for your project.",
+    "working_hours": {
+      "title": "Working Hours",
+      "monday_friday": "Monday - Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "closed": "Closed"
+    },
+    "form": {
+      "step": "Step",
+      "info_title": "Contact Information",
+      "service_title": "Service of Interest",
+      "file_title": "Document Attachment",
+      "labels": {
+        "name": "Full Name *",
+        "company": "Company",
+        "email": "Email *",
+        "phone": "Phone Number *",
+        "service": "Select Service *",
+        "message": "Requirement Description",
+        "file": "Attach CAD/3D Drawings (Optional)"
+      },
+      "placeholders": {
+        "name": "John Doe",
+        "company": "Company Name",
+        "email": "email@company.com",
+        "phone": "0912 345 678",
+        "service_default": "-- Select Service --",
+        "message": "Detailed project description...",
+        "file_hint": "Drag & drop files or click to upload",
+        "file_types": "Supports: DWG, DXF, STEP, IGES, STL, PDF (Max 50MB)"
+      },
+      "buttons": {
+        "next": "Next",
+        "prev": "Back",
+        "submit": "Submit Request"
+      },
+      "summary": {
+        "title": "Summary",
+        "name": "Name",
+        "email": "Email",
+        "service": "Service"
+      },
+      "success_msg": "Thank you! We will contact you within 24 hours."
+    },
+    "offices": [
+      {
+        "name": "Main Factory",
+        "address": "My Phuoc 3 Industrial Park, Ben Cat, Binh Duong"
+      },
+      {
+        "name": "HCMC Office",
+        "address": "123 Nguyen Van Linh, District 7, Ho Chi Minh City"
+      }
+    ],
+    "services_list": [
+      "Precision CNC Machining",
+      "Mold Design & Manufacturing",
+      "PLC & Automation",
+      "Electronic Assembly",
+      "IT & Industrial Software",
+      "Others"
+    ]
+  }
+}
