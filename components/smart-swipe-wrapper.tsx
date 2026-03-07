@@ -10,8 +10,8 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
   const controls = useAnimation();
   const [desktopSwipeEnabled, setDesktopSwipeEnabled] = useState(false);
 
-  const mainRoutes = [`/${lang}`, `/${lang}/about`, `/${lang}/services`, `/${lang}/portfolio`, `/${lang}/blog`, `/${lang}/contact` ];
-  const subServices = [`/${lang}/services/cnc`, `/${lang}/services/molds`, `/${lang}/services/3d-scan`, `/${lang}/services/plc`, `/${lang}/services/coils`, `/${lang}/services/ems`, `/${lang}/services/it-software` ];
+  const mainRoutes = [`/${lang}`, `/${lang}/about`, `/${lang}/services`, `/${lang}/portfolio`, `/${lang}/blog`, `/${lang}/contact`];
+  const subServices = [`/${lang}/services/cnc`, `/${lang}/services/molds`, `/${lang}/services/3d-scan`, `/${lang}/services/plc`, `/${lang}/services/coils`, `/${lang}/services/ems`, `/${lang}/services/it-software`];
 
   useEffect(() => {
     const checkStatus = () => {
@@ -25,8 +25,8 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
 
   const bind = useDrag(({ active, movement: [mx], velocity: [vx] }) => {
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent("swipe-active", { 
-        detail: { active, velocity: vx, distance: mx } 
+      window.dispatchEvent(new CustomEvent("swipe-active", {
+        detail: { active, velocity: vx, distance: mx }
       }));
     }
 
@@ -37,15 +37,16 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
       const distance = Math.abs(mx);
       const isRight = mx > 0; // Kéo sang phải (Về trước)
       const isLeft = mx < 0;  // Kéo sang trái (Tiếp theo)
-      
+
+      const subIndex = subServices.indexOf(pathname);
+      const isOnSubPage = subIndex !== -1;
+
       // ĐỒNG BỘ NGƯỠNG TUYỆT ĐỐI
-      const isCamThreshold = distance > 130; // Khoảng cách để chuyển trang CHA (Màu Cam)
+      // Nếu đang ở trang con, cần vuốt sâu (130px) để về trang cha. Nếu ở trang bình thường (như Trang chủ), chỉ cần 60px.
+      const isCamThreshold = distance > (isOnSubPage ? 130 : 60);
       const isWhiteThreshold = distance > 30; // Khoảng cách để chuyển trang CON (Màu Trắng)
 
       if (isCamThreshold || isWhiteThreshold) {
-        const subIndex = subServices.indexOf(pathname);
-        const isOnSubPage = subIndex !== -1;
-
         // 1. ƯU TIÊN CHUYỂN TRANG CHA (CAM)
         if (isCamThreshold) {
           const mainIndex = mainRoutes.findIndex(r => r === `/${lang}` ? pathname === r : pathname.startsWith(r));
@@ -59,7 +60,7 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
               return router.push(mainRoutes[mainIndex - 1]);
             }
           }
-        } 
+        }
         // 2. CHUYỂN TRANG CON (TRẮNG)
         else if (isOnSubPage && isWhiteThreshold) {
           if (isLeft && subIndex < subServices.length - 1) {
@@ -72,10 +73,11 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
           }
         }
       }
-      
-      controls.start({ x: 0, transition: { type: "spring", stiffness: 450, damping: 35 } });
+
+      controls.start({ x: 0, transition: { type: "spring", stiffness: 450, damping: 40 } });
     } else {
-      controls.set({ x: mx / 3.8 }); 
+      // Giảm hệ số chia để UI di chuyển nhạy và theo tay người dùng hơn (trước kia là 3.8 quá cứng)
+      controls.set({ x: mx / 1.5 });
     }
   }, { axis: 'x', pointer: { touch: true }, filterTaps: true });
 
@@ -90,7 +92,7 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
   }, [pathname, controls]);
 
   return (
-    <motion.div {...bind()} animate={controls} className="touch-pan-y will-change-transform" style={{ touchAction: 'pan-y' }}>
+    <motion.div {...(bind() as any)} animate={controls} className="touch-pan-y will-change-transform" style={{ touchAction: 'pan-y' }}>
       {children}
     </motion.div>
   );

@@ -59,7 +59,7 @@ async function layDanhSachBaiVietTuSanity(ngonNguHienTai: string) {
   });
 
   // Sắp xếp bài viết theo ngày đăng mới nhất
-  return danhSachBaiVietCuoiCung.sort((doiTuongA, doiTuongB) => 
+  return danhSachBaiVietCuoiCung.sort((doiTuongA, doiTuongB) =>
     new Date(doiTuongB.publishedAt).getTime() - new Date(doiTuongA.publishedAt).getTime()
   );
 }
@@ -68,7 +68,7 @@ async function layDanhSachBaiVietTuSanity(ngonNguHienTai: string) {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const thamSoDuongDan = await params;
   const tuDien = await getDictionary(thamSoDuongDan.lang);
-  
+
   return {
     title: tuDien.blog?.meta_title || "Blog Kỹ Thuật - ZINITEK",
     description: tuDien.blog?.meta_desc || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.",
@@ -76,14 +76,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 // --- 4. THÀNH PHẦN TRANG CHÍNH ---
-export default async function BlogPage({ 
-  params 
-}: { 
-  params: Promise<{ lang: string }> 
+export default async function BlogPage({
+  params
+}: {
+  params: Promise<{ lang: string }>
 }) {
   const thamSoDuongDan = await params;
   const ngonNgu = thamSoDuongDan.lang;
-  
+
   // Lấy từ điển và dữ liệu bài viết song song
   const [tuDien, danhSachBaiViet] = await Promise.all([
     getDictionary(ngonNgu),
@@ -97,21 +97,22 @@ export default async function BlogPage({
       </div>
 
       <div className="relative z-10 pt-20 lg:pt-28">
-        <PageHeader 
-          heading={tuDien.blog?.title || "Blog"}
-          text={tuDien.blog?.description || "Kiến thức chuyên sâu về cơ khí chính xác và tự động hóa."}
+        <PageHeader
+          title={tuDien.blog?.title || "Blog"}
+          subtitle={tuDien.blog?.subtitle || "Bài viết"}
+          description={tuDien.blog?.description || "Kiến thức chuyên sâu về cơ khí chính xác và tự động hóa."}
           lang={ngonNgu}
           dict={tuDien}
         />
-        
+
         {/* 
             TRUYỀN DỮ LIỆU ĐỘNG VÀO BLOG SECTION:
             - posts: Danh sách bài viết đã qua lọc Fallback.
         */}
-        <BlogSection 
-          posts={danhSachBaiViet} 
-          lang={ngonNgu} 
-          dict={tuDien} 
+        <BlogSection
+          posts={danhSachBaiViet}
+          lang={ngonNgu}
+          dict={tuDien}
         />
       </div>
 

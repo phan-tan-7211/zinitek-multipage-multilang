@@ -35,6 +35,7 @@ const testimonials = [
 
 interface TestimonialsSectionProps {
   dict: any // Nhận dictionary từ page/layout
+  lang?: string
 }
 
 function TestimonialCard({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) {

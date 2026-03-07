@@ -1,20 +1,41 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState, useRef } from "react"
+import { ChevronLeft, ChevronRight, Home, Info, Settings, Package, Briefcase, FileText, Phone, Circle } from "lucide-react"
+import * as LucideIcons from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function MobileWidgetIndicator({ lang, dict }: { lang: string, dict: any }) {
+const toPascalCase = (str: string) => {
+  if (!str) return "Circle";
+  // Loại bỏ prefix nếu có (ví dụ "lucide:wrench" -> "wrench")
+  const name = str.includes(":") ? str.split(":")[1] : str;
+  // Chuyển kebab-case sang PascalCase (ví dụ "arrow-right" -> "ArrowRight")
+  return name.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("");
+};
+
+const DynamicIcon = ({ name, ...props }: { name: string } & any) => {
+  const compName = toPascalCase(name);
+  const Icon = (LucideIcons as any)[compName] || LucideIcons.Circle;
+  return <Icon {...props} />;
+};
+
+export function MobileWidgetIndicator({ lang, dict, services = [] }: { lang: string, dict: any, services?: { slug: string, icon: string }[] }) {
   const pathname = usePathname()
+  const router = useRouter()
+  // Ref cho container sub-menu để auto-scroll
+  const subMenuContainerRef = useRef<HTMLDivElement>(null);
+
+  // LOGIC: Chỉ hiển thị dải Sub-menu này khi người dùng đang ở trang dịch vụ chi tiết (ví dụ: /vi/services/[slug])
+  const isAtSubService = pathname.startsWith(`/${lang}/services/`) && pathname !== `/${lang}/services`;
   // Lưu thêm rawDistance để biết hướng kéo Trái/Phải
   const [swipeData, setSwipeData] = useState({ active: false, distance: 0, rawDistance: 0 })
 
   useEffect(() => {
     const handleTouch = (e: any) => {
-      setSwipeData({ 
-        active: e.detail.active, 
+      setSwipeData({
+        active: e.detail.active,
         distance: Math.abs(e.detail.distance || 0),
         rawDistance: e.detail.distance || 0
       });
@@ -32,37 +53,54 @@ export function MobileWidgetIndicator({ lang, dict }: { lang: string, dict: any 
   const isMoving = d > 5;
 
   let arrowColor = "#ffffff";
-  let arrowOpacity = 0.2; 
+  let arrowOpacity = 0.2;
   let arrowScale = 1;
 
   if (isMainThreshold) {
-    arrowColor = "#f97316"; 
+    arrowColor = "#f97316";
     arrowOpacity = 1;
     arrowScale = 1.4;
   } else if (isSubThreshold) {
-    arrowColor = "#ffffff"; 
+    arrowColor = "#ffffff";
     arrowOpacity = 1;
     arrowScale = 1.1;
   } else if (isMoving) {
-    arrowOpacity = 0.4;     
+    arrowOpacity = 0.4;
     arrowScale = 0.95;
   }
 
-  const subServiceSlugs = ["cnc", "molds", "3d-scan", "plc", "coils", "ems", "it-software"];
+  const subServices = services && services.length > 0 ? services : [
+    { slug: "cnc", icon: "Wrench" },
+    { slug: "molds", icon: "Box" },
+    { slug: "3d-scan", icon: "ScanLine" },
+    { slug: "plc", icon: "Cpu" },
+    { slug: "coils", icon: "Wind" },
+    { slug: "ems", icon: "Zap" },
+    { slug: "it-software", icon: "Code" }
+  ];
   const routes = [
-    { path: `/${lang}`, label: dict.navigation?.home },
-    { path: `/${lang}/about`, label: dict.navigation?.about },
-    { path: `/${lang}/services`, label: dict.navigation?.services },
-    { path: `/${lang}/products`, label: dict.navigation?.products }, 
-    { path: `/${lang}/portfolio`, label: dict.navigation?.projects },
-    { path: `/${lang}/blog`, label: dict.navigation?.blog },
-    { path: `/${lang}/contact`, label: dict.navigation?.contact },
+    { path: `/${lang}`, label: dict.navigation?.home || "Trang chủ", icon: Home },
+    { path: `/${lang}/about`, label: dict.navigation?.about || "Giới thiệu", icon: Info },
+    { path: `/${lang}/services`, label: dict.navigation?.services || "Dịch vụ", icon: Settings },
+    { path: `/${lang}/products`, label: dict.navigation?.products || "Sản phẩm", icon: Package },
+    { path: `/${lang}/portfolio`, label: dict.navigation?.projects || "Dự án", icon: Briefcase },
+    { path: `/${lang}/blog`, label: dict.navigation?.blog || "Tin tức", icon: FileText },
+    { path: `/${lang}/contact`, label: dict.navigation?.contact || "Liên hệ", icon: Phone },
   ]
 
   const currentIndex = routes.findIndex(r => r.path === `/${lang}` ? pathname === r.path : pathname.startsWith(r.path));
-  const isAtSubService = pathname.startsWith(`/${lang}/services/`) && pathname !== `/${lang}/services`;
   const currentServiceSlug = isAtSubService ? pathname.split('/').pop() : null;
-  const currentSubIndex = subServiceSlugs.indexOf(currentServiceSlug || "");
+  const currentSubIndex = subServices.findIndex(s => s.slug === currentServiceSlug);
+
+  // Tự động cuộn Sub-menu icon đang active vào giữa
+  useEffect(() => {
+    if (isAtSubService && subMenuContainerRef.current) {
+      const activeItem = subMenuContainerRef.current.querySelector('[data-active="true"]');
+      if (activeItem) {
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [pathname, isAtSubService]);
 
   if (currentIndex === -1) return null;
 
@@ -70,91 +108,116 @@ export function MobileWidgetIndicator({ lang, dict }: { lang: string, dict: any 
     <>
       <AnimatePresence>
         {swipeData.active && (
-          <div className="fixed inset-y-0 left-0 right-0 pointer-events-none z-[110] flex items-center justify-between px-6">
+          <div className="fixed inset-y-0 left-0 right-0 pointer-events-none z-[110] flex items-center justify-between px-6 lg:hidden">
             {/* Mũi tên trái: Chỉ hiện rõ khi kéo sang PHẢI (về trước) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
-              animate={{ 
-                opacity: raw > 0 ? arrowOpacity : 0.1, 
-                scale: raw > 0 ? arrowScale : 0.8, 
+              animate={{
+                opacity: raw > 0 ? arrowOpacity : 0.1,
+                scale: raw > 0 ? arrowScale : 0.8,
                 color: arrowColor,
-                x: 0 
+                x: 0
               }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.1, ease: "linear" }}
             >
-              <ChevronLeft 
-                className="w-14 h-14 stroke-[1.5px]" 
-                style={{ filter: `drop-shadow(0 0 10px ${arrowColor}${isSubThreshold ? 'cc' : '44'})` }} 
+              <ChevronLeft
+                className="w-14 h-14 stroke-[1.5px]"
+                style={{ filter: `drop-shadow(0 0 10px ${arrowColor}${isSubThreshold ? 'cc' : '44'})` }}
               />
             </motion.div>
 
             {/* Mũi tên phải: Chỉ hiện rõ khi kéo sang TRÁI (tiếp theo) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
-              animate={{ 
-                opacity: raw < 0 ? arrowOpacity : 0.1, 
-                scale: raw < 0 ? arrowScale : 0.8, 
+              animate={{
+                opacity: raw < 0 ? arrowOpacity : 0.1,
+                scale: raw < 0 ? arrowScale : 0.8,
                 color: arrowColor,
-                x: 0 
+                x: 0
               }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.1, ease: "linear" }}
             >
-              <ChevronRight 
-                className="w-14 h-14 stroke-[1.5px]" 
-                style={{ filter: `drop-shadow(0 0 10px ${arrowColor}${isSubThreshold ? 'cc' : '44'})` }} 
+              <ChevronRight
+                className="w-14 h-14 stroke-[1.5px]"
+                style={{ filter: `drop-shadow(0 0 10px ${arrowColor}${isSubThreshold ? 'cc' : '44'})` }}
               />
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 lg:hidden">
-        <AnimatePresence mode="wait">
-          {isAtSubService && (
-            <motion.div key={currentServiceSlug} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="mb-1 px-3 py-1 bg-[#f97316] rounded-full shadow-lg border border-white/20">
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">
-                {dict.services?.[currentServiceSlug?.replace("-", "_") || ""]?.title}
-              </span>
-            </motion.div>
+      {/* 
+          ADAPTIVE SUB-MENU (Dải Icon dịch vụ con)
+          - Portrait: Cố định Bottom, cuộn ngang.
+          - Landscape: Cố định Bên phải, cuộn dọc/nằm dọc.
+      */}
+      {isAtSubService && (
+        <div
+          className={cn(
+            "fixed z-[100] transition-all duration-500 lg:hidden",
+            // Portrait: Dưới cùng
+            "bottom-4 left-1/2 -translate-x-1/2 w-[95%] flex flex-row items-center justify-center",
+            // Landscape: Bên phải
+            "landscape:right-4 landscape:top-1/2 landscape:bottom-auto landscape:left-auto landscape:-translate-y-1/2 landscape:-translate-x-0 landscape:w-20 landscape:flex-col landscape:h-auto landscape:max-h-[85vh]"
           )}
-        </AnimatePresence>
+        >
+          <div
+            ref={subMenuContainerRef}
+            className={cn(
+              "flex items-center gap-3 p-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-x-auto no-scrollbar scroll-smooth touch-pan-x",
+              "landscape:flex-col landscape:overflow-y-auto landscape:overflow-x-hidden landscape:h-full landscape:w-full landscape:py-6 landscape:touch-pan-y"
+            )}
+            style={{
+              WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+              maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+            }}
+          >
+            {subServices.map((service, dotIdx) => {
+              const isActive = dotIdx === currentSubIndex;
+              return (
+                <motion.div
+                  key={dotIdx}
+                  data-active={isActive}
+                  role="button"
+                  tabIndex={0}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15);
+                    router.push(`/${lang}/services/${service.slug}`);
+                  }}
+                  className={cn(
+                    "relative flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl cursor-pointer transition-all duration-500",
+                    isActive ? "bg-[#f97316]/15" : "hover:bg-white/5"
+                  )}
+                  aria-label={`Sub-service ${service.slug}`}
+                >
+                  {/* Active Glow Background */}
+                  {isActive && (
+                    <div className="absolute inset-0 bg-[#f97316]/30 blur-xl rounded-2xl -z-10 animate-pulse" />
+                  )}
 
-        <div className="flex items-center gap-3 px-5 py-3 bg-black/80 backdrop-blur-2xl rounded-full border border-white/10 shadow-2xl relative">
-          {routes.map((route, index) => {
-            const isActive = index === currentIndex;
-            const isServiceTab = route.path?.includes('/services');
-            
-            return (
-              <div key={route.path} className="relative flex flex-col items-center">
-                {isActive && (
-                  <motion.span layoutId="label" className="absolute -top-7 text-[9px] font-black text-[#f97316] uppercase tracking-tighter">
-                    {route.label}
-                  </motion.span>
-                )}
-                
-                <div className="flex flex-col items-center gap-1.5">
-                  <motion.div animate={{ width: isActive ? 22 : 6, backgroundColor: isActive ? "#f97316" : "rgba(255,255,255,0.2)" }}
-                    className={cn("h-1.5 rounded-full relative", isActive && "shadow-[0_0_12px_#f97316]")} />
-                  
-                  <div className="h-1 flex justify-center items-center">
-                    {isServiceTab && isAtSubService && (
-                      <div className="flex gap-1">
-                        {subServiceSlugs.map((_, dotIdx) => (
-                          <div key={dotIdx} className={cn("h-1 rounded-full transition-all duration-300", 
-                            dotIdx === currentSubIndex ? "w-3 bg-white shadow-[0_0_8px_white]" : "w-1 bg-white/20")} />
-                        ))}
-                      </div>
+                  <DynamicIcon
+                    name={service.icon}
+                    className={cn(
+                      "w-8 h-8 z-10 transition-all duration-500",
+                      isActive ? "text-[#f97316] drop-shadow-[0_0_12px_rgba(249,115,22,1)] scale-110" : "text-white/30"
                     )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                    strokeWidth={isActive ? 2.5 : 1.5}
+                  />
+
+                  {/* Chấm chỉ định Active cho Landscape cho rõ ràng */}
+                  {isActive && (
+                    <div className="hidden landscape:block absolute -right-1 w-1.5 h-4 bg-[#f97316] rounded-full shadow-[0_0_15px_#f97316]" />
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

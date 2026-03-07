@@ -7,6 +7,7 @@ import { documentInternationalization } from '@sanity/document-internationalizat
 import { IconManager } from 'sanity-plugin-icon-manager'
 import { schemaTypes } from './sanity/schemaTypes'
 import { ImportExportTool } from './sanity/tools/ImportExportTool'
+import { structure } from './sanity/structure' 
 
 export default defineConfig({
   name: 'default',
@@ -15,11 +16,8 @@ export default defineConfig({
   dataset: 'production',
   basePath: '/studio',
 
-  /** 
-   * 1. CẤU HÌNH CÔNG CỤ BỔ SUNG (TOOLS)
-   */
-  tools: (prev) => [
-    ...prev,
+  tools: (danhSachCongCuTruoc) => [
+    ...danhSachCongCuTruoc,
     {
       name: 'import-export',
       title: 'Nhập/Xuất Dữ Liệu',
@@ -27,18 +25,11 @@ export default defineConfig({
     },
   ],
 
-  /** 
-   * 2. HỆ THỐNG TIỆN ÍCH MỞ RỘNG (PLUGINS)
-   */
   plugins: [
-    structureTool(), 
+    structureTool({ structure }), 
     visionTool(), 
     IconManager(), 
     
-    /**
-     * 🔮 CÂU THẦN CHÚ PHÒNG LỖI "UNTITLED":
-     * Đã thêm 'blogCategory' vào danh sách schemaTypes bên dưới.
-     */
     documentInternationalization({
       supportedLanguages: [
         { id: 'vi', title: 'Tiếng Việt' },
@@ -47,7 +38,6 @@ export default defineConfig({
         { id: 'jp', title: 'Japanese' },
         { id: 'kr', title: 'Korean' },
       ],
-      // ĐĂNG KÝ CÁC LOẠI TÀI LIỆU HỖ TRỢ ĐA NGÔN NGỮ TẠI ĐÂY:
       schemaTypes: [
         'service', 
         'product', 
@@ -55,15 +45,51 @@ export default defineConfig({
         'blogPost', 
         'pageContent', 
         'seoPageConfig',
-        'blogCategory' // <--- THÊM DÒNG NÀY ĐỂ KÍCH HOẠT ĐA NGÔN NGỮ CHO DANH MỤC BLOG
+        'blogCategory'
       ], 
     })
   ],
 
-  /** 
-   * 3. CẤU CẤU TRÚC DỮ LIỆU (SCHEMA)
-   */
   schema: {
-    types: schemaTypes,
-  },
+    // SỬA LỖI CÚ PHÁP Ở ĐÂY: Đảm bảo hàm types được đóng ngoặc đúng
+    types: (cacLoaiSchemaTruoc) => {
+      
+      const danhSachSchemaDaSua = cacLoaiSchemaTruoc.map((loaiSchema) => {
+        
+        if (loaiSchema.name === 'translation.metadata') {
+          return {
+            ...loaiSchema,
+            preview: {
+              select: {
+                tieuDeGoc: 'translations.0.value.title',
+                danhSachBanDich: 'translations',
+                danhSachLoaiTaiLieu: 'schemaTypes',
+              },
+              prepare(luaChon: any) {
+                const { tieuDeGoc, danhSachBanDich, danhSachLoaiTaiLieu, id } = luaChon;
+                
+                const tieuDeHienThi = tieuDeGoc || (id ? `Nhóm ID: ${id.slice(0, 8)}...` : 'Đang cập nhật...');
+                
+                const maNgonNgu = Array.isArray(danhSachBanDich) 
+                  ? danhSachBanDich.map((t: any) => t._key ? t._key.toUpperCase() : '').join(', ')
+                  : '';
+                
+                const tenLoaiTaiLieu = danhSachLoaiTaiLieu?.[0] || 'document'; 
+
+                return {
+                  title: tieuDeHienThi,
+                  subtitle: `(${maNgonNgu}) ${tenLoaiTaiLieu}`,
+                  media: () => '🌐'
+                }
+              }
+            }
+          }
+        }
+        return loaiSchema
+      });
+      
+      // Trả về mảng kết hợp: Schema của bạn + Schema đã sửa
+      return [...schemaTypes, ...danhSachSchemaDaSua];
+    }, // Dấu ngoặc nhọn đóng cho hàm types nằm ở đây
+  }, // Dấu ngoặc nhọn đóng cho schema nằm ở đây (CHUẨN LẠI)
 })

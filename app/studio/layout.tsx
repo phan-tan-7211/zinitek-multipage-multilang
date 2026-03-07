@@ -1,5 +1,9 @@
+// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+import React from 'react'
+
 export const metadata = {
-  title: 'Zinitek Admin Studio',
+  title: 'Zinitek Sanity Studio',
+  description: 'Backend quản trị nội dung cho website Zinitek',
 }
 
 export default function StudioLayout({
@@ -8,12 +12,17 @@ export default function StudioLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    // THÊM DÒNG NÀY: suppressHydrationWarning={true} để chặn lỗi Hydration
+    <html lang="en" suppressHydrationWarning={true}>
       <head>
-        {/* Đảm bảo Studio hiển thị đúng trên di động và không bị tràn layout */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
       </head>
-      <body style={{ margin: 0 }}>{children}</body>
+      <body 
+        style={{ margin: 0 }}
+        suppressHydrationWarning={true} // Giữ nguyên ở body để an toàn tuyệt đối
+      >
+        {children}
+      </body>
     </html>
   )
 }

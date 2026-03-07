@@ -1,7 +1,7 @@
 // Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
@@ -10,6 +10,19 @@ import { DesktopNavigation } from "./navigation-desktop"
 import { MobileNavigation } from "./navigation-mobile"
 import { cn } from "@/lib/utils"
 import { createClient } from "next-sanity"
+import * as LucideIcons from "lucide-react"
+
+const toPascalCase = (str: string) => {
+  if (!str) return "Circle";
+  const name = str.includes(":") ? str.split(":")[1] : str;
+  return name.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("");
+};
+
+const DynamicIcon = ({ name, ...props }: { name: string } & any) => {
+  const compName = toPascalCase(name);
+  const Icon = (LucideIcons as any)[compName] || LucideIcons.Circle;
+  return <Icon {...props} />;
+};
 
 // --- CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
 const trinhKetNoiSanity = createClient({
@@ -29,12 +42,15 @@ export function Navigation({ lang, dict }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMegaOpen, setIsMegaOpen] = useState(false)
   const [isLangOpen, setIsLangOpen] = useState(false)
-  
+
   // State chứa danh sách dịch vụ đã được xử lý logic đa ngôn ngữ
   const [danhSachDichVu, setDanhSachDichVu] = useState<any[]>([])
 
   const pathname = usePathname()
   const router = useRouter()
+
+  // Ref cho thanh menu chính để auto-scroll
+  const mobileMainMenuRef = useRef<HTMLDivElement>(null);
 
   // 1. TỐI ƯU SCROLL (GIỮ NGUYÊN)
   useEffect(() => {
@@ -45,15 +61,10 @@ export function Navigation({ lang, dict }: NavigationProps) {
     return () => window.removeEventListener("scroll", xuLyCuonTrang)
   }, [])
 
-  // 2. FETCH DỮ LIỆU DỊCH VỤ VỚI LOGIC "PER-ITEM FALLBACK" (NÂNG CẤP)
+  // 2. FETCH DỮ LIỆU DỊCH VỤ VỚI LOGIC "PER-ITEM FALLBACK"
   useEffect(() => {
     async function layDichVuDaNgonNgu() {
       try {
-        /**
-         * LOGIC MỚI:
-         * 1. Lấy tất cả dịch vụ (không lọc theo language ngay từ đầu để tránh mất bài).
-         * 2. Lấy đủ các trường cần thiết: _id, _translationKey, language, slug, title, desc.
-         */
         const cauTruyVan = `*[_type == "service" && defined(slug.current)] | order(orderRank asc) {
           _id,
           _translationKey,
@@ -63,51 +74,37 @@ export function Navigation({ lang, dict }: NavigationProps) {
           title,
           "desc": description
         }`
-        
-        const tatCaDichVu = await trinhKetNoiSanity.fetch(cauTruyVan)
 
-        // --- BẮT ĐẦU THUẬT TOÁN GOM NHÓM VÀ CHỌN BẢN DỊCH TỐT NHẤT ---
+        const tatCaDichVu = await trinhKetNoiSanity.fetch(cauTruyVan)
         const nhomDichVu: Record<string, any[]> = {};
 
-        // A. Gom nhóm các bản dịch lại với nhau
         tatCaDichVu.forEach((dichVu: any) => {
-            const khoaNhom = dichVu._translationKey || dichVu._id;
-            if (!nhomDichVu[khoaNhom]) {
-                nhomDichVu[khoaNhom] = [];
-            }
-            nhomDichVu[khoaNhom].push(dichVu);
+          const khoaNhom = dichVu._translationKey || dichVu._id;
+          if (!nhomDichVu[khoaNhom]) {
+            nhomDichVu[khoaNhom] = [];
+          }
+          nhomDichVu[khoaNhom].push(dichVu);
         });
 
-        // B. Chọn đại diện tốt nhất cho từng nhóm
         const danhSachDichVuSauCung = Object.values(nhomDichVu).map((nhom: any[]) => {
-            // Ưu tiên 1: Đúng ngôn ngữ hiện tại
-            const banDichDung = nhom.find((p) => p.language === lang);
-            if (banDichDung) return banDichDung;
-
-            // Ưu tiên 2: Tiếng Anh
-            const banDichAnh = nhom.find((p) => p.language === 'en');
-            if (banDichAnh) return banDichAnh;
-
-            // Ưu tiên 3: Tiếng Việt
-            const banDichViet = nhom.find((p) => p.language === 'vi');
-            if (banDichViet) return banDichViet;
-
-            // Đường cùng: Lấy cái đầu tiên tìm thấy
-            return nhom[0];
+          const banDichDung = nhom.find((p) => p.language === lang);
+          if (banDichDung) return banDichDung;
+          const banDichAnh = nhom.find((p) => p.language === 'en');
+          if (banDichAnh) return banDichAnh;
+          const banDichViet = nhom.find((p) => p.language === 'vi');
+          if (banDichViet) return banDichViet;
+          return nhom[0];
         });
 
-        // Cập nhật State để truyền xuống Desktop/Mobile Navigation
         setDanhSachDichVu(danhSachDichVuSauCung);
-
       } catch (loi) {
         console.error("Lỗi tải menu dịch vụ:", loi)
       }
     }
-
     layDichVuDaNgonNgu()
-  }, [lang]) // Chạy lại khi ngôn ngữ thay đổi
+  }, [lang])
 
-  // 3. KHÓA CUỘN NÂNG CAO (GIỮ NGUYÊN)
+  // 3. KHÓA CUỘN NÂNG CAO
   useEffect(() => {
     if (isMobileMenuOpen) {
       const scrollY = window.scrollY;
@@ -136,7 +133,16 @@ export function Navigation({ lang, dict }: NavigationProps) {
     };
   }, [isMobileMenuOpen])
 
-  // 4. LOGIC CHUYỂN ĐỔI NGÔN NGỮ THÔNG MINH (GIỮ NGUYÊN LOGIC CŨ TỐT)
+  // 4. AUTO-SCROLL CHO MAIN MENU MOBILE
+  useEffect(() => {
+    if (mobileMainMenuRef.current) {
+      const activeItem = mobileMainMenuRef.current.querySelector('[data-active="true"]');
+      if (activeItem) {
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [pathname]);
+
   const languages = [
     { code: "vi", name: "Tiếng Việt", flag: "VN" },
     { code: "en", name: "English", flag: "US" },
@@ -150,12 +156,9 @@ export function Navigation({ lang, dict }: NavigationProps) {
     if (ngonNguMoi === lang) return;
     setIsLangOpen(false);
     setIsMobileMenuOpen(false);
-
     const mangDuongDan = pathname.split("/");
-    
-    // Kiểm tra bản đồ dịch thuật từ trang chi tiết (đã làm ở bước trước)
     const banDoDichThuat = (window as any).zinitekTranslations;
-    
+
     if (mangDuongDan.length === 4 && mangDuongDan[2] === "services" && banDoDichThuat && banDoDichThuat[ngonNguMoi]) {
       mangDuongDan[1] = ngonNguMoi;
       mangDuongDan[3] = banDoDichThuat[ngonNguMoi];
@@ -170,7 +173,7 @@ export function Navigation({ lang, dict }: NavigationProps) {
     { name: dict.navigation.home, href: `/${lang}` },
     { name: dict.navigation.about, href: `/${lang}/about` },
     { name: dict.navigation.services, href: `/${lang}/services`, hasMega: true },
-    { name: dict.navigation.products, href: `/${lang}/products` }, 
+    { name: dict.navigation.products, href: `/${lang}/products` },
     { name: dict.navigation.projects, href: `/${lang}/portfolio` },
     { name: dict.navigation.blog, href: `/${lang}/blog` },
     { name: dict.navigation.contact, href: `/${lang}/contact` },
@@ -184,12 +187,12 @@ export function Navigation({ lang, dict }: NavigationProps) {
 
   return (
     <>
-      <header 
+      <header
         style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', zIndex: 9998 }}
         className={cn(
           "transition-all duration-500",
-          isScrolled 
-            ? "bg-[#020617]/95 backdrop-blur-md shadow-2xl border-b border-white/5" 
+          isScrolled
+            ? "bg-[#020617]/95 backdrop-blur-md shadow-2xl border-b border-white/5"
             : "bg-transparent"
         )}
       >
@@ -212,32 +215,89 @@ export function Navigation({ lang, dict }: NavigationProps) {
               handleLangChange={handleLangChange}
               handlePrefetchLang={handlePrefetchLang}
               menuItems={menuItems}
-              serviceItems={danhSachDichVu} // Truyền danh sách đã lọc thông minh xuống
+              serviceItems={danhSachDichVu}
               currentLang={currentLang}
             />
           </div>
 
           {/* MOBILE: NAVIGATION BAR */}
-          <div className="lg:hidden container mx-auto px-4 py-4 flex items-center justify-between">
-            <Link href={`/${lang}`} className="flex items-center gap-2 relative z-[110]">
-              <div className="w-9 h-9 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded flex items-center justify-center shadow-lg shadow-[#f97316]/20">
-                <Cog className="w-5 h-5 text-white" />
+          <div className="lg:hidden container mx-auto px-4 py-4 flex items-center justify-between gap-2 overflow-hidden">
+            <Link href={`/${lang}`} className="flex-shrink-0 flex items-center gap-2 relative z-[110]">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded flex items-center justify-center shadow-lg shadow-[#f97316]/20">
+                <Cog className="w-4 h-4 text-white" />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">
+              <span className="text-lg font-bold text-white tracking-tight hidden xs:block landscape:block">
                 ZINI<span className="text-[#f97316]">TEK</span>
               </span>
             </Link>
 
-            <MobileNavigation
-              lang={lang}
-              dict={dict}
-              pathname={pathname}
-              isMobileMenuOpen={isMobileMenuOpen}
-              setIsMobileMenuOpen={setIsMobileMenuOpen}
-              handleLangChange={handleLangChange}
-              menuItems={menuItems}
-              serviceItems={danhSachDichVu} // Truyền danh sách đã lọc thông minh xuống
-            />
+            {/* MAIN MENU (PC-STYLE) - TRANG CHỦ, GIỚI THIỆU, DỊCH VỤ... */}
+            <div
+              ref={mobileMainMenuRef}
+              className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth px-2 h-14 touch-pan-x bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl ml-1 mr-1 relative"
+              style={{
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+              }}
+            >
+              {menuItems.map((item, idx) => {
+                const isActive = pathname === item.href || (item.href !== `/${lang}` && pathname.startsWith(item.href));
+                const Icon = item.name === dict.navigation.home ? LucideIcons.Home :
+                  item.name === dict.navigation.about ? LucideIcons.Info :
+                    item.name === dict.navigation.services ? LucideIcons.Settings :
+                      item.name === dict.navigation.products ? LucideIcons.Package :
+                        item.name === dict.navigation.projects ? LucideIcons.Briefcase :
+                          item.name === dict.navigation.blog ? LucideIcons.FileText :
+                            LucideIcons.Phone;
+
+                return (
+                  <motion.div
+                    key={idx}
+                    data-active={isActive}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15);
+                      router.push(item.href);
+                    }}
+                    className={cn(
+                      "flex-shrink-0 flex flex-col items-center justify-center min-w-[70px] h-12 rounded-xl transition-all duration-300 relative",
+                      isActive ? "bg-[#f97316]/10" : "hover:bg-white/5"
+                    )}
+                  >
+                    {isActive && (
+                      <div className="absolute inset-0 bg-[#f97316]/20 blur-sm rounded-xl -z-10" />
+                    )}
+
+                    <Icon
+                      className={cn(
+                        "w-5 h-5 mb-1 transition-all duration-300",
+                        isActive ? "text-[#f97316] drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]" : "text-white/40"
+                      )}
+                      strokeWidth={isActive ? 2.5 : 2}
+                    />
+                    <span className={cn(
+                      "text-[8px] font-bold whitespace-nowrap uppercase tracking-tighter",
+                      isActive ? "text-[#f97316]" : "text-white/20"
+                    )}>
+                      {item.name}
+                    </span>
+                  </motion.div>
+                )
+              })}
+            </div>
+
+            <div className="flex-shrink-0 flex items-center gap-2 relative z-[110]">
+              <MobileNavigation
+                lang={lang}
+                dict={dict}
+                pathname={pathname}
+                isMobileMenuOpen={isMobileMenuOpen}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+                handleLangChange={handleLangChange}
+                menuItems={menuItems}
+                serviceItems={danhSachDichVu}
+              />
+            </div>
           </div>
         </motion.div>
       </header>

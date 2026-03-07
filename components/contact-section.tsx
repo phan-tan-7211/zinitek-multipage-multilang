@@ -2,13 +2,13 @@
 
 import React, { useState, useRef } from "react"
 import { motion, useInView, AnimatePresence } from "framer-motion"
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
-  Send, 
-  Upload, 
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Send,
+  Upload,
   ChevronRight,
   Facebook,
   Youtube,
@@ -19,10 +19,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
-export function ContactSection({ dict }: { dict: any }) {
+export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
   // Truy xuất dữ liệu từ dictionary theo cấu trúc file JSON đã cung cấp
   const t = dict?.contact_section;
-  
+
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     name: "",
@@ -33,7 +33,7 @@ export function ContactSection({ dict }: { dict: any }) {
     message: "",
     file: null as File | null,
   })
-  
+
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
@@ -73,11 +73,11 @@ export function ContactSection({ dict }: { dict: any }) {
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
           </div>
-          
+
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
             {t?.title} <span className="italic text-[#f97316]">{t?.title_highlight}</span>
           </h2>
-          
+
           <p className="text-slate-400 text-base lg:text-lg">
             {t?.description}
           </p>
@@ -93,7 +93,7 @@ export function ContactSection({ dict }: { dict: any }) {
           >
             {/* Office cards từ JSON */}
             {t?.offices?.map((office: any, index: number) => (
-              <div 
+              <div
                 key={index}
                 className="p-6 bg-[#0f172a] rounded-xl border border-[#334155]/50 hover:border-[#f97316]/30 transition-colors"
               >
@@ -167,17 +167,15 @@ export function ContactSection({ dict }: { dict: any }) {
               <div className="flex items-center justify-between mb-8">
                 {[1, 2, 3].map((s) => (
                   <div key={s} className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
-                      step >= s 
-                        ? "bg-[#f97316] text-[#020617]" 
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${step >= s
+                        ? "bg-[#f97316] text-[#020617]"
                         : "bg-[#1e293b] text-slate-500"
-                    }`}>
+                      }`}>
                       {s}
                     </div>
                     {s < 3 && (
-                      <div className={`w-16 sm:w-24 h-0.5 mx-2 transition-colors ${
-                        step > s ? "bg-[#f97316]" : "bg-[#1e293b]"
-                      }`} />
+                      <div className={`w-16 sm:w-24 h-0.5 mx-2 transition-colors ${step > s ? "bg-[#f97316]" : "bg-[#1e293b]"
+                        }`} />
                     )}
                   </div>
                 ))}
@@ -197,7 +195,7 @@ export function ContactSection({ dict }: { dict: any }) {
                       <h3 className="font-serif text-xl font-bold text-white mb-6">
                         {t?.form?.info_title}
                       </h3>
-                      
+
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name" className="text-slate-200">{t?.form?.labels?.name}</Label>
@@ -254,7 +252,7 @@ export function ContactSection({ dict }: { dict: any }) {
                       </div>
 
                       <div className="flex justify-end pt-4">
-                        <Button 
+                        <Button
                           type="button"
                           onClick={() => setStep(2)}
                           className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] font-semibold"
@@ -278,7 +276,7 @@ export function ContactSection({ dict }: { dict: any }) {
                       <h3 className="font-serif text-xl font-bold text-white mb-6">
                         {t?.form?.service_title}
                       </h3>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="service" className="text-slate-200">{t?.form?.labels?.service}</Label>
                         <select
@@ -310,7 +308,7 @@ export function ContactSection({ dict }: { dict: any }) {
                       </div>
 
                       <div className="flex justify-between pt-4">
-                        <Button 
+                        <Button
                           type="button"
                           variant="outline"
                           onClick={() => setStep(1)}
@@ -318,7 +316,7 @@ export function ContactSection({ dict }: { dict: any }) {
                         >
                           {t?.form?.buttons?.prev}
                         </Button>
-                        <Button 
+                        <Button
                           type="button"
                           onClick={() => setStep(3)}
                           className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] font-semibold"
@@ -342,7 +340,7 @@ export function ContactSection({ dict }: { dict: any }) {
                       <h3 className="font-serif text-xl font-bold text-white mb-6">
                         {t?.form?.file_title}
                       </h3>
-                      
+
                       <div className="space-y-2">
                         <Label className="text-slate-200">{t?.form?.labels?.file}</Label>
                         <div className="border-2 border-dashed border-[#334155] hover:border-[#f97316]/50 rounded-xl p-8 text-center transition-colors cursor-pointer relative group">
@@ -373,7 +371,7 @@ export function ContactSection({ dict }: { dict: any }) {
                       </div>
 
                       <div className="flex justify-between pt-4">
-                        <Button 
+                        <Button
                           type="button"
                           variant="outline"
                           onClick={() => setStep(2)}
@@ -381,7 +379,7 @@ export function ContactSection({ dict }: { dict: any }) {
                         >
                           {t?.form?.buttons?.prev}
                         </Button>
-                        <Button 
+                        <Button
                           type="submit"
                           className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[#020617] font-bold shadow-lg shadow-[#f97316]/25"
                         >

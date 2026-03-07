@@ -91,13 +91,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   html {
     /* Tạm thời tắt smooth scroll để kiểm tra, hoặc chỉ bật khi không có swipe wrapper */
-    scroll-behavior: auto; 
+    scroll-behavior: auto;
     overflow-x: hidden;
     width: 100%;
     height: 100%;
   }
+
   body {
     @apply bg-background text-foreground;
     overflow-x: hidden;
@@ -110,13 +112,16 @@
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: #020617;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #334155;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #f97316;
 }
@@ -131,12 +136,14 @@
   filter: grayscale(100%);
   transition: filter 0.5s ease;
 }
+
 .grayscale-hover:hover {
   filter: grayscale(0%);
 }
+
 @layer utilities {
   .bg-blueprint-grid {
-    background-image: 
+    background-image:
       linear-gradient(to right, rgba(249, 115, 22, 0.05) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(249, 115, 22, 0.05) 1px, transparent 1px),
       linear-gradient(to right, rgba(249, 115, 22, 0.02) 1px, transparent 1px),
@@ -148,12 +155,21 @@
 
 /* loading */
 @keyframes loading-bar {
-  0% { transform: scaleX(0); }
-  50% { transform: scaleX(0.7); }
-  100% { transform: scaleX(1); }
+  0% {
+    transform: scaleX(0);
+  }
+
+  50% {
+    transform: scaleX(0.7);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
 }
 
 @layer utilities {
+
   /* Hiệu ứng thanh tiến trình chạy ở đỉnh đầu */
   .animate-progress-fast {
     width: 100%;
@@ -165,12 +181,32 @@
   .animate-spin-slow {
     animation: spin 3s infinite linear;
   }
+
+  /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 }
 
 @keyframes progress-move {
-  0% { transform: translateX(-100%) scaleX(0.1); }
-  50% { transform: translateX(-20%) scaleX(0.5); }
-  100% { transform: translateX(100%) scaleX(0.1); }
+  0% {
+    transform: translateX(-100%) scaleX(0.1);
+  }
+
+  50% {
+    transform: translateX(-20%) scaleX(0.5);
+  }
+
+  100% {
+    transform: translateX(100%) scaleX(0.1);
+  }
 }
 
 .animate-loading-bar {

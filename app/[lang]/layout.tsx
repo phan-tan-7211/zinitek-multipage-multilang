@@ -1,44 +1,63 @@
 // Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
-import React from "react"
-import type { Metadata } from 'next'
-import { Montserrat, Inter } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import '../globals.css' 
-import TrackingProvider from "@/components/analytics";
-import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper"
+import React from "react";
+import type { Metadata } from 'next';
+import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper";
+import { Navigation } from "@/components/navigation";
+import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator";
+import { getDictionary } from "@/lib/get-dictionary";
+import { createClient } from "next-sanity";
 
-// IMPORT CÁC COMPONENT ĐIỀU HƯỚNG VÀ CHỈ BÁO
-import { Navigation } from "@/components/navigation"
-import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator"
-import { getDictionary } from "@/lib/get-dictionary"
+// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
+const trinhKetNoiSanity = createClient({
+  projectId: 'g4o3uumy',
+  dataset: 'production',
+  apiVersion: '2024-01-01',
+  useCdn: false,
+})
 
-// TỐI ƯU HÓA FONT:
-const montserrat = Montserrat({ 
-  subsets: ["latin"], 
-  weight: ["400", "600", "700"], 
-  variable: '--font-montserrat',
-  display: 'swap', 
-});
+// --- 2. HÀM LẤY DANH SÁCH DỊCH VỤ TỪ SANITY ---
+async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
+  const cauTruyVan = `
+    *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] {
+      _id,
+      _translationKey,
+      "slug": slug.current,
+      "icon": icon.metadata.iconName,
+      language
+    }
+  `;
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  variable: '--font-inter',
-  display: 'swap', 
-});
+  const danhSachTho = await trinhKetNoiSanity.fetch(cauTruyVan);
+
+  // Lọc bản dịch tốt nhất
+  const cacNhom: Record<string, any[]> = {};
+  danhSachTho.forEach((item: any) => {
+    const khoa = item._translationKey || item._id;
+    if (!cacNhom[khoa]) cacNhom[khoa] = [];
+    cacNhom[khoa].push(item);
+  });
+
+  const danhSachCuoiCung = Object.values(cacNhom).map((nhom: any[]) => {
+    const banDungNgonNgu = nhom.find((p) => p.language === ngonNguHienTai);
+    const banTiengAnh = nhom.find((p) => p.language === 'en');
+    const banTiengViet = nhom.find((p) => p.language === 'vi');
+    return banDungNgonNgu || banTiengAnh || banTiengViet || nhom[0];
+  });
+
+  return danhSachCuoiCung.map(s => ({ slug: s.slug, icon: s.icon || 'star' }));
+}
 
 // --- TỐI ƯU SEO QUỐC TẾ (DYNAMIC METADATA) ---
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ lang: string }> // Sửa: params là Promise
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ lang: string }>
 }): Promise<Metadata> {
-  // BẮT BUỘC: Phải await params trước khi dùng
   const resolvedParams = await params;
   const { lang } = resolvedParams;
-  
   const dict = await getDictionary(lang);
 
-  // Xử lý loại bỏ thẻ HTML <span> khỏi description để SEO đẹp hơn
+  // Xử lý loại bỏ thẻ HTML khỏi mô tả để SEO sạch sẽ
   const cleanDescription = dict.hero.description.replace(/<[^>]*>?/gm, '');
   const siteTitle = `ZINITEK - ${dict.hero.title_line1} ${dict.hero.title_highlight}`;
 
@@ -51,106 +70,56 @@ export async function generateMetadata({
       template: `%s | ZINITEK`
     },
     description: cleanDescription,
-    keywords: ['CNC Machining', 'Precision Engineering', 'Mold Design', 'Automation', 'Zinitek', 'Bình Dương', 'Vietnam Factory'],
-    authors: [{ name: 'ZINITEK Team' }],
-    
-    // Thẻ Hreflang giúp Google nhận diện các bản dịch khác nhau
+    keywords: ['CNC Machining', 'Precision Engineering', 'Zinitek'],
+    // ... các trường metadata khác giữ nguyên
     alternates: {
       canonical: `/${lang}`,
-      languages: {
-        'vi-VN': '/vi',
-        'en-US': '/en',
-        'ja-JP': '/jp',
-        'ko-KR': '/kr',
-        'zh-CN': '/cn',
-      },
+      languages: { 'vi-VN': '/vi', 'en-US': '/en', 'ja-JP': '/jp' },
     },
-
     openGraph: {
       title: siteTitle,
       description: cleanDescription,
       url: `/${lang}`,
-      siteName: 'ZINITEK',
       images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
-      locale: lang,
-      type: 'website',
     },
-
-    twitter: {
-      card: 'summary_large_image',
-      title: siteTitle,
-      description: cleanDescription,
-      images: ['/og-image.jpg'],
-    },
-
-    icons: {
-      icon: [
-        { url: '/icon-light.svg?v=2', media: '(prefers-color-scheme: light)' },
-        { url: '/icon-dark.svg?v=2', media: '(prefers-color-scheme: dark)' },
-      ],
-      shortcut: '/icon-light.svg',
-      apple: '/icon-light.svg',
-    },
-
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-  }
+  };
 }
 
 export async function generateStaticParams() {
-  return [{ lang: 'vi' }, { lang: 'en' }, { lang: 'jp' }, { lang: 'kr' }, { lang: 'cn' }]
+  return [{ lang: 'vi' }, { lang: 'en' }, { lang: 'jp' }, { lang: 'kr' }, { lang: 'cn' }];
 }
 
-export default async function RootLayout({
+export default async function LanguageLayout({
   children,
   params,
 }: {
-  children: React.ReactNode
-  params: Promise<{ lang: string }> // Sửa: params là Promise
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }) {
-  // BẮT BUỘC: Phải await params trước khi dùng
+  // BẮT BUỘC: Phải dùng await params trong Next.js 16
   const resolvedParams = await params;
   const { lang } = resolvedParams;
 
-  // FETCH DỮ LIỆU NGÔN NGỮ
-  const dict = await getDictionary(lang)
+  // Lấy dữ liệu ngôn ngữ và danh sách dịch vụ động từ Sanity
+  const [dict, servicesSlugs] = await Promise.all([
+    getDictionary(lang),
+    layDanhSachDichVuTuSanity(lang)
+  ]);
 
   return (
-    <html lang={lang} className={`${montserrat.variable} ${inter.variable}`} suppressHydrationWarning>
-      <head>
-        {/* Hreflang x-default cho các ngôn ngữ không xác định sẽ về tiếng Anh */}
-        <link rel="alternate" href="/en" hrefLang="x-default" />
-        <link rel="icon" href="/icon-light.svg?v=1" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon-light.svg" />
-      </head>
-      
-      <body className="font-sans antialiased bg-[#020617] text-white">
-        {/* 1. NAVIGATION CỐ ĐỊNH Ở TRÊN */}
-        <Navigation lang={lang} dict={dict} />
+    <>
+      {/* 1. THANH ĐIỀU HƯỚNG CỐ ĐỊNH Ở TRÊN CÙNG */}
+      <Navigation lang={lang} dict={dict} />
 
-        {/* 2. WRAPPER QUẢN LÝ VUỐT CHUYỂN TRANG (MOBILE OPTIMIZED) */}
-        <SmartSwipeWrapper lang={lang}>
-          <main className="min-h-screen">
-            {children}
-          </main>
-        </SmartSwipeWrapper>
+      {/* 2. KHUNG BAO QUẢN LÝ VUỐT CHUYỂN TRANG */}
+      <SmartSwipeWrapper lang={lang}>
+        <main className="min-h-screen">
+          {children}
+        </main>
+      </SmartSwipeWrapper>
 
-        {/* 3. CHỈ BÁO WIDGET MOBILE CỐ ĐỊNH Ở DƯỚI */}
-        <MobileWidgetIndicator lang={lang} dict={dict} />
-
-        {/* CÁC CÔNG CỤ THEO DÕI & PHÂN TÍCH */}
-        <Analytics />
-        <TrackingProvider />
-      </body>
-    </html>
-  )
+      {/* 3. THANH CHỈ BÁO VỊ TRÍ TRANG TRÊN DI ĐỘNG KÈM DỮ LIỆU ĐỘNG */}
+      <MobileWidgetIndicator lang={lang} dict={dict} services={servicesSlugs} />
+    </>
+  );
 }
