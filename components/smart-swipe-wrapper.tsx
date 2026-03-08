@@ -10,7 +10,7 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
   const controls = useAnimation();
   const [desktopSwipeEnabled, setDesktopSwipeEnabled] = useState(false);
 
-  const mainRoutes = [`/${lang}`, `/${lang}/about`, `/${lang}/services`, `/${lang}/portfolio`, `/${lang}/blog`, `/${lang}/contact`];
+  const mainRoutes = [`/${lang}`, `/${lang}/about`, `/${lang}/services`, `/${lang}/products`, `/${lang}/portfolio`, `/${lang}/blog`, `/${lang}/contact`];
   const subServices = [`/${lang}/services/cnc`, `/${lang}/services/molds`, `/${lang}/services/3d-scan`, `/${lang}/services/plc`, `/${lang}/services/coils`, `/${lang}/services/ems`, `/${lang}/services/it-software`];
 
   useEffect(() => {

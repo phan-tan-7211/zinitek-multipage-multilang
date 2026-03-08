@@ -1,13 +1,14 @@
 // Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
 
 import { defineConfig } from 'sanity'
-import { structureTool } from 'sanity/structure' 
+import { EarthGlobeIcon } from '@sanity/icons'
+import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { documentInternationalization } from '@sanity/document-internationalization'
 import { IconManager } from 'sanity-plugin-icon-manager'
 import { schemaTypes } from './sanity/schemaTypes'
 import { ImportExportTool } from './sanity/tools/ImportExportTool'
-import { structure } from './sanity/structure' 
+import { structure } from './sanity/structure'
 
 export default defineConfig({
   name: 'default',
@@ -26,10 +27,10 @@ export default defineConfig({
   ],
 
   plugins: [
-    structureTool({ structure }), 
-    visionTool(), 
-    IconManager(), 
-    
+    structureTool({ structure }),
+    visionTool(),
+    IconManager(),
+
     documentInternationalization({
       supportedLanguages: [
         { id: 'vi', title: 'Tiếng Việt' },
@@ -39,23 +40,24 @@ export default defineConfig({
         { id: 'kr', title: 'Korean' },
       ],
       schemaTypes: [
-        'service', 
-        'product', 
-        'project', 
-        'blogPost', 
-        'pageContent', 
+        'service',
+        'product',
+        'project',
+        'blogPost',
+        'pageContent',
         'seoPageConfig',
-        'blogCategory'
-      ], 
+        'blogCategory',
+        'legalDoc'
+      ],
     })
   ],
 
   schema: {
     // SỬA LỖI CÚ PHÁP Ở ĐÂY: Đảm bảo hàm types được đóng ngoặc đúng
     types: (cacLoaiSchemaTruoc) => {
-      
+
       const danhSachSchemaDaSua = cacLoaiSchemaTruoc.map((loaiSchema) => {
-        
+
         if (loaiSchema.name === 'translation.metadata') {
           return {
             ...loaiSchema,
@@ -67,19 +69,19 @@ export default defineConfig({
               },
               prepare(luaChon: any) {
                 const { tieuDeGoc, danhSachBanDich, danhSachLoaiTaiLieu, id } = luaChon;
-                
+
                 const tieuDeHienThi = tieuDeGoc || (id ? `Nhóm ID: ${id.slice(0, 8)}...` : 'Đang cập nhật...');
-                
-                const maNgonNgu = Array.isArray(danhSachBanDich) 
+
+                const maNgonNgu = Array.isArray(danhSachBanDich)
                   ? danhSachBanDich.map((t: any) => t._key ? t._key.toUpperCase() : '').join(', ')
                   : '';
-                
-                const tenLoaiTaiLieu = danhSachLoaiTaiLieu?.[0] || 'document'; 
+
+                const tenLoaiTaiLieu = danhSachLoaiTaiLieu?.[0] || 'document';
 
                 return {
                   title: tieuDeHienThi,
                   subtitle: `(${maNgonNgu}) ${tenLoaiTaiLieu}`,
-                  media: () => '🌐'
+                  media: EarthGlobeIcon
                 }
               }
             }
@@ -87,7 +89,7 @@ export default defineConfig({
         }
         return loaiSchema
       });
-      
+
       // Trả về mảng kết hợp: Schema của bạn + Schema đã sửa
       return [...schemaTypes, ...danhSachSchemaDaSua];
     }, // Dấu ngoặc nhọn đóng cho hàm types nằm ở đây

@@ -49,6 +49,13 @@
     "meta_title": "기술 서비스 - ZINITEK",
     "meta_desc": "ZINITEK의 일본 품질 표준 CNC 가공, 금형 및 자동화 솔루션."
   },
+  "products": {
+    "title_main": "제품",
+    "title_highlight": "장비",
+    "hub_description": "ZINITEK의 CNC 가공 제품, 기계, 솔루션 카탈로그를 둥러보세요.",
+    "meta_title": "제품 및 장비 - ZINITEK",
+    "meta_desc": "ZINITEK의 기계, 장비, 정밀 가공품 목록."
+  },
   "about_summary": {
     "badge": "ZINITEK 소개",
     "title_main": "우리는",
@@ -96,112 +103,102 @@
     "newsletter_desc": "최신 기술 소식과 혜택을 받으려면 구독하세요.",
     "placeholder_email": "이메일 주소",
     "copyright": "© 2026 ZINITEK. All rights reserved.",
-
-
     "address_label": "미푸억 3 산업단지, 벤깟, 빈즈엉",
-
-  "privacy_policy": "개인정보 처리방침",
-
-  "terms_of_use": "이용 약관",
-
-  "cookie_policy": "쿠키 정책"
-},
-
-"portfolio": {
-  "title": "프로젝트",
-  "subtitle": "주요 성과",
-  "description": "ZINITEK의 정밀 기계 가공 및 대표적인 자동화 솔루션 프로젝트를 확인해 보십시오.",
-  "back_to_list": "목록으로 돌아가기",
-  "project_info": "프로젝트 정보",
-  "client_label": "고객사",
-  "year_label": "수행 연도",
-  "service_label": "서비스",
-  "gallery_title": "실제 이미지"
-},
-
-"blog": {
-  "title": "뉴스",
-  "subtitle": "전문 지식",
-  "description": "ZINITEK 엔지니어 팀의 기술 트렌드 업데이트 및 경험 공유.",
-  "meta_title": "기술 블로그 & 뉴스 - ZINITEK",
-  "meta_desc": "정밀 기계 가공 기술 트렌드와 ZINITEK 엔지니어들의 실제 경험을 공유합니다.",
-  "read_more": "더 읽기",
-  "back_to_blog": "블로그로 돌아가기"
-},
-
-"contact": {
-  "title": "문의하기",
-  "subtitle": "저희와 연결하세요",
-  "description": "ZINITEK은 항상 귀하의 프로젝트에 최적화된 기술 솔루션을 상담하고 지원할 준비가 되어 있습니다."
-},
-
-"contact_section": {
-  "badge": "문의",
-  "title": "요청",
-  "title_highlight": "견적",
-  "description": "지금 바로 연락하여 무료 상담과 상세 견적을 받아보세요.",
-  "working_hours": {
-    "title": "근무 시간",
-    "monday_friday": "월요일 - 금요일",
-    "saturday": "토요일",
-    "sunday": "일요일",
-    "closed": "휴무"
+    "privacy_policy": "개인정보 처리방침",
+    "terms_of_use": "이용 약관",
+    "cookie_policy": "쿠키 정책"
   },
-  "form": {
-    "step": "단계",
-    "info_title": "연락처 정보",
-    "service_title": "관심 서비스",
-    "file_title": "자료 첨부",
-    "labels": {
-      "name": "성명 *",
-      "company": "회사명",
-      "email": "이메일 *",
-      "phone": "전화번호 *",
-      "service": "서비스 선택 *",
-      "message": "요청 설명",
-      "file": "CAD/3D 도면 첨부 (선택 사항)"
-    },
-    "placeholders": {
-      "name": "김철수",
-      "company": "회사명",
-      "email": "email@company.com",
-      "phone": "010-1234-5678",
-      "service_default": "-- 서비스 선택 --",
-      "message": "프로젝트에 대한 상세 설명...",
-      "file_hint": "파일을 드래그하거나 클릭하여 선택",
-      "file_types": "지원 형식: DWG, DXF, STEP, IGES, STL, PDF (최대 50MB)"
-    },
-    "buttons": {
-      "next": "다음",
-      "prev": "뒤로",
-      "submit": "요청 보내기"
-    },
-    "summary": {
-      "title": "요약",
-      "name": "이름",
-      "email": "이메일",
-      "service": "서비스"
-    },
-    "success_msg": "감사합니다! 24시간 내에 연락드리겠습니다."
+  "portfolio": {
+    "title": "프로젝트",
+    "subtitle": "주요 성과",
+    "description": "ZINITEK의 정밀 기계 가공 및 대표적인 자동화 솔루션 프로젝트를 확인해 보십시오.",
+    "back_to_list": "목록으로 돌아가기",
+    "project_info": "프로젝트 정보",
+    "client_label": "고객사",
+    "year_label": "수행 연도",
+    "service_label": "서비스",
+    "gallery_title": "실제 이미지"
   },
-  "offices": [
-    {
-      "name": "본 공장",
-      "address": "미푸억 3 산업단지, 벤깟, 빈즈엉"
+  "blog": {
+    "title": "뉴스",
+    "subtitle": "전문 지식",
+    "description": "ZINITEK 엔지니어 팀의 기술 트렌드 업데이트 및 경험 공유.",
+    "meta_title": "기술 블로그 & 뉴스 - ZINITEK",
+    "meta_desc": "정밀 기계 가공 기술 트렌드와 ZINITEK 엔지니어들의 실제 경험을 공유합니다.",
+    "read_more": "더 읽기",
+    "back_to_blog": "블로그로 돌아가기"
+  },
+  "contact": {
+    "title": "문의하기",
+    "subtitle": "저희와 연결하세요",
+    "description": "ZINITEK은 항상 귀하의 프로젝트에 최적화된 기술 솔루션을 상담하고 지원할 준비가 되어 있습니다."
+  },
+  "contact_section": {
+    "badge": "문의",
+    "title": "요청",
+    "title_highlight": "견적",
+    "description": "지금 바로 연락하여 무료 상담과 상세 견적을 받아보세요.",
+    "working_hours": {
+      "title": "근무 시간",
+      "monday_friday": "월요일 - 금요일",
+      "saturday": "토요일",
+      "sunday": "일요일",
+      "closed": "휴무"
     },
-    {
-      "name": "호치민 사무소",
-      "address": "123 응우옌반린, 7군, 호치민시"
-    }
-  ],
-  "services_list": [
-    "정밀 CNC 가공",
-    "금형 설계",
-    "PLC & 자동화",
-    "전자 조립",
-    "IT & 산업용 소프트웨어",
-    "기타"
-  ]
-
+    "form": {
+      "step": "단계",
+      "info_title": "연락처 정보",
+      "service_title": "관심 서비스",
+      "file_title": "자료 첨부",
+      "labels": {
+        "name": "성명 *",
+        "company": "회사명",
+        "email": "이메일 *",
+        "phone": "전화번호 *",
+        "service": "서비스 선택 *",
+        "message": "요청 설명",
+        "file": "CAD/3D 도면 첨부 (선택 사항)"
+      },
+      "placeholders": {
+        "name": "김철수",
+        "company": "회사명",
+        "email": "email@company.com",
+        "phone": "010-1234-5678",
+        "service_default": "-- 서비스 선택 --",
+        "message": "프로젝트에 대한 상세 설명...",
+        "file_hint": "파일을 드래그하거나 클릭하여 선택",
+        "file_types": "지원 형식: DWG, DXF, STEP, IGES, STL, PDF (최대 50MB)"
+      },
+      "buttons": {
+        "next": "다음",
+        "prev": "뒤로",
+        "submit": "요청 보내기"
+      },
+      "summary": {
+        "title": "요약",
+        "name": "이름",
+        "email": "이메일",
+        "service": "서비스"
+      },
+      "success_msg": "감사합니다! 24시간 내에 연락드리겠습니다."
+    },
+    "offices": [
+      {
+        "name": "본 공장",
+        "address": "미푸억 3 산업단지, 벤깟, 빈즈엉"
+      },
+      {
+        "name": "호치민 사무소",
+        "address": "123 응우옌반린, 7군, 호치민시"
+      }
+    ],
+    "services_list": [
+      "정밀 CNC 가공",
+      "금형 설계",
+      "PLC & 자동화",
+      "전자 조립",
+      "IT & 산업용 소프트웨어",
+      "기타"
+    ]
   }
 }

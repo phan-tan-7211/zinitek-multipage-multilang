@@ -6,8 +6,9 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { ArrowRight } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { createClient } from "next-sanity"
-// Import Dynamic Icon để hiển thị icon từ Sanity
 import { DynamicIcon } from "@/components/ui/dynamic-icon"
+// SỬA: Import FallbackBadge chuẩn
+import { FallbackBadge } from "@/components/fallback-badge"
 
 // --- 1. CẤU HÌNH SANITY CLIENT ---
 const trinhKetNoiSanity = createClient({
@@ -75,7 +76,7 @@ async function layDanhSachDichVu(ngonNguHienTai: string) {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const dict = await getDictionary(lang)
-  
+
   return {
     title: dict.services?.meta_title || "Dịch vụ - ZINITEK",
     description: dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
@@ -89,7 +90,7 @@ export default async function ServicesHubPage({
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  
+
   // Lấy dữ liệu song song
   const [dict, danhSachDichVu] = await Promise.all([
     getDictionary(lang),
@@ -102,6 +103,18 @@ export default async function ServicesHubPage({
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />
       </div>
+
+      {/* Lới kỹ thuật mờ (giống các trang khác) */}
+      <div
+        className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(#f97316 1px, transparent 1px),
+            linear-gradient(90deg, #f97316 1px, transparent 1px)
+          `,
+          backgroundSize: '100px 100px'
+        }}
+      />
 
       {/* Hero Section */}
       <section className="pt-40 pb-16 relative z-10">
@@ -121,24 +134,20 @@ export default async function ServicesHubPage({
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {danhSachDichVu.map((dichVu: any) => (
-              <Link 
-                key={dichVu._id} 
+              <Link
+                key={dichVu._id}
                 href={`/${lang}/services/${dichVu.slug}`}
                 className="group bg-[#0f172a]/50 border border-[#334155]/50 p-8 rounded-2xl hover:border-[#f97316]/50 transition-all duration-300 flex flex-col h-full relative overflow-hidden"
               >
-                {/* Nhãn phiên bản ngôn ngữ (Nếu khác ngôn ngữ hiện tại) */}
-                {dichVu.language !== lang && (
-                    <div className="absolute top-0 right-0 bg-[#f97316] text-[#020617] text-[10px] px-2 py-1 font-bold uppercase tracking-tighter opacity-80">
-                        {dichVu.language || 'Original'} Version
-                    </div>
-                )}
+                {/* Nhãn phiên bản dự phòng — chỉ hiện khi khác ngôn ngữ hiện tại */}
+                <FallbackBadge ngonNguThucTe={dichVu.language} ngonNguNguoiDung={lang} />
 
                 {/* Icon động từ Sanity */}
                 <div className="mb-6 w-12 h-12 flex items-center justify-center bg-[#f97316]/10 rounded-xl group-hover:bg-[#f97316] transition-colors duration-300">
-                    <DynamicIcon 
-                        iconData={dichVu.icon} 
-                        className="w-6 h-6 text-[#f97316] group-hover:text-[#020617] transition-colors" 
-                    />
+                  <DynamicIcon
+                    iconData={dichVu.icon}
+                    className="w-6 h-6 text-[#f97316] group-hover:text-[#020617] transition-colors"
+                  />
                 </div>
 
                 <h3 className="text-2xl font-serif font-bold text-white mb-4 group-hover:text-[#f97316] transition-colors">

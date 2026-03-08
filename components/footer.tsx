@@ -4,13 +4,13 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { 
-  Cog, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Facebook, 
-  Youtube, 
+import {
+  Cog,
+  MapPin,
+  Phone,
+  Mail,
+  Facebook,
+  Youtube,
   Linkedin,
   ArrowRight
 } from "lucide-react"
@@ -32,47 +32,55 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
   const tuDienDieuHuong = dict?.navigation || {}
   const tuDienChung = dict?.common || {}
 
-  // Trạng thái lưu trữ danh sách dịch vụ động từ Sanity
+  // Trạng thái lưu trữ danh sách dịch vụ và văn bản pháp lý động từ Sanity
   const [danhSachDichVuDong, setDanhSachDichVuDong] = useState<any[]>([])
+  const [danhSachPhapLyDong, setDanhSachPhapLyDong] = useState<any[]>([])
 
   // --- FETCH DỮ LIỆU DỊCH VỤ ĐỘNG CHO FOOTER ---
   useEffect(() => {
-    async function layDanhSachDichVuChoFooter() {
+    async function layDuLieuFooter() {
       try {
-        // Lấy tất cả dịch vụ để xử lý logic dự phòng (Fallback)
-        const cauTruyVan = `*[_type == "service" && defined(slug.current)] | order(orderRank asc) {
-          _id,
-          _translationKey,
-          language,
-          "slug": slug.current,
-          title
+        // 1. LẤY DANH SÁCH DỊCH VỤ
+        const truyVanDichVu = `*[_type == "service" && defined(slug.current)] | order(orderRank asc) {
+          _id, _translationKey, language, "slug": slug.current, title
         }`
-        
-        const tatCaDichVu = await trinhKetNoiSanity.fetch(cauTruyVan)
 
-        // Thuật toán gom nhóm và chọn bản dịch tốt nhất (Smart Fallback)
+        // 2. LẤY DANH SÁCH VĂN BẢN PHÁP LÝ (Lọc theo ngôn ngữ hiện tại)
+        const truyVanPhapLy = `*[_type == "legalDoc" && language == $lang && defined(slug.current)] {
+          _id, "slug": slug.current, title
+        }`
+
+        const [tatCaDichVu, danhSachPhapLy] = await Promise.all([
+          trinhKetNoiSanity.fetch(truyVanDichVu),
+          trinhKetNoiSanity.fetch(truyVanPhapLy, { lang })
+        ])
+
+        // Thuật toán Smart Fallback cho Dịch vụ
         const nhomDichVu: Record<string, any[]> = {};
         tatCaDichVu.forEach((muc: any) => {
-          const khoaNhom = muc._translationKey || muc._id;
-          if (!nhomDichVu[khoaNhom]) nhomDichVu[khoaNhom] = [];
-          nhomDichVu[khoaNhom].push(muc);
+          const khoa = muc._translationKey || muc._id;
+          if (!nhomDichVu[khoa]) nhomDichVu[khoa] = [];
+          nhomDichVu[khoa].push(muc);
         });
+        const dvSauCung = Object.values(nhomDichVu).map((nhom: any[]) =>
+          nhom.find((p) => p.language === lang) || nhom.find((p) => p.language === 'en') || nhom.find((p) => p.language === 'vi') || nhom[0]
+        );
+        setDanhSachDichVuDong(dvSauCung);
 
-        const ketQuaSauCung = Object.values(nhomDichVu).map((nhom: any[]) => {
-          return nhom.find((phienBan) => phienBan.language === lang) || 
-                 nhom.find((phienBan) => phienBan.language === 'en') || 
-                 nhom.find((phienBan) => phienBan.language === 'vi') || 
-                 nhom[0];
-        });
+        // Làm sạch Slug: Loại bỏ tiền tố ngôn ngữ (ví dụ "vi/", "en/") nếu có để tránh URL trùng lặp kiểu /vi/policy/vi/slug
+        const phapLyDaLamSach = danhSachPhapLy.map((item: any) => ({
+          ...item,
+          slug: item.slug.includes('/') ? item.slug.split('/').pop() : item.slug
+        }));
 
-        // Giới hạn hiển thị khoảng 5-6 dịch vụ tiêu biểu ở Footer
-        setDanhSachDichVuDong(ketQuaSauCung.slice(0, 6));
+        setDanhSachPhapLyDong(phapLyDaLamSach);
+
       } catch (loi) {
-        console.error("Lỗi tải dịch vụ tại Footer:", loi)
+        console.error("Lỗi tải dữ liệu tại Footer:", loi)
       }
     }
 
-    layDanhSachDichVuChoFooter()
+    layDuLieuFooter()
   }, [lang])
 
   // Mảng liên kết nhanh (Đồng bộ theo ngôn ngữ)
@@ -85,7 +93,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
     { name: tuDienDieuHuong?.blog || "Blog", href: `/${lang}/blog` },
   ]
 
-  // Mảng chính sách pháp lý
+  // Mảng chính sách pháp lý (Dùng tạm thời cho đến khi CMS tải xong) - KHÔNG CÒN CẦN THIẾT NHƯNG GIỮ ĐỂ TRÁNH LỖI PHỤ THUỘC NẾU CÓ
   const lienKetPhapLy = [
     { name: tuDienFooter?.privacy_policy || "Chính sách bảo mật", href: "#" },
     { name: tuDienFooter?.terms_of_use || "Điều khoản sử dụng", href: "#" },
@@ -97,7 +105,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
       {/* Nội dung chính của Footer */}
       <div className="container mx-auto px-4 lg:px-6 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-          
+
           {/* Cột 1: Thông tin thương hiệu */}
           <div className="lg:col-span-1">
             <Link href={`/${lang}`} className="flex items-center gap-3 mb-6">
@@ -115,7 +123,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
                 </p>
               </div>
             </Link>
-            
+
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
               {tuDienFooter?.description || "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác theo tiêu chuẩn Nhật Bản."}
             </p>
@@ -147,7 +155,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
             <ul className="space-y-3">
               {lienKetNhanh.map((link, chiSo) => (
                 <li key={chiSo}>
-                  <Link 
+                  <Link
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-[#f97316] transition-all duration-300 flex items-center gap-1.5 group"
                   >
@@ -164,24 +172,35 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
             <h4 className="font-serif font-bold text-white mb-6 uppercase tracking-wider text-sm">
               {tuDienDieuHuong?.services || "Dịch vụ"}
             </h4>
-            <ul className="space-y-3">
-              {danhSachDichVuDong.length > 0 ? (
-                danhSachDichVuDong.map((dichVu, chiSo) => (
-                  <li key={dichVu._id || chiSo}>
-                    <Link 
-                      href={`/${lang}/services/${dichVu.slug}`}
-                      className="text-sm text-muted-foreground hover:text-[#f97316] transition-all duration-300 flex items-center gap-1.5 group"
-                    >
-                      <ArrowRight className="w-3 h-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                      {dichVu.title}
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                // Hiển thị trạng thái chờ nếu dữ liệu chưa tải xong
-                <li className="text-xs text-slate-600 italic">Đang tải dữ liệu...</li>
-              )}
-            </ul>
+            <div className="group/scroll">
+              <ul className="space-y-3 max-height-[250px] overflow-y-auto pr-2 
+                scrollbar-thin scrollbar-thumb-transparent group-hover/scroll:scrollbar-thumb-[#f97316] scrollbar-track-transparent
+                [&::-webkit-scrollbar]:w-1
+                [&::-webkit-scrollbar-track]:bg-transparent
+                [&::-webkit-scrollbar-thumb]:bg-transparent
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                group-hover/scroll:[&::-webkit-scrollbar-thumb]:bg-[#f97316]
+                transition-all duration-300"
+                style={{ maxHeight: '250px' }}
+              >
+                {danhSachDichVuDong.length > 0 ? (
+                  danhSachDichVuDong.map((dichVu, chiSo) => (
+                    <li key={dichVu._id || chiSo}>
+                      <Link
+                        href={`/${lang}/services/${dichVu.slug}`}
+                        className="text-sm text-muted-foreground hover:text-[#f97316] transition-all duration-300 flex items-center gap-1.5 group/item hover:translate-x-1"
+                      >
+                        <ArrowRight className="w-3 h-3 opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all" />
+                        {dichVu.title}
+                      </Link>
+                    </li>
+                  ))
+                ) : (
+                  // Hiển thị trạng thái chờ nếu dữ liệu chưa tải xong
+                  <li className="text-xs text-slate-600 italic">Đang tải dữ liệu...</li>
+                )}
+              </ul>
+            </div>
           </div>
 
           {/* Cột 4: Thông tin liên hệ & Đăng ký bản tin */}
@@ -193,7 +212,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
               <div className="flex gap-3">
                 <MapPin className="w-5 h-5 text-[#f97316] flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {tuDienFooter?.address_label || "KCN Mỹ Phước 3, Bến Cát, Bình Dương"}        
+                  {tuDienFooter?.address_label || "KCN Mỹ Phước 3, Bến Cát, Bình Dương"}
                 </p>
               </div>
               <div className="flex gap-3">
@@ -219,7 +238,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
                 placeholder={tuDienFooter?.placeholder_email || "Email của bạn"}
                 className="bg-[#1e293b] border-[#334155] focus:border-[#f97316] text-sm flex-1 h-10 rounded-lg"
               />
-              <Button 
+              <Button
                 type="submit"
                 size="icon"
                 className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] h-10 w-10 rounded-lg transition-transform active:scale-95"
@@ -239,15 +258,28 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
               {tuDienFooter?.copyright || "© 2026 ZINITEK. Tất cả quyền được bảo lưu."}
             </p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-              {lienKetPhapLy.map((link, chiSo) => (
-                <Link
-                  key={chiSo}
-                  href={link.href}
-                  className="text-[11px] uppercase tracking-widest text-slate-500 hover:text-[#f97316] transition-colors font-bold"
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {danhSachPhapLyDong.length > 0 ? (
+                danhSachPhapLyDong.map((link, chiSo) => (
+                  <Link
+                    key={link._id || chiSo}
+                    href={`/${lang}/policy/${link.slug}`}
+                    className="text-[11px] uppercase tracking-widest text-slate-500 hover:text-[#f97316] transition-colors font-bold"
+                  >
+                    {link.title}
+                  </Link>
+                ))
+              ) : (
+                // Hiển thị fallback từ từ điển nếu CMS chưa có dữ liệu
+                [
+                  { name: tuDienFooter?.privacy_policy || "Privacy", href: "#" },
+                  { name: tuDienFooter?.terms_of_use || "Terms", href: "#" },
+                  { name: tuDienFooter?.cookie_policy || "Cookies", href: "#" },
+                ].map((link, chiSo) => (
+                  <span key={chiSo} className="text-[11px] uppercase tracking-widest text-slate-600 font-bold opacity-50 cursor-not-allowed">
+                    {link.name}
+                  </span>
+                ))
+              )}
             </div>
           </div>
         </div>

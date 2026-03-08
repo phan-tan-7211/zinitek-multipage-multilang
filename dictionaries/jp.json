@@ -49,6 +49,13 @@
     "meta_title": "技術サービス - ZINITEK",
     "meta_desc": "ZINITEKが提供する日本品質のCNC加工、金型製作、自動化ソリューション。"
   },
+  "products": {
+    "title_main": "製品",
+    "title_highlight": "設備",
+    "hub_description": "ZINITEKのCNC加工製品、機械、ソリューションのカタログをください。",
+    "meta_title": "製品・設備 - ZINITEK",
+    "meta_desc": "ZINITEKの機械、設備、精密加工品の一覧。"
+  },
   "about_summary": {
     "badge": "ZINITEKについて",
     "title_main": "私たちは",

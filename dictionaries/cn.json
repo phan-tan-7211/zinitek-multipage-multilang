@@ -50,6 +50,13 @@
     "meta_title": "技术服务 - ZINITEK",
     "meta_desc": "ZINITEK 提供的日本品质 CNC 加工、模具和自动化解决方案。"
   },
+  "products": {
+    "title_main": "产品",
+    "title_highlight": "设备",
+    "hub_description": "浏览 ZINITEK 的 CNC 加工产品、机械和解决方案目录。",
+    "meta_title": "产品与设备 - ZINITEK",
+    "meta_desc": "列出 ZINITEK 的机器、设备及精密加工品清单。"
+  },
   "about_summary": {
     "badge": "关于 ZINITEK",
     "title_main": "我们创造",

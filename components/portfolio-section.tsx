@@ -31,12 +31,12 @@ interface PortfolioSectionProps {
 }
 
 // --- THÀNH PHẦN THẺ DỰ ÁN (PROJECT CARD) ---
-function ProjectCard({ 
-  project, 
-  currentLanguage 
-}: { 
-  project: ThongTinDuAn; 
-  currentLanguage: string 
+function ProjectCard({
+  project,
+  currentLanguage
+}: {
+  project: ThongTinDuAn;
+  currentLanguage: string
 }) {
   const [dangDiChuotQuas, setDangDiChuotQua] = useState(false)
 
@@ -56,24 +56,20 @@ function ProjectCard({
         <img
           src={project.image?.url || "/placeholder.svg"}
           alt={project.title}
-          className={`w-full h-full object-cover transition-all duration-700 ${
-            dangDiChuotQuas ? "grayscale-0 scale-110" : "grayscale"
-          }`}
+          className={`w-full h-full object-cover transition-all duration-700 ${dangDiChuotQuas ? "grayscale-0 scale-110" : "grayscale"
+            }`}
         />
-        
+
         {/* Lớp phủ màu chuyển sắc tối */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent transition-opacity duration-500 ${
-          dangDiChuotQuas ? "opacity-90" : "opacity-70"
-        }`} />
+        <div className={`absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent transition-opacity duration-500 ${dangDiChuotQuas ? "opacity-90" : "opacity-70"
+          }`} />
 
         {/* Hiệu ứng đường viền màu cam rực sáng khi di chuột vào */}
-        <div className={`absolute inset-0 border-2 border-[#f97316] rounded-xl transition-opacity duration-500 ${
-          dangDiChuotQuas ? "opacity-50" : "opacity-0"
-        }`} />
-        
-        <div className={`absolute inset-0 shadow-[inset_0_0_30px_rgba(249,115,22,0.3)] rounded-xl transition-opacity duration-500 ${
-          dangDiChuotQuas ? "opacity-100" : "opacity-0"
-        }`} />
+        <div className={`absolute inset-0 border-2 border-[#f97316] rounded-xl transition-opacity duration-500 ${dangDiChuotQuas ? "opacity-50" : "opacity-0"
+          }`} />
+
+        <div className={`absolute inset-0 shadow-[inset_0_0_30px_rgba(249,115,22,0.3)] rounded-xl transition-opacity duration-500 ${dangDiChuotQuas ? "opacity-100" : "opacity-0"
+          }`} />
 
         {/* Nhãn hiển thị phiên bản ngôn ngữ nếu đây là bài viết dự phòng (Fallback) */}
         {project.language !== currentLanguage && (
@@ -90,9 +86,10 @@ function ProjectCard({
           <h3 className="font-serif text-lg font-bold text-white mb-2 line-clamp-2">
             {project.title}
           </h3>
-          
+
           {/* Phần mô tả chi tiết - Chỉ hiển thị khi người dùng di chuột vào thẻ */}
           <motion.p
+            suppressHydrationWarning
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: dangDiChuotQuas ? 1 : 0, y: dangDiChuotQuas ? 0 : 10 }}
             transition={{ duration: 0.3 }}
@@ -108,7 +105,7 @@ function ProjectCard({
             transition={{ duration: 0.3, delay: 0.1 }}
             className="flex gap-2"
           >
-            <Link 
+            <Link
               href={`/${currentLanguage}/portfolio/${project.slug}`}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#f97316] text-[#020617] rounded-lg hover:bg-[#fb923c] transition-colors"
             >
@@ -126,11 +123,11 @@ function ProjectCard({
 }
 
 // --- THÀNH PHẦN CHÍNH: PHẦN HIỂN THỊ DANH SÁCH DỰ ÁN ---
-export function PortfolioSection({ 
-  projects, 
-  categories, 
-  lang, 
-  dict 
+export function PortfolioSection({
+  projects,
+  categories,
+  lang,
+  dict
 }: PortfolioSectionProps) {
   // Trạng thái lưu trữ định danh danh mục đang được người dùng lựa chọn để lọc (Mặc định là "all")
   const [maDanhMucDangLoc, setMaDanhMucDangLoc] = useState("all")
@@ -149,7 +146,7 @@ export function PortfolioSection({
       <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#0f172a]/50 to-[#020617]" />
 
       <div ref={thamChieuSection} className="container mx-auto px-4 lg:px-6 relative z-10">
-        
+
         {/* Phần tiêu đề giới thiệu (Header Section) */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -164,11 +161,11 @@ export function PortfolioSection({
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
           </div>
-          
+
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
             Thành tựu <span className="italic text-[#f97316]">nổi bật</span>
           </h2>
-          
+
           <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
             {dict.featured_projects?.description || "Những dự án tiêu biểu thể hiện năng lực kỹ thuật của ZINITEK."}
           </p>
@@ -184,11 +181,10 @@ export function PortfolioSection({
           {/* Nút bấm để hiển thị toàn bộ dự án */}
           <button
             onClick={() => setMaDanhMucDangLoc("all")}
-            className={`px-5 py-2 text-sm font-medium rounded-full border transition-all duration-300 ${
-              maDanhMucDangLoc === "all"
+            className={`px-5 py-2 text-sm font-medium rounded-full border transition-all duration-300 ${maDanhMucDangLoc === "all"
                 ? "bg-[#f97316] text-[#020617] border-[#f97316]"
                 : "border-[#334155] text-muted-foreground hover:border-[#f97316]/50 hover:text-foreground"
-            }`}
+              }`}
           >
             {lang === 'vi' ? 'Tất cả' : 'All'}
           </button>
@@ -198,11 +194,10 @@ export function PortfolioSection({
             <button
               key={danhMuc._id}
               onClick={() => setMaDanhMucDangLoc(danhMuc._id)}
-              className={`px-5 py-2 text-sm font-medium rounded-full border transition-all duration-300 ${
-                maDanhMucDangLoc === danhMuc._id
+              className={`px-5 py-2 text-sm font-medium rounded-full border transition-all duration-300 ${maDanhMucDangLoc === danhMuc._id
                   ? "bg-[#f97316] text-[#020617] border-[#f97316]"
                   : "border-[#334155] text-muted-foreground hover:border-[#f97316]/50 hover:text-foreground"
-              }`}
+                }`}
             >
               {danhMuc.title}
             </button>

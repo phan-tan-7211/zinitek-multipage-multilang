@@ -49,6 +49,13 @@
     "meta_title": "Technical Services - ZINITEK",
     "meta_desc": "High-quality CNC machining, mold making, and automation solutions following Japanese standards at ZINITEK."
   },
+  "products": {
+    "title_main": "Products",
+    "title_highlight": "Equipment",
+    "hub_description": "Explore our catalog of CNC machining products, equipment, and precision manufacturing solutions by ZINITEK.",
+    "meta_title": "Products & Equipment - ZINITEK",
+    "meta_desc": "A list of machines, equipment, and precision machined products by ZINITEK."
+  },
   "about_summary": {
     "badge": "About ZINITEK",
     "title_main": "We create",

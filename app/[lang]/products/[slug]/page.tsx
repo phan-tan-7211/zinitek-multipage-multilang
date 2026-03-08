@@ -3,13 +3,12 @@
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
-// Nhập Thành phần hiển thị chi tiết sản phẩm
 import { ProductDetailPageContent } from "@/components/product-detail-page-content"
-// Nhập các biểu tượng cần thiết
+import { Footer } from "@/components/footer"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY (SANITY CLIENT) ---
+// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
 const trinhKetNoiSanity = createClient({
   projectId: 'g4o3uumy',
   dataset: 'production',
@@ -48,34 +47,31 @@ async function layThongTinSanPham(duongDanSlug: string, ngonNguHienTai: string) 
     }.duLieuDaXuLy
   `;
 
-  const ketQuaTruyVan = await trinhKetNoiSanity.fetch(cauTruyVanGroq, { duongDanSlug, ngonNguHienTai });
-  return ketQuaTruyVan;
+  return await trinhKetNoiSanity.fetch(cauTruyVanGroq, { duongDanSlug, ngonNguHienTai });
 }
 
 // --- 3. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const thamSoTrang = await params;
   const sanPham = await layThongTinSanPham(thamSoTrang.slug, thamSoTrang.lang);
-  
+
   if (!sanPham) return { title: "Sản phẩm không tồn tại | ZINITEK" };
-  
-  const tieuDeHienThi = sanPham.title || "Sản phẩm Zinitek";
-  
-  return { 
-    title: `${tieuDeHienThi} - ZINITEK`, 
-    description: sanPham.description 
+
+  return {
+    title: `${sanPham.title || "Sản phẩm Zinitek"} - ZINITEK`,
+    description: sanPham.description
   };
 }
 
-// --- 4. THÀNH PHẦN TRANG CHÍNH (MAIN PAGE COMPONENT) ---
-export default async function ProductDetailPage({ 
-  params 
-}: { 
-  params: Promise<{ lang: string; slug: string }> 
+// --- 4. THÀNH PHẦN TRANG CHÍNH ---
+export default async function ProductDetailPage({
+  params
+}: {
+  params: Promise<{ lang: string; slug: string }>
 }) {
   const thamSoTrang = await params;
   const { lang, slug } = thamSoTrang;
-  
+
   const [tuDien, duLieuSanPham] = await Promise.all([
     getDictionary(lang),
     layThongTinSanPham(slug, lang)
@@ -86,12 +82,13 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#020617] text-foreground relative pt-24 lg:pt-32 pb-20">
+    // SỬA LỖI: Giảm padding top để tránh khoảng trống thừa dưới header cố định
+    <main className="min-h-screen bg-[#020617] text-foreground relative pt-24 pb-20">
       <div className="container mx-auto px-4 lg:px-6">
-        
-        {/* --- SỬA ĐỔI: THÊM NÚT QUAY LẠI DANH SÁCH --- */}
+
+        {/* Nút quay lại danh sách */}
         <div className="mb-10">
-          <Link 
+          <Link
             href={`/${lang}/products`}
             className="group inline-flex items-center gap-2 text-slate-400 hover:text-[#f97316] transition-colors"
           >
@@ -104,9 +101,12 @@ export default async function ProductDetailPage({
           </Link>
         </div>
 
-        {/* Thành phần hiển thị chi tiết sản phẩm */}
+        {/* Nội dung chi tiết sản phẩm */}
         <ProductDetailPageContent product={duLieuSanPham} dictionary={tuDien} lang={lang} />
       </div>
+
+      {/* SỬA LỖI: Thêm Footer vào trang chi tiết sản phẩm */}
+      <Footer lang={lang} dict={tuDien} />
     </main>
   );
 }
