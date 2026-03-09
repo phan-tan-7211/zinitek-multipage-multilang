@@ -6,7 +6,8 @@
     "read_more": "View Details",
     "phone_label": "+84 274 123 456",
     "email_label": "info@zinitek.vn",
-    "slogan_top": "Japanese Engineering - Vietnamese Cost"
+    "slogan_top": "Japanese Engineering - Vietnamese Cost",
+    "swipe_desktop": "Swipe Desktop"
   },
   "testimonials": {
     "badge": "Testimonials",
@@ -50,8 +51,8 @@
     "meta_desc": "High-quality CNC machining, mold making, and automation solutions following Japanese standards at ZINITEK."
   },
   "products": {
-    "title_main": "Products",
-    "title_highlight": "Equipment",
+    "title_main": "PRODUCT",
+    "title_highlight": "TECHNOLOGY",
     "hub_description": "Explore our catalog of CNC machining products, equipment, and precision manufacturing solutions by ZINITEK.",
     "meta_title": "Products & Equipment - ZINITEK",
     "meta_desc": "A list of machines, equipment, and precision machined products by ZINITEK."

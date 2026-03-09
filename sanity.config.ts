@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 import { defineConfig } from 'sanity'
 import { EarthGlobeIcon } from '@sanity/icons'

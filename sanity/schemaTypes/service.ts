@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 export default {
   name: 'service',
@@ -6,11 +6,11 @@ export default {
   type: 'document',
   fields: [
     // 1. Quản lý ngôn ngữ (Ẩn đối với người dùng)
-    { 
-      name: 'language', 
-      type: 'string', 
-      readOnly: true, 
-      hidden: true 
+    {
+      name: 'language',
+      type: 'string',
+      readOnly: true,
+      hidden: true
     },
 
     // 2. Đường dẫn định danh (Slug)
@@ -32,31 +32,31 @@ export default {
     },
 
     // 4. Thông tin tiêu đề và mô tả
-    { 
-      name: 'title', 
-      title: 'Tiêu đề đầy đủ', 
+    {
+      name: 'title',
+      title: 'Tiêu đề đầy đủ',
       type: 'string',
       validation: (Rule: any) => Rule.required(),
     },
-    { 
-      name: 'shortTitle', 
-      title: 'Tiêu đề ngắn', 
+    {
+      name: 'shortTitle',
+      title: 'Tiêu đề ngắn',
       type: 'string',
       description: 'Dùng cho Breadcrumbs hoặc Menu hẹp'
     },
-    { 
-      name: 'description', 
-      title: 'Mô tả chính', 
+    {
+      name: 'description',
+      title: 'Mô tả chính',
       type: 'text',
       validation: (Rule: any) => Rule.required(),
     },
 
     // 5. Hình ảnh minh họa
-    { 
-      name: 'image', 
-      title: 'Hình ảnh (URL)', 
-      type: 'string', 
-      description: 'Dán liên kết ảnh từ Unsplash hoặc kho lưu trữ ảnh vào đây' 
+    {
+      name: 'image',
+      title: 'Hình ảnh (URL)',
+      type: 'string',
+      description: 'Dán liên kết ảnh từ Unsplash hoặc kho lưu trữ ảnh vào đây'
     },
 
     // 6. Các nhãn phân loại (Tags)
@@ -115,32 +115,32 @@ export default {
       type: 'object',
       description: 'Cho phép thay đổi các tiêu đề mặc định của trang để phù hợp với nội dung thực tế.',
       fields: [
-        { 
-          name: 'featuresTitle', 
-          title: 'Tiêu đề phần Tính năng', 
-          type: 'string', 
-          initialValue: 'Tính năng nổi bật' 
+        {
+          name: 'featuresTitle',
+          title: 'Tiêu đề phần Tính năng',
+          type: 'string',
+          initialValue: 'Tính năng nổi bật'
         },
-        { 
-          name: 'specsTitle', 
-          title: 'Tiêu đề phần Thông số', 
-          type: 'string', 
-          initialValue: 'Thông số kỹ thuật' 
+        {
+          name: 'specsTitle',
+          title: 'Tiêu đề phần Thông số',
+          type: 'string',
+          initialValue: 'Thông số kỹ thuật'
         },
-        { 
-          name: 'processTitle', 
-          title: 'Tiêu đề phần Quy trình', 
-          type: 'string', 
-          initialValue: 'Quy trình làm việc' 
+        {
+          name: 'processTitle',
+          title: 'Tiêu đề phần Quy trình',
+          type: 'string',
+          initialValue: 'Quy trình làm việc'
         },
-        { 
-          name: 'relatedTitle', 
-          title: 'Tiêu đề phần Dịch vụ liên quan', 
-          type: 'string', 
-          initialValue: 'Dịch vụ liên quan' 
+        {
+          name: 'relatedTitle',
+          title: 'Tiêu đề phần Dịch vụ liên quan',
+          type: 'string',
+          initialValue: 'Dịch vụ liên quan'
         },
       ],
-      options: { 
+      options: {
         collapsible: true, // Cho phép thu gọn nhóm trường này
         collapsed: true    // Mặc định sẽ đóng lại để giao diện Studio gọn gàng
       }

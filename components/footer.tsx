@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import React, { useState, useEffect } from "react"
@@ -101,7 +101,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
   ]
 
   return (
-    <footer className="relative bg-[#0f172a] border-t border-[#334155]/50">
+    <footer className="relative bg-secondary/20 border-t border-border/50">
       {/* Nội dung chính của Footer */}
       <div className="container mx-auto px-4 lg:px-6 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
@@ -115,7 +115,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-serif font-bold tracking-tight text-white">
+                <span className="text-xl font-serif font-bold tracking-tight text-foreground">
                   ZINI<span className="text-[#f97316]">TEK</span>
                 </span>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground -mt-0.5 font-medium">
@@ -139,7 +139,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
                   key={mangXaHoi.label}
                   href={mangXaHoi.href}
                   aria-label={mangXaHoi.label}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#1e293b] text-muted-foreground hover:text-[#f97316] hover:bg-[#f97316]/10 transition-all duration-300"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-card text-muted-foreground hover:text-[#f97316] hover:bg-[#f97316]/10 transition-all duration-300 shadow-sm border border-border/50"
                 >
                   <mangXaHoi.icon className="w-4 h-4" />
                 </a>
@@ -149,7 +149,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
 
           {/* Cột 2: Danh mục liên kết nhanh */}
           <div>
-            <h4 className="font-serif font-bold text-white mb-6 uppercase tracking-wider text-sm">
+            <h4 className="font-serif font-bold text-foreground mb-6 uppercase tracking-wider text-sm">
               {tuDienFooter?.quick_links || "Liên kết nhanh"}
             </h4>
             <ul className="space-y-3">
@@ -169,7 +169,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
 
           {/* Cột 3: Danh sách dịch vụ kỹ thuật (ĐÃ ĐỤC LỖ ĐỘNG) */}
           <div>
-            <h4 className="font-serif font-bold text-white mb-6 uppercase tracking-wider text-sm">
+            <h4 className="font-serif font-bold text-foreground mb-6 uppercase tracking-wider text-sm">
               {tuDienDieuHuong?.services || "Dịch vụ"}
             </h4>
             <div className="group/scroll">
@@ -205,7 +205,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
 
           {/* Cột 4: Thông tin liên hệ & Đăng ký bản tin */}
           <div>
-            <h4 className="font-serif font-bold text-white mb-6 uppercase tracking-wider text-sm">
+            <h4 className="font-serif font-bold text-foreground mb-6 uppercase tracking-wider text-sm">
               {tuDienDieuHuong?.contact || "Liên hệ"}
             </h4>
             <div className="space-y-4 mb-8">
@@ -229,14 +229,14 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
               </div>
             </div>
 
-            <h4 className="font-serif font-bold text-white mb-3 text-xs uppercase tracking-widest">
+            <h4 className="font-serif font-bold text-foreground mb-3 text-xs uppercase tracking-widest">
               {tuDienFooter?.newsletter || "Bản tin"}
             </h4>
             <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
               <Input
                 type="email"
                 placeholder={tuDienFooter?.placeholder_email || "Email của bạn"}
-                className="bg-[#1e293b] border-[#334155] focus:border-[#f97316] text-sm flex-1 h-10 rounded-lg"
+                className="bg-background border-border focus:border-[#f97316] text-sm flex-1 h-10 rounded-lg"
               />
               <Button
                 type="submit"
@@ -251,10 +251,10 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
       </div>
 
       {/* Thanh bản quyền và chính sách dưới cùng */}
-      <div className="border-t border-[#334155]/30 bg-[#020617]/50">
+      <div className="border-t border-border/50 bg-secondary/40">
         <div className="container mx-auto px-4 lg:px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-slate-500 text-center md:text-left font-medium">
+            <p className="text-xs text-muted-foreground text-center md:text-left font-medium">
               {tuDienFooter?.copyright || "© 2026 ZINITEK. Tất cả quyền được bảo lưu."}
             </p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-8">

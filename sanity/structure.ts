@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 // GIẢI PHÁP CHO VẤN ĐỀ "SCHEMA TYPES":
 // Khi chỉ dùng filter(_type == "translation.metadata"), Sanity không biết nên tạo loại document nào.
 // Giải pháp: Dùng S.documentTypeList(schemaType) trực tiếp thay vì list metadata.

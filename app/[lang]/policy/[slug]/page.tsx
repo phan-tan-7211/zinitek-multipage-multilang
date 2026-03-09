@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
@@ -65,7 +65,7 @@ export default async function PolicyPage({
         : null;
 
     return (
-        <main className="min-h-screen bg-[#020617] text-white pt-32 pb-20">
+        <main className="min-h-screen bg-background text-foreground pt-24 md:pt-32 pb-20">
             <div className="container mx-auto px-4 lg:px-6">
 
                 {/* Sửa: Dùng Client Component NutQuayLai thay vì Link cứng href=lang
@@ -73,10 +73,10 @@ export default async function PolicyPage({
                     (ví dụ: Footer → Trang pháp lý → nhấn nút → quay về Footer),
                     thay vì luôn về Trang chủ.
                     Label vẫn lấy từ Dictionary đúng ngôn ngữ hiện tại. */}
-                <NutQuayLai 
-  nhanHienThi={tuDienNgonNgu.navigation?.back || tuDienNgonNgu.common?.home || "Quay lại"} 
-  ngonNgu={lang} 
-/>
+                <NutQuayLai
+                    nhanHienThi={lang === 'vi' ? 'Quay lại' : 'Back'}
+                    ngonNgu={lang}
+                />
 
                 <div className="max-w-4xl mx-auto">
                     <header className="mb-12">
@@ -84,11 +84,11 @@ export default async function PolicyPage({
                             <ShieldCheck className="w-4 h-4" />
                             Legal Document
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">
+                        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-foreground">
                             {duLieuVanBan.title}
                         </h1>
                         {ngayCapNhat && (
-                            <div className="flex items-center gap-2 text-sm text-slate-400">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Clock className="w-4 h-4 text-[#f97316]" />
                                 <span>Last updated: {ngayCapNhat}</span>
                             </div>
@@ -96,7 +96,7 @@ export default async function PolicyPage({
                     </header>
 
                     {/* Nội dung chính với Custom Scrollbar */}
-                    <div className="bg-[#0f172a] rounded-3xl border border-white/5 p-8 md:p-12 shadow-2xl relative overflow-hidden group/content">
+                    <div className="bg-card rounded-3xl border border-border/50 p-8 md:p-12 shadow-xl shadow-black/5 dark:shadow-none relative overflow-hidden group/content">
                         <div className="max-h-[70vh] overflow-y-auto pr-6 
               scrollbar-thin scrollbar-thumb-transparent group-hover/content:scrollbar-thumb-[#f97316] scrollbar-track-transparent
               [&::-webkit-scrollbar]:w-1
@@ -112,7 +112,7 @@ export default async function PolicyPage({
                         </div>
 
                         {/* Hiệu ứng mờ ở đáy để báo hiệu còn nội dung */}
-                        <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#0f172a] to-transparent pointer-events-none opacity-60" />
+                        <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-card to-transparent pointer-events-none opacity-60 dark:opacity-100" />
                     </div>
 
                     {duLieuVanBan.language !== lang && (

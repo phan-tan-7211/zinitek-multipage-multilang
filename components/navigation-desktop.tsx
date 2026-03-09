@@ -1,17 +1,19 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { 
-  ChevronDown, Cog, Globe, Phone, Mail 
+import {
+  ChevronDown, Cog, Globe, Phone, Mail
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 // Import Dynamic Icon
+// Import Dynamic Icon
 import { DynamicIcon } from "./ui/dynamic-icon"
+import { ThemeToggle } from "./theme-toggle"
 
 const languages = [
   { code: "vi", name: "Tiếng Việt", flag: "VN" },
@@ -70,8 +72,8 @@ export function DesktopNavigation({
 
   return (
     <>
-      {/* --- PHẦN 1: TOP BAR DESKTOP (Giữ nguyên) --- */}
-      <div className="hidden lg:block border-b border-[#334155]/50 bg-[#0f172a]/50">
+      {/* --- PHẦN 1: TOP BAR DESKTOP (Đã gom nhóm 3 phần tử theo yêu cầu) --- */}
+      <div className="hidden lg:block border-b border-border/50 bg-background/50">
         <div className="container mx-auto px-6 py-2 flex justify-between items-center text-sm">
           <div className="flex items-center gap-6 text-muted-foreground">
             <a href={`tel:${dict.common.phone_label}`} className="flex items-center gap-2 hover:text-[#f97316] transition-colors">
@@ -83,32 +85,50 @@ export function DesktopNavigation({
               <span>{dict.common.email_label}</span>
             </a>
           </div>
-          <div className="flex items-center gap-6">
-            <p className="text-muted-foreground italic">
+
+          {/* Cụm chức năng (Slogan | Swipe Desktop | Theme Toggle) */}
+          <div className="flex items-center gap-4">
+            <p className="text-muted-foreground italic pr-4 border-r border-border/50">
               <span className="text-[#f97316]">{">"}</span> {dict.common.slogan_top}
             </p>
-            <div className="flex items-center gap-3 border-l border-white/10 pl-6 group">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold group-hover:text-slate-400 transition-colors">
-                Swipe Desktop
-              </span>
-              <button
-                onClick={() => {
+
+            <div className="flex items-center gap-4">
+              {/* Nút Swipe Desktop */}
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold hover:text-foreground transition-colors cursor-pointer" onClick={() => {
                   const newValue = !isSwipeEnabled;
                   setIsSwipeEnabled(newValue);
                   localStorage.setItem("desktop-swipe", String(newValue));
                   window.dispatchEvent(new Event("storage"));
-                  router.refresh(); 
-                }}
-                className={cn(
-                  "relative w-9 h-5 rounded-full transition-all duration-300 shadow-inner",
-                  mounted && isSwipeEnabled ? "bg-[#f97316]" : "bg-slate-700"
-                )}
-              >
-                <div className={cn(
-                    "absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 shadow-md",
+                  router.refresh();
+                }}>
+                  {dict.common.swipe_desktop || "Swipe Desktop"}
+                </span>
+                <button
+                  onClick={() => {
+                    const newValue = !isSwipeEnabled;
+                    setIsSwipeEnabled(newValue);
+                    localStorage.setItem("desktop-swipe", String(newValue));
+                    window.dispatchEvent(new Event("storage"));
+                    router.refresh();
+                  }}
+                  className={cn(
+                    "relative w-9 h-5 rounded-full transition-all duration-300 shadow-inner",
+                    mounted && isSwipeEnabled ? "bg-[#f97316]" : "bg-secondary"
+                  )}
+                >
+                  <div className={cn(
+                    "absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 shadow-md transform",
                     mounted && isSwipeEnabled ? "translate-x-4" : "translate-x-0"
-                )} />
-              </button>
+                  )} />
+                </button>
+              </div>
+
+              {/* Đường viền phân cách với Theme Toggle */}
+              <div className="w-px h-4 bg-border/50"></div>
+
+              {/* Theme Toggle */}
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -130,7 +150,7 @@ export function DesktopNavigation({
               <div className="absolute inset-0 bg-[#f97316] rounded-lg blur-lg opacity-40 group-hover:opacity-60 transition-opacity" />
             </div>
             <div>
-              <span className="text-2xl font-serif font-bold tracking-tight text-white">
+              <span className="text-2xl font-serif font-bold tracking-tight text-foreground">
                 ZINI<span className="text-[#f97316]">TEK</span>
               </span>
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground -mt-1 font-medium">
@@ -152,14 +172,14 @@ export function DesktopNavigation({
                   href={item.href}
                   className={cn(
                     "flex items-center gap-1 px-4 py-3 text-sm font-medium transition-colors relative group",
-                    isActive(item.href) ? "text-[#f97316]" : "text-slate-300 hover:text-[#f97316]"
+                    isActive(item.href) ? "text-[#f97316]" : "text-foreground hover:text-[#f97316]"
                   )}
                 >
                   {item.name}
                   {item.hasMega && <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isMegaOpen && "rotate-180")} />}
                   <span className={cn(
-                      "absolute bottom-1 left-4 right-4 h-0.5 bg-gradient-to-r from-[#f97316] to-[#fb923c] transition-transform origin-left duration-300",
-                      isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                    "absolute bottom-2 left-4 right-4 h-[1.5px] bg-gradient-to-r from-[#f97316] to-[#fb923c] transition-transform origin-left duration-300",
+                    isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                   )} />
                 </Link>
 
@@ -173,7 +193,7 @@ export function DesktopNavigation({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 5 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="relative w-[720px] p-6 bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl pointer-events-auto"
+                        className="relative w-[720px] p-6 bg-card/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl pointer-events-auto"
                       >
                         <div className="grid grid-cols-2 gap-3">
                           {serviceItems.map((service) => {
@@ -184,24 +204,24 @@ export function DesktopNavigation({
                               <Link
                                 key={service.slug || Math.random()}
                                 href={`/${lang}/services/${service.slug}`}
-                                className="flex items-start gap-4 p-3 rounded-lg hover:bg-white/5 group/item transition-all relative overflow-hidden"
+                                className="flex items-start gap-4 p-3 rounded-lg hover:bg-secondary group/item transition-all relative overflow-hidden"
                                 onClick={() => setIsMegaOpen(false)}
                               >
                                 {/* NHÃN PHIÊN BẢN NGÔN NGỮ (NẾU KHÁC NGÔN NGỮ HIỆN TẠI) */}
                                 {service.language && service.language !== lang && (
-                                    <span className="absolute top-2 right-2 text-[9px] font-black text-[#020617] bg-[#f97316] px-1.5 py-0.5 rounded uppercase tracking-tighter opacity-80">
-                                        {service.language}
-                                    </span>
+                                  <span className="absolute top-2 right-2 text-[9px] font-black text-[#020617] bg-[#f97316] px-1.5 py-0.5 rounded uppercase tracking-tighter opacity-80">
+                                    {service.language}
+                                  </span>
                                 )}
 
                                 <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#f97316]/10 rounded-lg group-hover/item:bg-[#f97316] transition-all duration-300">
-                                  <DynamicIcon 
-                                    iconData={service.icon} 
-                                    className="w-6 h-6 text-[#f97316] group-hover/item:text-[#020617] transition-colors" 
+                                  <DynamicIcon
+                                    iconData={service.icon}
+                                    className="w-6 h-6 text-[#f97316] group-hover/item:text-[#020617] transition-colors"
                                   />
                                 </div>
                                 <div>
-                                  <h4 className="font-semibold text-white group-hover/item:text-[#f97316] transition-colors pr-6">
+                                  <h4 className="font-semibold text-foreground group-hover/item:text-[#f97316] transition-colors pr-6">
                                     {displayTitle}
                                   </h4>
                                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
@@ -226,30 +246,30 @@ export function DesktopNavigation({
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground border border-white/10 rounded-lg bg-[#0f172a]/50 hover:border-[#f97316]/30 transition-all",
-                  isLangOpen && "border-[#f97316]/50 text-white"
+                  "flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground border border-border/50 rounded-lg bg-secondary/50 hover:border-[#f97316]/30 transition-all text-foreground",
+                  isLangOpen && "border-[#f97316]/50 text-foreground"
                 )}
               >
                 <Globe className="w-4 h-4" />
                 <span className="font-medium">{currentLang.flag}</span>
                 <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isLangOpen && "rotate-180")} />
               </button>
-              
+
               <AnimatePresence>
                 {isLangOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full right-0 mt-2 w-44 bg-[#0f172a] border border-white/10 rounded-xl shadow-xl overflow-hidden z-[120]"
+                    className="absolute top-full right-0 mt-2 w-44 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden z-[120]"
                   >
                     {languages.map((l) => (
                       <button
                         key={l.code}
                         onClick={() => handleLangChange(l.code)}
                         className={cn(
-                          "w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-white/5 transition-colors",
-                          lang === l.code ? "text-[#f97316] bg-[#f97316]/5" : "text-white"
+                          "w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors",
+                          lang === l.code ? "text-[#f97316] bg-[#f97316]/5" : "text-foreground"
                         )}
                       >
                         <span className="opacity-80">{l.flag}</span>
@@ -261,7 +281,7 @@ export function DesktopNavigation({
               </AnimatePresence>
             </div>
 
-            <Button asChild className="bg-[#f97316] text-[#020617] font-bold hover:scale-105 hover:bg-[#fb923c] transition-all shadow-lg shadow-[#f97316]/20">
+            <Button asChild className="bg-[#f97316] text-white font-bold hover:scale-105 hover:bg-[#fb923c] transition-all shadow-md">
               <Link href={`/${lang}/contact`}>
                 {dict.common.contact_btn}
               </Link>

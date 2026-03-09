@@ -122,7 +122,7 @@ export function AboutSection({ lang, dict }: { lang: string; dict: any }) {
               <div className="absolute inset-4 border border-[#334155]/50 rounded-full" />
               <div className="absolute inset-8 border border-[#334155]/30 rounded-full" />
               
-              <div className="absolute inset-12 bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-full border border-[#f97316]/30 flex items-center justify-center shadow-2xl">
+              <div className="absolute inset-12 bg-card dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e293b] rounded-full border border-[#f97316]/30 flex items-center justify-center shadow-2xl transition-colors duration-500">
                 <div className="text-center px-8">
                   <div className="font-serif text-6xl font-bold text-[#f97316] mb-2">10+</div>
                   <div className="text-sm text-muted-foreground uppercase tracking-wider font-bold">

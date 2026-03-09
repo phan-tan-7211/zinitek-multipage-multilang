@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import Link from "next/link"
@@ -108,7 +108,7 @@ function FloatingPart({ delay, x, y }: { delay: number; x: number; y: number }) 
       className="absolute w-4 h-4 bg-[#f97316]/20 rounded"
       style={{ left: `${x}%`, top: `${y}%` }}
       initial={{ opacity: 0, scale: 0 }}
-      animate={{ 
+      animate={{
         opacity: [0, 0.6, 0],
         scale: [0, 1, 0.5],
         y: [0, -50, -100],
@@ -122,17 +122,17 @@ function FloatingPart({ delay, x, y }: { delay: number; x: number; y: number }) 
 export default function NotFound() {
   // --- 2. LOGIC NHẬN DIỆN NGÔN NGỮ TỪ URL ---
   const duongDanHienTai = usePathname();
-  
+
   // Tách chuỗi URL để lấy mã ngôn ngữ (ví dụ: /en/blog -> en)
   const cacPhanDuongDan = duongDanHienTai.split('/');
   const maNgonNgu = (cacPhanDuongDan[1] || 'vi') as keyof typeof danhSachNgonNguLoi;
-  
+
   // Lấy dữ liệu ngôn ngữ tương ứng, mặc định là tiếng Việt nếu không tìm thấy
   const ngonNgu = danhSachNgonNguLoi[maNgonNgu] || danhSachNgonNguLoi.vi;
 
   return (
     <div className="min-h-screen bg-[#020617] flex items-center justify-center relative overflow-hidden">
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage: `

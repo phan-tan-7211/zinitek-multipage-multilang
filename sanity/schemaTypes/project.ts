@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 export default {
   name: 'project',
@@ -79,7 +79,7 @@ export default {
       of: [{ type: 'block' }],
       description: 'Nội dung đầy đủ hiển thị ở trang chi tiết dự án.',
     },
-    
+
     // --- Thư viện ảnh dự án (Dành cho bản High-end) ---
     {
       name: 'gallery',

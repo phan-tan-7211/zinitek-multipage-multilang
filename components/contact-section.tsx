@@ -54,7 +54,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
   }
 
   return (
-    <section className="relative py-24 lg:py-32 bg-[#020617]">
+    <section className="relative py-24 lg:py-32 bg-background">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[#f97316]/3 blur-[150px] rounded-full pointer-events-none" />
 
@@ -74,11 +74,11 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
           </div>
 
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
             {t?.title} <span className="italic text-[#f97316]">{t?.title_highlight}</span>
           </h2>
 
-          <p className="text-slate-400 text-base lg:text-lg">
+          <p className="text-muted-foreground text-base lg:text-lg">
             {t?.description}
           </p>
         </motion.div>
@@ -95,19 +95,19 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
             {t?.offices?.map((office: any, index: number) => (
               <div
                 key={index}
-                className="p-6 bg-[#0f172a] rounded-xl border border-[#334155]/50 hover:border-[#f97316]/30 transition-colors"
+                className="p-6 bg-card rounded-xl border border-border/50 hover:border-[#f97316]/30 transition-colors shadow-sm dark:shadow-none"
               >
-                <h3 className="font-serif font-bold text-white mb-4 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#f97316]" />
+                <h3 className="text-[14px] md:text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#f97316]" />
                   {office.name}
                 </h3>
-                <div className="space-y-3 text-sm">
-                  <p className="text-slate-400 leading-relaxed">{office.address}</p>
-                  <a href={`tel:${dict?.common?.phone || "+84 274 123 456"}`} className="flex items-center gap-2 text-slate-200 hover:text-[#f97316] transition-colors">
+                <div className="space-y-2 text-[12px] md:text-sm">
+                  <p className="text-muted-foreground leading-relaxed">{office.address}</p>
+                  <a href={`tel:${dict?.common?.phone || "+84 274 123 456"}`} className="flex items-center gap-2 text-foreground/80 hover:text-[#f97316] transition-colors">
                     <Phone className="w-4 h-4" />
                     {dict?.common?.phone || "+84 274 123 456"}
                   </a>
-                  <a href={`mailto:${dict?.common?.email || "info@zinitek.vn"}`} className="flex items-center gap-2 text-slate-200 hover:text-[#f97316] transition-colors">
+                  <a href={`mailto:${dict?.common?.email || "info@zinitek.vn"}`} className="flex items-center gap-2 text-foreground/80 hover:text-[#f97316] transition-colors">
                     <Mail className="w-4 h-4" />
                     {dict?.common?.email || "info@zinitek.vn"}
                   </a>
@@ -116,22 +116,22 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
             ))}
 
             {/* Working hours */}
-            <div className="p-6 bg-[#0f172a] rounded-xl border border-[#334155]/50">
-              <h3 className="font-serif font-bold text-white mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-[#f97316]" />
+            <div className="p-6 bg-card rounded-xl border border-border/50 shadow-sm dark:shadow-none">
+              <h3 className="text-[14px] md:text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4 md:w-5 md:h-5 text-[#f97316]" />
                 {t?.working_hours?.title}
               </h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-[12px] md:text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">{t?.working_hours?.monday_friday}</span>
-                  <span className="text-slate-200">7:30 - 17:00</span>
+                  <span className="text-muted-foreground">{t?.working_hours?.monday_friday}</span>
+                  <span className="text-foreground/80">7:30 - 17:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">{t?.working_hours?.saturday}</span>
-                  <span className="text-slate-200">7:30 - 12:00</span>
+                  <span className="text-muted-foreground">{t?.working_hours?.saturday}</span>
+                  <span className="text-foreground/80">7:30 - 12:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">{t?.working_hours?.sunday}</span>
+                  <span className="text-muted-foreground">{t?.working_hours?.sunday}</span>
                   <span className="text-[#f97316]">{t?.working_hours?.closed}</span>
                 </div>
               </div>
@@ -147,7 +147,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                 <a
                   key={index}
                   href={social.href}
-                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#0f172a] border border-[#334155]/50 text-slate-400 hover:text-[#f97316] hover:border-[#f97316]/50 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-card border border-border/50 text-muted-foreground hover:text-[#f97316] hover:border-[#f97316]/50 transition-colors shadow-sm dark:shadow-none"
                 >
                   <social.icon className="w-5 h-5" />
                 </a>
@@ -162,19 +162,19 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="lg:col-span-3"
           >
-            <div className="bg-[#0f172a] rounded-2xl border border-[#334155]/50 p-6 lg:p-8">
+            <div className="bg-card rounded-xl md:rounded-2xl border border-border/50 p-4 lg:p-8 shadow-xl shadow-black/5 dark:shadow-none">
               {/* Progress steps */}
               <div className="flex items-center justify-between mb-8">
                 {[1, 2, 3].map((s) => (
                   <div key={s} className="flex items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${step >= s
-                        ? "bg-[#f97316] text-[#020617]"
-                        : "bg-[#1e293b] text-slate-500"
+                      ? "bg-[#f97316] text-white absolute left:0" // Force text white on filled state
+                      : "bg-secondary text-muted-foreground"
                       }`}>
                       {s}
                     </div>
                     {s < 3 && (
-                      <div className={`w-16 sm:w-24 h-0.5 mx-2 transition-colors ${step > s ? "bg-[#f97316]" : "bg-[#1e293b]"
+                      <div className={`w-16 sm:w-24 h-0.5 mx-2 transition-colors ${step > s ? "bg-[#f97316]" : "bg-border/50"
                         }`} />
                     )}
                   </div>
@@ -192,13 +192,13 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-5"
                     >
-                      <h3 className="font-serif text-xl font-bold text-white mb-6">
+                      <h3 className="font-serif text-xl font-bold text-foreground mb-6">
                         {t?.form?.info_title}
                       </h3>
 
                       <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name" className="text-slate-200">{t?.form?.labels?.name}</Label>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="name" className="text-foreground/80 text-[12px] md:text-sm">{t?.form?.labels?.name}</Label>
                           <Input
                             id="name"
                             name="name"
@@ -206,25 +206,25 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                             onChange={handleInputChange}
                             placeholder={t?.form?.placeholders?.name}
                             required
-                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                            className="h-9 md:h-10 text-[13px] md:text-sm bg-secondary border-border/50 text-foreground focus:border-[#f97316] transition-colors px-3"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="company" className="text-slate-200">{t?.form?.labels?.company}</Label>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="company" className="text-foreground/80 text-[12px] md:text-sm">{t?.form?.labels?.company}</Label>
                           <Input
                             id="company"
                             name="company"
                             value={formData.company}
                             onChange={handleInputChange}
                             placeholder={t?.form?.placeholders?.company}
-                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                            className="h-9 md:h-10 text-[13px] md:text-sm bg-secondary border-border/50 text-foreground focus:border-[#f97316] transition-colors px-3"
                           />
                         </div>
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="text-slate-200">{t?.form?.labels?.email}</Label>
+                          <Label htmlFor="email" className="text-foreground/80">{t?.form?.labels?.email}</Label>
                           <Input
                             id="email"
                             name="email"
@@ -233,11 +233,11 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                             onChange={handleInputChange}
                             placeholder={t?.form?.placeholders?.email}
                             required
-                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                            className="bg-secondary border-border/50 text-foreground focus:border-[#f97316] transition-colors"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-slate-200">{t?.form?.labels?.phone}</Label>
+                          <Label htmlFor="phone" className="text-foreground/80">{t?.form?.labels?.phone}</Label>
                           <Input
                             id="phone"
                             name="phone"
@@ -246,7 +246,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                             onChange={handleInputChange}
                             placeholder={t?.form?.placeholders?.phone}
                             required
-                            className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] transition-colors"
+                            className="bg-secondary border-border/50 text-foreground focus:border-[#f97316] transition-colors"
                           />
                         </div>
                       </div>
@@ -255,7 +255,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                         <Button
                           type="button"
                           onClick={() => setStep(2)}
-                          className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] font-semibold"
+                          className="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold"
                         >
                           {t?.form?.buttons?.next}
                           <ChevronRight className="w-4 h-4 ml-1" />
@@ -273,19 +273,19 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-5"
                     >
-                      <h3 className="font-serif text-xl font-bold text-white mb-6">
+                      <h3 className="font-serif text-xl font-bold text-foreground mb-6">
                         {t?.form?.service_title}
                       </h3>
 
                       <div className="space-y-2">
-                        <Label htmlFor="service" className="text-slate-200">{t?.form?.labels?.service}</Label>
+                        <Label htmlFor="service" className="text-foreground/80">{t?.form?.labels?.service}</Label>
                         <select
                           id="service"
                           name="service"
                           value={formData.service}
                           onChange={handleInputChange}
                           required
-                          className="w-full h-10 px-3 rounded-md bg-[#1e293b] border border-[#334155] text-white focus:border-[#f97316] focus:outline-none focus:ring-1 focus:ring-[#f97316] transition-colors"
+                          className="w-full h-10 px-3 rounded-md bg-secondary border border-border/50 text-foreground focus:border-[#f97316] focus:outline-none focus:ring-1 focus:ring-[#f97316] transition-colors"
                         >
                           <option value="">{t?.form?.placeholders?.service_default}</option>
                           {t?.services_list?.map((service: string) => (
@@ -295,7 +295,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="message" className="text-slate-200">{t?.form?.labels?.message}</Label>
+                        <Label htmlFor="message" className="text-foreground/80">{t?.form?.labels?.message}</Label>
                         <Textarea
                           id="message"
                           name="message"
@@ -303,7 +303,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                           onChange={handleInputChange}
                           placeholder={t?.form?.placeholders?.message}
                           rows={4}
-                          className="bg-[#1e293b] border-[#334155] text-white focus:border-[#f97316] resize-none transition-colors"
+                          className="bg-secondary border-border/50 text-foreground focus:border-[#f97316] resize-none transition-colors"
                         />
                       </div>
 
@@ -312,14 +312,14 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                           type="button"
                           variant="outline"
                           onClick={() => setStep(1)}
-                          className="border-[#334155] hover:border-[#f97316]/50 bg-transparent text-white"
+                          className="border-border/50 hover:border-[#f97316]/50 bg-transparent text-foreground"
                         >
                           {t?.form?.buttons?.prev}
                         </Button>
                         <Button
                           type="button"
                           onClick={() => setStep(3)}
-                          className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] font-semibold"
+                          className="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold"
                         >
                           {t?.form?.buttons?.next}
                           <ChevronRight className="w-4 h-4 ml-1" />
@@ -337,13 +337,13 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-5"
                     >
-                      <h3 className="font-serif text-xl font-bold text-white mb-6">
+                      <h3 className="font-serif text-xl font-bold text-foreground mb-6">
                         {t?.form?.file_title}
                       </h3>
 
                       <div className="space-y-2">
-                        <Label className="text-slate-200">{t?.form?.labels?.file}</Label>
-                        <div className="border-2 border-dashed border-[#334155] hover:border-[#f97316]/50 rounded-xl p-8 text-center transition-colors cursor-pointer relative group">
+                        <Label className="text-foreground/80">{t?.form?.labels?.file}</Label>
+                        <div className="border-2 border-dashed border-border/50 hover:border-[#f97316]/50 rounded-xl p-8 text-center transition-colors cursor-pointer relative group">
                           <input
                             type="file"
                             id="file"
@@ -351,22 +351,22 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                             className="absolute inset-0 opacity-0 cursor-pointer"
                           />
                           <Upload className="w-10 h-10 text-[#f97316]/50 mx-auto mb-3 group-hover:text-[#f97316] transition-colors" />
-                          <p className="text-slate-200 font-medium mb-1">
+                          <p className="text-foreground/80 font-medium mb-1">
                             {formData.file ? formData.file.name : t?.form?.placeholders?.file_hint}
                           </p>
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-muted-foreground">
                             {t?.form?.placeholders?.file_types}
                           </p>
                         </div>
                       </div>
 
                       {/* Summary */}
-                      <div className="p-4 bg-[#1e293b]/50 rounded-lg border border-[#334155]/30">
-                        <h4 className="text-sm font-medium text-slate-500 mb-2 uppercase tracking-wider">{t?.form?.summary?.title}</h4>
+                      <div className="p-4 bg-secondary/50 rounded-lg border border-border/50">
+                        <h4 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">{t?.form?.summary?.title}</h4>
                         <div className="space-y-1 text-sm">
-                          <p><span className="text-slate-500">{t?.form?.summary?.name}:</span> <span className="text-slate-200">{formData.name || "-"}</span></p>
-                          <p><span className="text-slate-500">{t?.form?.summary?.email}:</span> <span className="text-slate-200">{formData.email || "-"}</span></p>
-                          <p><span className="text-slate-500">{t?.form?.summary?.service}:</span> <span className="text-[#f97316]">{formData.service || "-"}</span></p>
+                          <p><span className="text-muted-foreground">{t?.form?.summary?.name}:</span> <span className="text-foreground/80">{formData.name || "-"}</span></p>
+                          <p><span className="text-muted-foreground">{t?.form?.summary?.email}:</span> <span className="text-foreground/80">{formData.email || "-"}</span></p>
+                          <p><span className="text-muted-foreground">{t?.form?.summary?.service}:</span> <span className="text-[#f97316]">{formData.service || "-"}</span></p>
                         </div>
                       </div>
 
@@ -375,13 +375,13 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                           type="button"
                           variant="outline"
                           onClick={() => setStep(2)}
-                          className="border-[#334155] hover:border-[#f97316]/50 bg-transparent text-white"
+                          className="border-border/50 hover:border-[#f97316]/50 bg-transparent text-foreground"
                         >
                           {t?.form?.buttons?.prev}
                         </Button>
                         <Button
                           type="submit"
-                          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[#020617] font-bold shadow-lg shadow-[#f97316]/25"
+                          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-white font-bold shadow-lg shadow-[#f97316]/25"
                         >
                           <Send className="w-4 h-4 mr-2" />
                           {t?.form?.buttons?.submit}

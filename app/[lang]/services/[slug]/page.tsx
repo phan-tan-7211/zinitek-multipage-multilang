@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
@@ -130,7 +130,7 @@ export default async function ServiceDetailPage({
   }
 
   return (
-    <main className="bg-[#020617] min-h-screen">
+    <main className="bg-background text-foreground min-h-screen">
       <ServicePageContent
         service={duLieuDichVu}
         relatedServices={danhSachLienQuan}

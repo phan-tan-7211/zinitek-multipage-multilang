@@ -1,10 +1,10 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Cog } from "lucide-react"
 import { DesktopNavigation } from "./navigation-desktop"
 import { MobileNavigation } from "./navigation-mobile"
@@ -39,6 +39,8 @@ interface NavigationProps {
 
 export function Navigation({ lang, dict }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMegaOpen, setIsMegaOpen] = useState(false)
   const [isLangOpen, setIsLangOpen] = useState(false)
@@ -52,14 +54,35 @@ export function Navigation({ lang, dict }: NavigationProps) {
   // Ref cho thanh menu chính để auto-scroll
   const mobileMainMenuRef = useRef<HTMLDivElement>(null);
 
-  // 1. TỐI ƯU SCROLL (GIỮ NGUYÊN)
+  // 1. TỐI ƯU SCROLL (HIDE ON SCROLL LOGIC - FIX HIỆU NĂNG)
   useEffect(() => {
-    const xuLyCuonTrang = () => {
-      setIsScrolled(window.scrollY > 10)
+    let prevY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      // 1. Kiểm tra trạng thái cuộn để đổi style
+      setIsScrolled(currentScrollY > 10)
+
+      // 2. Logic ẩn hiện Header
+      if (window.innerWidth < 1024) {
+        if (currentScrollY > prevY + 5 && currentScrollY > 80) {
+          setIsVisible(false)
+        } else if (currentScrollY < prevY - 10 || currentScrollY <= 80) {
+          setIsVisible(true)
+        }
+      } else {
+        setIsVisible(true)
+      }
+
+      prevY = currentScrollY;
+      setLastScrollY(currentScrollY);
     }
-    window.addEventListener("scroll", xuLyCuonTrang)
-    return () => window.removeEventListener("scroll", xuLyCuonTrang)
-  }, [])
+
+    // Passive listener để ko làm lag cuộn
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, []) // Dependency array trống để ko reregister listener liên tục
 
   // 2. FETCH DỮ LIỆU DỊCH VỤ VỚI LOGIC "PER-ITEM FALLBACK"
   useEffect(() => {
@@ -112,14 +135,14 @@ export function Navigation({ lang, dict }: NavigationProps) {
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflowY = 'hidden';
-      document.body.style.touchAction = "none";
+      document.body.style.touchAction = "";
     } else {
       const scrollY = document.body.style.top;
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
       document.body.style.overflowY = '';
-      document.body.style.touchAction = "auto";
+      document.body.style.touchAction = "";
       if (scrollY) {
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
       }
@@ -188,12 +211,22 @@ export function Navigation({ lang, dict }: NavigationProps) {
   return (
     <>
       <header
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', zIndex: 9998 }}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          zIndex: 9998,
+          transform: isVisible ? 'translateY(0)' : 'translateY(-110%)',
+          opacity: isVisible ? 1 : 0,
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, background-color 0.5s',
+          pointerEvents: isVisible ? 'auto' : 'none'
+        }}
         className={cn(
-          "transition-all duration-500",
           isScrolled
-            ? "bg-[#020617]/95 backdrop-blur-md shadow-2xl border-b border-white/5"
-            : "bg-transparent"
+            ? "bg-background/95 backdrop-blur-md border-b border-border/50 text-foreground shadow-sm"
+            : "bg-transparent text-foreground"
         )}
       >
         <motion.div
@@ -220,21 +253,21 @@ export function Navigation({ lang, dict }: NavigationProps) {
             />
           </div>
 
-          {/* MOBILE: NAVIGATION BAR */}
-          <div className="lg:hidden container mx-auto px-4 py-4 flex items-center justify-between gap-2 overflow-hidden">
-            <Link href={`/${lang}`} className="flex-shrink-0 flex items-center gap-2 relative z-[110]">
+          {/* MOBILE: NAVIGATION BAR - TỐI ƯU CHIỀU CAO CỰC ĐẠI (PHASE 18) */}
+          <div className="lg:hidden container mx-auto px-4 py-1.5 flex items-center justify-between gap-1 overflow-hidden">
+            <Link href={`/${lang}`} className="flex-shrink-0 flex items-center gap-1.5 relative z-[110]">
               <div className="w-8 h-8 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded flex items-center justify-center shadow-lg shadow-[#f97316]/20">
                 <Cog className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-white tracking-tight hidden xs:block landscape:block">
+              <span className="text-base font-bold text-foreground tracking-tight hidden xs:block landscape:block">
                 ZINI<span className="text-[#f97316]">TEK</span>
               </span>
             </Link>
 
-            {/* MAIN MENU (PC-STYLE) - TRANG CHỦ, GIỚI THIỆU, DỊCH VỤ... */}
+            {/* MAIN MENU - THU NHỎ HƠN ĐÚNG THEO YÊU CẦU (PHASE 18) */}
             <div
               ref={mobileMainMenuRef}
-              className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth px-2 h-14 touch-pan-x bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl ml-1 mr-1 relative"
+              className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth px-1.5 h-10 touch-pan-x bg-card/60 backdrop-blur-md border border-border/50 rounded-2xl ml-1 mr-1 relative"
               style={{
                 WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
                 maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
@@ -260,8 +293,8 @@ export function Navigation({ lang, dict }: NavigationProps) {
                       router.push(item.href);
                     }}
                     className={cn(
-                      "flex-shrink-0 flex flex-col items-center justify-center min-w-[70px] h-12 rounded-xl transition-all duration-300 relative",
-                      isActive ? "bg-[#f97316]/10" : "hover:bg-white/5"
+                      "flex-shrink-0 flex flex-col items-center justify-center min-w-[60px] h-8 rounded-xl transition-all duration-300 relative",
+                      isActive ? "bg-[#f97316]/10" : "hover:bg-card/60"
                     )}
                   >
                     {isActive && (
@@ -270,14 +303,14 @@ export function Navigation({ lang, dict }: NavigationProps) {
 
                     <Icon
                       className={cn(
-                        "w-5 h-5 mb-1 transition-all duration-300",
-                        isActive ? "text-[#f97316] drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]" : "text-white/40"
+                        "w-3.5 h-3.5 mb-0.5 transition-all duration-300",
+                        isActive ? "text-[#f97316]" : "text-muted-foreground"
                       )}
                       strokeWidth={isActive ? 2.5 : 2}
                     />
                     <span className={cn(
                       "text-[8px] font-bold whitespace-nowrap uppercase tracking-tighter",
-                      isActive ? "text-[#f97316]" : "text-white/20"
+                      isActive ? "text-[#f97316]" : "text-muted-foreground"
                     )}>
                       {item.name}
                     </span>
@@ -286,7 +319,7 @@ export function Navigation({ lang, dict }: NavigationProps) {
               })}
             </div>
 
-            <div className="flex-shrink-0 flex items-center gap-2 relative z-[110]">
+            <div className="flex-shrink-0 flex items-center gap-1 relative z-[110]">
               <MobileNavigation
                 lang={lang}
                 dict={dict}

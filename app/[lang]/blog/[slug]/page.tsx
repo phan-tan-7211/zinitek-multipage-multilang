@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
@@ -67,24 +67,24 @@ async function layBaiVietLienQuan(idHienTai: string, ngonNgu: string) {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const thamSoTrang = await params;
   const baiViet = await layChiTietBaiViet(thamSoTrang.slug, thamSoTrang.lang);
-  
+
   if (!baiViet) return { title: "Bài viết không tồn tại | ZINITEK" };
-  
-  return { 
-    title: `${baiViet.title} - Blog ZINITEK`, 
-    description: baiViet.excerpt 
+
+  return {
+    title: `${baiViet.title} - Blog ZINITEK`,
+    description: baiViet.excerpt
   };
 }
 
 // --- 5. THÀNH PHẦN TRANG CHI TIẾT ---
-export default async function BlogDetailPage({ 
-  params 
-}: { 
-  params: Promise<{ lang: string; slug: string }> 
+export default async function BlogDetailPage({
+  params
+}: {
+  params: Promise<{ lang: string; slug: string }>
 }) {
   const thamSoTrang = await params;
   const { lang, slug } = thamSoTrang;
-  
+
   const [tuDienNgonNgu, duLieuBaiViet] = await Promise.all([
     getDictionary(lang),
     layChiTietBaiViet(slug, lang)
@@ -103,20 +103,20 @@ export default async function BlogDetailPage({
   });
 
   return (
-    <main className="min-h-screen bg-[#020617] text-white pt-32 pb-20">
+    <main className="min-h-screen bg-background text-foreground pt-32 pb-20">
       <div className="container mx-auto px-4 lg:px-6">
-        
+
         {/* Nút quay lại danh sách Blog (Breadcrumb) */}
         <div className="mb-12">
-          <Link 
+          <Link
             href={`/${lang}/blog`}
-            className="group inline-flex items-center gap-2 text-slate-400 hover:text-[#f97316] transition-colors"
+            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
           >
-            <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-[#f97316]/50 transition-all">
-              <ArrowLeft className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 transition-all bg-card">
+              <ArrowLeft className="w-5 h-5 text-foreground group-hover:text-[#f97316]" />
             </div>
             <span className="text-sm font-bold uppercase tracking-widest">
-                {tuDienNgonNgu.blog?.back_to_blog || "Quay lại Blog"}
+              {tuDienNgonNgu.blog?.back_to_blog || "Quay lại Blog"}
             </span>
           </Link>
         </div>
@@ -128,15 +128,15 @@ export default async function BlogDetailPage({
               <Tag className="w-3.5 h-3.5" />
               {duLieuBaiViet.category?.title || "Kỹ thuật"}
             </div>
-            
-            <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight mb-8 text-balance">
+
+            <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight mb-8 text-balance text-foreground">
               {duLieuBaiViet.title}
             </h1>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400 border-y border-white/5 py-6">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground border-y border-border/50 py-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-[#f97316]" />
-                <span className="font-medium text-slate-200">{duLieuBaiViet.author || "ZINITEK Team"}</span>
+                <span className="font-medium text-foreground">{duLieuBaiViet.author || "ZINITEK Team"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[#f97316]" />
@@ -150,13 +150,13 @@ export default async function BlogDetailPage({
           </header>
 
           {/* Ảnh đại diện bài viết */}
-          <div className="relative aspect-[21/9] rounded-3xl overflow-hidden border border-[#334155]/50 mb-16 shadow-2xl">
-            <SanityImage 
-              imageData={duLieuBaiViet.mainImage} 
-              alt={duLieuBaiViet.title} 
-              width={1600} 
-              height={900} 
-              className="w-full h-full object-cover" 
+          <div className="relative aspect-[21/9] rounded-3xl overflow-hidden border border-border/50 mb-16 shadow-xl shadow-black/5 dark:shadow-none">
+            <SanityImage
+              imageData={duLieuBaiViet.mainImage}
+              alt={duLieuBaiViet.title}
+              width={1600}
+              height={900}
+              className="w-full h-full object-cover"
               priority
             />
             {duLieuBaiViet.language !== lang && (
@@ -167,12 +167,12 @@ export default async function BlogDetailPage({
           </div>
 
           {/* Nội dung chi tiết bài viết (Portable Text) */}
-          <article className="prose prose-invert prose-orange max-w-none prose-headings:font-serif prose-p:text-slate-300 prose-p:leading-relaxed prose-img:rounded-2xl prose-a:text-[#f97316]">
+          <article className="prose prose-invert prose-orange max-w-none prose-headings:font-serif prose-p:text-muted-foreground prose-p:leading-relaxed prose-img:rounded-2xl prose-a:text-[#f97316] prose-headings:text-foreground">
             <PortableText value={duLieuBaiViet.body} />
           </article>
 
           {/* --- SỬA ĐỔI: CHÈN NÚT XEM TẤT CẢ BÀI VIẾT VÀO ĐÂY --- */}
-          <div className="mt-16 pt-10 border-t border-white/5">
+          <div className="mt-16 pt-10 border-t border-border/50">
             <Link href={`/${lang}/blog`}>
               <button className="inline-flex items-center gap-2 px-6 py-3 border border-[#f97316]/50 text-[#f97316] rounded-lg hover:bg-[#f97316]/10 transition-colors font-bold uppercase tracking-widest text-xs shadow-lg shadow-[#f97316]/5 group">
                 {tuDienNgonNgu.news_section?.view_all || "Xem tất cả bài viết"}
@@ -184,10 +184,10 @@ export default async function BlogDetailPage({
           {/* Chân bài viết: Chia sẻ và Liên hệ */}
           <footer className="mt-12 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex items-center gap-4">
-               <span className="text-sm font-bold uppercase tracking-widest text-slate-500">Chia sẻ:</span>
-               <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#f97316] hover:text-[#020617] transition-all">
-                  <Share2 className="w-4 h-4" />
-               </button>
+              <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Chia sẻ:</span>
+              <button className="w-10 h-10 rounded-full bg-card border border-border/50 flex items-center justify-center hover:bg-[#f97316] hover:text-[#020617] hover:border-[#f97316] transition-all text-foreground">
+                <Share2 className="w-4 h-4" />
+              </button>
             </div>
             <Link href={`/${lang}/contact`}>
               <button className="px-8 py-4 bg-[#f97316] text-[#020617] font-black rounded-xl hover:bg-[#fb923c] transition-all uppercase tracking-tighter shadow-lg shadow-[#f97316]/20">
@@ -200,14 +200,14 @@ export default async function BlogDetailPage({
         {/* Khối bài viết liên quan */}
         {danhSachLienQuan.length > 0 && (
           <div className="mt-32">
-            <h3 className="text-2xl font-serif font-bold mb-12 flex items-center gap-4">
+            <h3 className="text-2xl font-serif font-bold mb-12 flex items-center gap-4 text-foreground">
               <span className="w-12 h-px bg-[#f97316]"></span>
               Bài viết liên quan
             </h3>
             <div className="grid md:grid-cols-3 gap-8">
               {danhSachLienQuan.map((baiLienQuan: any) => (
                 <Link key={baiLienQuan._id} href={`/${lang}/blog/${baiLienQuan.slug}`} className="group">
-                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10">
+                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-border/50 shadow-sm dark:shadow-none">
                     <SanityImage imageData={baiLienQuan.mainImage} alt={baiLienQuan.title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
                   <h4 className="font-bold text-lg group-hover:text-[#f97316] transition-colors line-clamp-2">{baiLienQuan.title}</h4>

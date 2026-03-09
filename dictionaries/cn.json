@@ -6,7 +6,8 @@
     "read_more": "查看详情",
     "phone_label": "+84 274 123 456",
     "email_label": "info@zinitek.vn",
-    "slogan_top": "日本技术 - 越南成本"
+    "slogan_top": "日本技术 - 越南成本",
+    "swipe_desktop": "桌面滑动"
   },
   "testimonials": {
     "badge": "客户见证",
@@ -51,8 +52,8 @@
     "meta_desc": "ZINITEK 提供的日本品质 CNC 加工、模具和自动化解决方案。"
   },
   "products": {
-    "title_main": "产品",
-    "title_highlight": "设备",
+    "title_main": "产品中心",
+    "title_highlight": "技术设备",
     "hub_description": "浏览 ZINITEK 的 CNC 加工产品、机械和解决方案目录。",
     "meta_title": "产品与设备 - ZINITEK",
     "meta_desc": "列出 ZINITEK 的机器、设备及精密加工品清单。"

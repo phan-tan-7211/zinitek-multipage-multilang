@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import { useRef } from "react"
@@ -27,14 +27,14 @@ interface BlogSectionProps {
 }
 
 // --- THÀNH PHẦN THẺ BÀI VIẾT (BLOG CARD) ---
-function BlogCard({ 
-  baiViet, 
-  chiSo, 
-  ngonNguHienTai 
-}: { 
-  baiViet: BaiVietBlog; 
-  chiSo: number; 
-  ngonNguHienTai: string 
+function BlogCard({
+  baiViet,
+  chiSo,
+  ngonNguHienTai
+}: {
+  baiViet: BaiVietBlog;
+  chiSo: number;
+  ngonNguHienTai: string
 }) {
   const thamChieuThe = useRef(null)
   const dangTrongTamNhin = useInView(thamChieuThe, { once: true, margin: "-50px" })
@@ -52,7 +52,7 @@ function BlogCard({
       initial={{ opacity: 0, y: 50 }}
       animate={dangTrongTamNhin ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: chiSo * 0.15 }}
-      className="group bg-[#0f172a] rounded-xl overflow-hidden border border-[#334155]/50 hover:border-[#f97316]/30 transition-all duration-500 relative"
+      className="group bg-card rounded-xl overflow-hidden border border-border/50 hover:border-[#f97316]/30 transition-all duration-500 relative shadow-sm dark:shadow-none"
     >
       {/* Nhãn hiển thị nếu đây là bản dịch dự phòng (Fallback Version) */}
       {baiViet.language !== ngonNguHienTai && (
@@ -62,14 +62,14 @@ function BlogCard({
       )}
 
       {/* Khung chứa hình ảnh đại diện */}
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative aspect-video overflow-hidden">
         <img
           src={baiViet.mainImage?.url || "/placeholder.svg"}
           alt={baiViet.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
-        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent dark:from-[#0f172a]" />
+
         {/* Nhãn danh mục bài viết */}
         <div className="absolute top-4 left-4">
           <span className="px-3 py-1 text-xs font-medium bg-[#f97316] text-[#020617] rounded-full shadow-lg">
@@ -79,7 +79,7 @@ function BlogCard({
       </div>
 
       {/* Nội dung tóm tắt bài viết */}
-      <div className="p-6">
+      <div className="p-4">
         {/* Thông tin Meta: Ngày đăng và Thời gian đọc */}
         <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
           <span className="flex items-center gap-1.5">
@@ -103,9 +103,9 @@ function BlogCard({
         </p>
 
         {/* Thông tin tác giả và nút xem chi tiết */}
-        <div className="flex items-center justify-between pt-4 border-t border-[#334155]/50">
+        <div className="flex items-center justify-between pt-4 border-t border-border/50">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center border border-white/5">
+            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center border border-border/50">
               <User className="w-4 h-4 text-muted-foreground" />
             </div>
             <span className="text-sm text-muted-foreground font-medium">
@@ -113,7 +113,7 @@ function BlogCard({
             </span>
           </div>
 
-          <Link 
+          <Link
             href={`/${ngonNguHienTai}/blog/${baiViet.slug}`}
             className="flex items-center gap-1.5 text-sm text-[#f97316] font-bold group-hover:gap-2.5 transition-all uppercase tracking-tighter"
           >
@@ -132,7 +132,7 @@ export function BlogSection({ posts, lang, dict }: BlogSectionProps) {
   const dangTrongTamNhin = useInView(thamChieuSection, { once: true, margin: "-100px" })
 
   return (
-    <section className="relative py-24 lg:py-32 bg-[#020617]">
+    <section className="relative py-24 lg:py-32 bg-background">
       {/* Hiệu ứng trang trí nền tảng */}
       <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-[#f97316]/3 blur-[150px] rounded-full pointer-events-none" />
 
@@ -152,11 +152,11 @@ export function BlogSection({ posts, lang, dict }: BlogSectionProps) {
               </span>
               <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
             </div>
-            
+
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
               Kiến thức <span className="italic text-[#f97316]">chuyên sâu</span>
             </h2>
-            
+
             <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
               {dict.news_section?.description || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK."}
             </p>
@@ -166,20 +166,20 @@ export function BlogSection({ posts, lang, dict }: BlogSectionProps) {
         </motion.div>
 
         {/* Lưới hiển thị danh sách bài viết */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {posts.map((baiViet, chiSo) => (
-            <BlogCard 
-              key={baiViet._id} 
-              baiViet={baiViet} 
-              chiSo={chiSo} 
-              ngonNguHienTai={lang} 
+            <BlogCard
+              key={baiViet._id}
+              baiViet={baiViet}
+              chiSo={chiSo}
+              ngonNguHienTai={lang}
             />
           ))}
         </div>
 
         {/* Hiển thị thông báo nếu không có bài viết nào */}
         {posts.length === 0 && (
-          <div className="text-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/5">
+          <div className="text-center py-20 border border-dashed border-border/30 rounded-3xl bg-secondary/50">
             <p className="text-muted-foreground italic">Hiện chưa có bài viết nào trong danh mục này.</p>
           </div>
         )}

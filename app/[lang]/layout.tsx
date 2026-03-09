@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 import React from "react";
 import type { Metadata } from 'next';
 import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper";

@@ -1,11 +1,12 @@
 import { Cog } from "lucide-react"
 
-export default function loading() {
+export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[1000000] flex flex-col items-center justify-center bg-[#020617]">
+    // SỬA TẠI ĐÂY: bg-white cho Light Mode, dark:bg-[#020617] cho Dark Mode
+    <div className="fixed inset-0 z-[1000000] flex flex-col items-center justify-center bg-white dark:bg-[#020617]">
       
       {/* 1. THANH TIẾN TRÌNH (TOP BAR) */}
-      <div className="fixed top-0 left-0 right-0 h-[3px] bg-[#f97316]/20 overflow-hidden">
+      <div className="fixed top-0 left-0 right-0 h-[3px] bg-[#f97316]/10 overflow-hidden">
         <div className="h-full bg-[#f97316] shadow-[0_0_10px_#f97316] animate-progress-fast"></div>
       </div>
 
@@ -22,7 +23,7 @@ export default function loading() {
         </div>
       </div>
       
-      {/* 4. CHỮ LOADING CÓ HIỆU ỨNG CHỮ CHẠY */}
+      {/* 4. CHỮ LOADING */}
       <div className="mt-6 flex flex-col items-center gap-2">
         <span className="text-[#f97316] font-black text-sm tracking-[0.3em] uppercase animate-pulse">
           ZINITEK

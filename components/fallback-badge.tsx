@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 // COMPONENT FALLBACK BADGE
 // Mục đích: Hiển thị nhãn thông báo khi nội dung đang dùng bản dịch dự phòng
 // Ví dụ: Đang xem trang JP nhưng không có bản JP → hiển thị "EN Version"

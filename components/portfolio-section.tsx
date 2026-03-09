@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import { useState, useRef, useMemo } from "react"
@@ -47,7 +47,7 @@ function ProjectCard({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4 }}
-      className="group relative overflow-hidden rounded-xl bg-[#0f172a] border border-[#334155]/50"
+      className="group relative overflow-hidden rounded-xl bg-card border border-border"
       onMouseEnter={() => setDangDiChuotQua(true)}
       onMouseLeave={() => setDangDiChuotQua(false)}
     >
@@ -60,8 +60,8 @@ function ProjectCard({
             }`}
         />
 
-        {/* Lớp phủ màu chuyển sắc tối */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent transition-opacity duration-500 ${dangDiChuotQuas ? "opacity-90" : "opacity-70"
+        {/* Lớp phủ chuyển màu (Gradient Background) */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent transition-opacity duration-500 ${dangDiChuotQuas ? "opacity-90" : "opacity-70"
           }`} />
 
         {/* Hiệu ứng đường viền màu cam rực sáng khi di chuột vào */}
@@ -83,7 +83,7 @@ function ProjectCard({
           <span className="text-xs text-[#f97316] font-medium uppercase tracking-wider mb-2">
             {project.client}
           </span>
-          <h3 className="font-serif text-lg font-bold text-white mb-2 line-clamp-2">
+          <h3 className="font-serif text-lg font-bold text-foreground mb-2 line-clamp-2">
             {project.title}
           </h3>
 
@@ -112,7 +112,7 @@ function ProjectCard({
               <Eye className="w-3.5 h-3.5" />
               Xem chi tiết
             </Link>
-            <div className="flex items-center justify-center w-9 h-9 border border-white/20 text-white rounded-lg hover:border-[#f97316]/50 hover:bg-[#f97316]/10 transition-colors cursor-pointer">
+            <div className="flex items-center justify-center w-9 h-9 border border-border text-foreground rounded-lg hover:border-[#f97316]/50 hover:bg-[#f97316]/10 transition-colors cursor-pointer">
               <ExternalLink className="w-3.5 h-3.5" />
             </div>
           </motion.div>
@@ -141,9 +141,9 @@ export function PortfolioSection({
   }, [maDanhMucDangLoc, projects]);
 
   return (
-    <section className="relative py-24 lg:py-32 bg-[#0f172a]/50">
+    <section className="relative py-24 lg:py-32 bg-secondary/20">
       {/* Lớp nền màu chuyển sắc (Gradient Background) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#0f172a]/50 to-[#020617]" />
+      <div className="absolute inset-0 bg-background/80" />
 
       <div ref={thamChieuSection} className="container mx-auto px-4 lg:px-6 relative z-10">
 
@@ -182,8 +182,8 @@ export function PortfolioSection({
           <button
             onClick={() => setMaDanhMucDangLoc("all")}
             className={`px-5 py-2 text-sm font-medium rounded-full border transition-all duration-300 ${maDanhMucDangLoc === "all"
-                ? "bg-[#f97316] text-[#020617] border-[#f97316]"
-                : "border-[#334155] text-muted-foreground hover:border-[#f97316]/50 hover:text-foreground"
+              ? "bg-[#f97316] text-[#020617] border-[#f97316]"
+              : "border-[#334155] text-muted-foreground hover:border-[#f97316]/50 hover:text-foreground"
               }`}
           >
             {lang === 'vi' ? 'Tất cả' : 'All'}
@@ -195,8 +195,8 @@ export function PortfolioSection({
               key={danhMuc._id}
               onClick={() => setMaDanhMucDangLoc(danhMuc._id)}
               className={`px-5 py-2 text-sm font-medium rounded-full border transition-all duration-300 ${maDanhMucDangLoc === danhMuc._id
-                  ? "bg-[#f97316] text-[#020617] border-[#f97316]"
-                  : "border-[#334155] text-muted-foreground hover:border-[#f97316]/50 hover:text-foreground"
+                ? "bg-[#f97316] text-[#020617] border-[#f97316]"
+                : "border-[#334155] text-muted-foreground hover:border-[#f97316]/50 hover:text-foreground"
                 }`}
             >
               {danhMuc.title}
@@ -205,7 +205,7 @@ export function PortfolioSection({
         </motion.div>
 
         {/* LƯỚI HIỂN THỊ CÁC DỰ ÁN (PROJECT GRID) */}
-        <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div layout className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <AnimatePresence mode="popLayout">
             {danhSachDuAnDaLoc.map((duAn) => (
               <ProjectCard key={duAn._id} project={duAn} currentLanguage={lang} />

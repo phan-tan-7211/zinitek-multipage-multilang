@@ -50,7 +50,7 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
       transition={{ duration: 0.6, delay: index * 0.15 }}
       className="relative group"
     >
-      <div className="relative bg-[#0f172a]/80 backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-white/10 hover:border-[#f97316]/30 transition-all duration-500">
+      <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-border hover:border-[#f97316]/30 transition-all duration-500">
         <div className="absolute -top-4 left-6 w-8 h-8 bg-[#f97316] rounded-lg flex items-center justify-center">
           <Quote className="w-4 h-4 text-[#020617]" />
         </div>
@@ -95,16 +95,16 @@ export function TestimonialsSection({ dict }: TestimonialsSectionProps) {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   // Tách text từ dict để code gọn hơn
-  const { 
-    badge, 
-    title_part1, 
-    title_highlight, 
-    description, 
-    trusted_by 
+  const {
+    badge,
+    title_part1,
+    title_highlight,
+    description,
+    trusted_by
   } = dict.testimonials
 
   return (
-    <section className="relative py-24 lg:py-32 bg-gradient-to-b from-[#020617] to-[#0f172a]/50 overflow-hidden">
+    <section className="relative py-24 lg:py-32 bg-background overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#f97316]/5 rounded-full blur-[150px] pointer-events-none" />
 
       <div ref={ref} className="container mx-auto px-4 lg:px-6 relative z-10">
@@ -122,11 +122,11 @@ export function TestimonialsSection({ dict }: TestimonialsSectionProps) {
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
           </div>
-          
+
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
             {title_part1} <span className="italic text-[#f97316]">{title_highlight}</span>
           </h2>
-          
+
           <p className="text-muted-foreground text-base lg:text-lg">
             {description}
           </p>
@@ -144,7 +144,7 @@ export function TestimonialsSection({ dict }: TestimonialsSectionProps) {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-20 pt-12 border-t border-[#334155]/50"
+          className="mt-20 pt-12 border-t border-border/50"
         >
           <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider">
             {trusted_by}

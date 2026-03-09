@@ -31,12 +31,12 @@ const projects = [
   },
 ]
 
-function ProjectCard({ 
-  project, 
-  index, 
-  btnText 
-}: { 
-  project: typeof projects[0]; 
+function ProjectCard({
+  project,
+  index,
+  btnText
+}: {
+  project: typeof projects[0];
   index: number;
   btnText: string;
 }) {
@@ -50,32 +50,30 @@ function ProjectCard({
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.15 }}
-      className="group relative overflow-hidden rounded-2xl bg-[#0f172a] border border-slate-800 transition-all duration-500 hover:border-[#f97316]/30"
+      className="group relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-500 hover:border-[#f97316]/30 shadow-md"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-video overflow-hidden">
         <img
           src={project.image || "/placeholder.svg"}
           alt={project.title}
-          className={`w-full h-full object-cover transition-all duration-700 ease-out ${
-            isHovered ? "scale-110" : "scale-100"
-          }`}
+          className={`w-full h-full object-cover transition-all duration-700 ease-out ${isHovered ? "scale-110" : "scale-100"
+            }`}
         />
-        
-        {/* Overlay gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent transition-opacity duration-500 ${
-          isHovered ? "opacity-95" : "opacity-80"
-        }`} />
 
-        <div className="absolute inset-0 p-8 flex flex-col justify-end">
+        {/* Overlay gradient - điều chỉnh để light mode sáng rõ hơn */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent transition-opacity duration-500 ${isHovered ? "opacity-95" : "opacity-80"
+          }`} />
+
+        <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
           <span className="text-xs text-[#f97316] font-bold uppercase tracking-[0.2em] mb-3">
             {project.client}
           </span>
-          <h3 className="font-serif text-2xl font-bold text-white mb-2 line-clamp-2">
+          <h3 className="font-serif text-sm md:text-lg font-bold text-foreground mb-1 line-clamp-2">
             {project.title}
           </h3>
-          <span className="text-sm text-slate-400 font-medium">{project.category}</span>
+          <span className="text-sm text-muted-foreground font-medium">{project.category}</span>
 
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -97,14 +95,14 @@ function ProjectCard({
 export function FeaturedProjects({ dict }: { dict?: any }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
-  
+
   // Lấy dữ liệu từ dict.featured_projects hoặc các key liên quan
   const data = dict?.featured_projects || dict?.portfolio || {};
 
   return (
-    <section id="projects" className="relative py-24 lg:py-32 bg-[#020617] overflow-hidden">
+    <section id="projects" className="relative py-24 lg:py-32 bg-background overflow-hidden">
       {/* Decorative background element */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-[#f97316]/5 blur-[120px] rounded-full pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-[#f97316]/0 dark:bg-[#f97316]/5 blur-[120px] rounded-full pointer-events-none z-0" />
 
       <div ref={ref} className="container mx-auto px-4 lg:px-6 relative z-10">
         <motion.div
@@ -120,21 +118,21 @@ export function FeaturedProjects({ dict }: { dict?: any }) {
                 {data.badge || "Dự án tiêu biểu"}
               </span>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8">
+            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-8">
               {data.title_main || "Năng lực"}{" "}
               <span className="italic text-[#f97316] font-light">
                 {data.title_highlight || "thực tế"}
               </span>
             </h2>
-            <p className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-xl">
+            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-xl">
               {data.description || "Minh chứng cho chất lượng gia công và kinh nghiệm thực chiến của ZINITEK qua các sản phẩm thực tế cho đối tác lớn."}
             </p>
           </div>
 
-          <Button 
-            asChild 
-            variant="outline" 
-            className="group border-[#f97316]/40 text-[#f97316] hover:bg-[#f97316] hover:text-white transition-all duration-300 bg-transparent px-8 py-7 rounded-full text-lg font-semibold"
+          <Button
+            asChild
+            variant="outline"
+            className="group border-[#f97316]/40 text-[#f97316] hover:bg-[#f97316] hover:text-white transition-all duration-300 bg-transparent px-8 py-7 rounded-full text-lg font-semibold dark:hover:text-white"
           >
             <Link href="/portfolio">
               {data.view_all || "Xem tất cả"}
@@ -143,12 +141,12 @@ export function FeaturedProjects({ dict }: { dict?: any }) {
           </Button>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {projects.map((project, index) => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              index={index} 
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
               btnText={data.view_details || "Xem chi tiết"}
             />
           ))}

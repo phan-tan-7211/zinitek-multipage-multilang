@@ -1,13 +1,13 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 "use client"
 
 import { useRef, useEffect } from "react"
 import { motion, useInView } from "framer-motion"
 import Link from "next/link"
-import { 
-  ArrowRight, 
-  CheckCircle2, 
-  ChevronRight, 
+import {
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
   Home,
   Phone
 } from "lucide-react"
@@ -72,7 +72,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
   useEffect(() => {
     if (service.banDichTuongUng && service.banDichTuongUng.length > 0) {
       const banDoDichThuat: Record<string, string> = {};
-      
+
       service.banDichTuongUng.forEach((banDich) => {
         banDoDichThuat[banDich.language] = banDich.slug;
       });
@@ -90,11 +90,11 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
   return (
     <>
       {/* Hero Section */}
-      <section className="relative pt-40 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617]" />
+      <section className="relative pt-40 pb-20 overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-50 dark:opacity-100" />
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[#f97316]/5 blur-[150px] rounded-full" />
-        
-        <div 
+
+        <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `
@@ -165,9 +165,9 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                 className="flex flex-wrap gap-2 mb-8"
               >
                 {service.tags.map((thePhanLoai, chiSo) => (
-                  <span 
+                  <span
                     key={`tag-${chiSo}`}
-                    className="px-3 py-1 text-sm bg-[#1e293b] text-muted-foreground rounded-lg border border-[#334155]"
+                    className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded-lg border border-border"
                   >
                     {thePhanLoai}
                   </span>
@@ -186,7 +186,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-[#334155] hover:border-[#f97316]/50 bg-transparent text-white">
+                <Button asChild variant="outline" size="lg" className="border-border hover:border-[#f97316]/50 bg-transparent text-foreground">
                   <a href={`tel:${dict?.common?.phone_label || "+84274123456"}`}>
                     <Phone className="mr-2 w-5 h-5" />
                     {dict?.services?.call_now || "Gọi ngay"}
@@ -202,7 +202,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
               transition={{ duration: 0.8, delay: 0.3 }}
               className="relative"
             >
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#334155]/50">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border/50 shadow-xl shadow-black/5 dark:shadow-none">
                 <img
                   src={service.image || "/placeholder.svg"}
                   alt={service.title}
@@ -210,9 +210,9 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent" />
               </div>
-              
+
               <div className="absolute -bottom-4 -right-4 w-32 h-32 border-2 border-[#f97316]/20 rounded-xl -z-10" />
-              <div className="absolute -top-4 -left-4 w-24 h-24 border border-[#334155]/30 rounded-xl -z-10" />
+              <div className="absolute -top-4 -left-4 w-24 h-24 border border-border/50 rounded-xl -z-10" />
             </motion.div>
           </div>
         </div>
@@ -231,7 +231,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
               <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-8">
                 {service.labels?.featuresTitle || "Tính năng"} <span className="text-[#f97316]">nổi bật</span>
               </h2>
-              
+
               <ul className="space-y-4">
                 {service.features.map((tinhNang, chiSo) => (
                   <motion.li
@@ -239,7 +239,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                     initial={{ opacity: 0, x: -20 }}
                     animate={dangTrongTamNhin ? { opacity: 1, x: 0 } : {}}
                     transition={{ duration: 0.5, delay: chiSo * 0.1 }}
-                    className="flex items-start gap-3 p-4 rounded-xl bg-[#0f172a]/50 border border-[#334155]/50 hover:border-[#f97316]/30 transition-colors"
+                    className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border/50 hover:border-[#f97316]/30 transition-colors shadow-sm dark:shadow-none"
                   >
                     <CheckCircle2 className="w-5 h-5 text-[#f97316] flex-shrink-0 mt-0.5" />
                     <span className="text-foreground">{tinhNang}</span>
@@ -257,7 +257,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
               <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-8">
                 {service.labels?.specsTitle || "Thông số"} <span className="text-[#f97316]">kỹ thuật</span>
               </h2>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 {service.specs.map((thongSo, chiSo) => (
                   <motion.div
@@ -265,7 +265,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                     initial={{ opacity: 0, y: 20 }}
                     animate={dangTrongTamNhin ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.5, delay: 0.2 + chiSo * 0.1 }}
-                    className="p-5 rounded-xl bg-[#0f172a] border border-[#334155]/50 hover:border-[#f97316]/30 transition-colors"
+                    className="p-5 rounded-xl bg-card border border-border/50 hover:border-[#f97316]/30 transition-colors shadow-sm dark:shadow-none"
                   >
                     <div className="text-2xl font-serif font-bold text-[#f97316] mb-1">
                       {thongSo.value}
@@ -280,9 +280,9 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
       </section>
 
       {/* Process Section */}
-      <section className="relative py-24 lg:py-32 bg-[#0f172a]/50">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617]" />
-        
+      <section className="relative py-24 lg:py-32 bg-muted/30">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background opacity-50 dark:opacity-100" />
+
         <div className="container mx-auto px-4 lg:px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -310,12 +310,11 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: chiSo * 0.15 }}
-                  className={`relative lg:flex items-center gap-8 ${
-                    chiSo % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-                  }`}
+                  className={`relative lg:flex items-center gap-8 ${chiSo % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+                    }`}
                 >
                   <div className={`lg:w-1/2 ${chiSo % 2 === 0 ? "lg:pr-16 lg:text-right" : "lg:pl-16"}`}>
-                    <div className="p-6 rounded-xl bg-[#0f172a] border border-[#334155]/50 hover:border-[#f97316]/30 transition-colors">
+                    <div className="p-6 rounded-xl bg-card border border-border/50 hover:border-[#f97316]/30 transition-colors shadow-sm dark:shadow-none">
                       <h3 className="font-serif text-xl font-bold text-foreground mb-2">
                         {buoc.title}
                       </h3>
@@ -323,15 +322,15 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                     </div>
                   </div>
 
-                  <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-[#020617] border-2 border-[#f97316] items-center justify-center">
+                  <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-background border-2 border-[#f97316] items-center justify-center">
                     <span className="font-serif font-bold text-[#f97316]">{buoc.step}</span>
                   </div>
 
                   <div className="lg:hidden flex items-center gap-4 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-[#f97316] flex items-center justify-center">
-                      <span className="font-serif font-bold text-[#020617]">{buoc.step}</span>
+                    <div className="w-10 h-10 rounded-full bg-[#f97316] flex items-center justify-center shadow-md">
+                      <span className="font-serif font-bold text-white">{buoc.step}</span>
                     </div>
-                    <div className="flex-1 h-px bg-[#334155]" />
+                    <div className="flex-1 h-px bg-border" />
                   </div>
 
                   <div className="hidden lg:block lg:w-1/2" />
@@ -372,7 +371,7 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                 >
                   <Link
                     href={`/${lang}/services/${dichVuLienQuan.slug}`}
-                    className="block p-6 rounded-xl bg-[#0f172a] border border-[#334155]/50 hover:border-[#f97316]/30 transition-all duration-300 group"
+                    className="block p-6 rounded-xl bg-card border border-border/50 hover:border-[#f97316]/30 transition-all duration-300 group shadow-sm dark:shadow-none hover:shadow-md"
                   >
                     <div className="w-12 h-12 rounded-lg bg-[#f97316]/10 flex items-center justify-center mb-4 group-hover:bg-[#f97316]/20 transition-colors">
                       <DynamicIcon iconData={dichVuLienQuan.icon} className="w-6 h-6 text-[#f97316]" />
@@ -403,10 +402,10 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative bg-gradient-to-r from-[#0f172a] to-[#1e293b] rounded-2xl p-8 md:p-12 border border-[#334155]/50 overflow-hidden"
+            className="relative bg-gradient-to-r from-card to-card/50 rounded-2xl p-8 md:p-12 border border-border/50 overflow-hidden shadow-xl"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#f97316]/10 rounded-full blur-[100px]" />
-            
+
             <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
               <div>
                 <h3 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-2 text-balance">

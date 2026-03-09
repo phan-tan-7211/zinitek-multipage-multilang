@@ -6,7 +6,8 @@
     "read_more": "詳細を見る",
     "phone_label": "+84 274 123 456",
     "email_label": "info@zinitek.vn",
-    "slogan_top": "日本技術 - ベトナムコスト"
+    "slogan_top": "日本技術 - ベトナムコスト",
+    "swipe_desktop": "PCスワイプ"
   },
   "testimonials": {
     "badge": "お客様の声",
@@ -50,8 +51,8 @@
     "meta_desc": "ZINITEKが提供する日本品質のCNC加工、金型製作、自動化ソリューション。"
   },
   "products": {
-    "title_main": "製品",
-    "title_highlight": "設備",
+    "title_main": "製品情報",
+    "title_highlight": "テクノロジー",
     "hub_description": "ZINITEKのCNC加工製品、機械、ソリューションのカタログをください。",
     "meta_title": "製品・設備 - ZINITEK",
     "meta_desc": "ZINITEKの機械、設備、精密加工品の一覧。"

@@ -1,8 +1,9 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
+
 
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
-import { PortfolioSection } from "@/components/portfolio-section"
+import { PortfolioListContent } from "@/components/portfolio-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
 import { createClient } from "next-sanity"
@@ -59,16 +60,12 @@ async function layDuLieuPortfolio(ngonNguHienTai: string) {
 
   const danhSachDuAnCuoiCung = Object.values(nhomDuAn).map((danhSachPhienBan: any[]) => {
     // Thứ tự ưu tiên: Ngôn ngữ đang xem -> Tiếng Anh -> Tiếng Việt -> Bản đầu tiên
-    const banDichDungNgonNgu = danhSachPhienBan.find((phienBan) => phienBan.language === ngonNguHienTai);
-    const banDichTiengAnh = danhSachPhienBan.find((phienBan) => phienBan.language === 'en');
-    const banDichTiengViet = danhSachPhienBan.find((phienBan) => phienBan.language === 'vi');
-
     return banDichDungNgonNgu || banDichTiengAnh || banDichTiengViet || danhSachPhienBan[0];
   });
 
-  return { 
-    danhSachDuAn: danhSachDuAnCuoiCung, 
-    danhSachDanhMuc: danhSachDanhMucLoc 
+  return {
+    danhSachDuAn: danhSachDuAnCuoiCung,
+    danhSachDanhMuc: danhSachDanhMucLoc
   };
 }
 
@@ -82,14 +79,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 // --- 4. THÀNH PHẦN TRANG CHÍNH ---
-export default async function PortfolioPage({ 
-  params 
-}: { 
-  params: Promise<{ lang: string }> 
+export default async function PortfolioPage({
+  params
+}: {
+  params: Promise<{ lang: string }>
 }) {
   const thamSoUrl = await params;
   const { lang } = thamSoUrl;
-  
+
   // Lấy từ điển và dữ liệu Sanity song song
   const [tuDien, duLieuPortfolio] = await Promise.all([
     getDictionary(lang),
@@ -97,36 +94,39 @@ export default async function PortfolioPage({
   ]);
 
   return (
-    <main className="min-h-screen bg-[#020617] text-foreground relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground relative">
       {/* Nền bản vẽ Blueprint đặc trưng */}
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />
       </div>
 
-      <div className="relative z-10 pt-20 lg:pt-28">
+      {/* Loai bỏ pt-20 thừa thãi gây ra "ghost strip" */}
+      <div className="relative z-10">
         {/* Phần đầu trang: Lấy tiêu đề và mô tả từ file JSON theo ngôn ngữ */}
-        <PageHeader 
-  // Sửa heading thành title
-  title={tuDien.portfolio?.title || "Dự án"}
-  // Sửa text thành description
-  description={tuDien.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."}
-  // Bổ sung subtitle (vì linh kiện PageHeader yêu cầu)
-  subtitle={tuDien.portfolio?.subtitle || "Thành tựu tiêu biểu"}
-  lang={lang}
-  dict={tuDien}
-/>
-        
+        <PageHeader
+          // Sửa heading thành title
+          title={tuDien.portfolio?.title || "Dự án"}
+          // Sửa text thành description
+          description={tuDien.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."}
+          // Bổ sung subtitle (vì linh kiện PageHeader yêu cầu)
+          subtitle={tuDien.portfolio?.subtitle || "Thành tựu tiêu biểu"}
+          lang={lang}
+          dict={tuDien}
+        />
+
         {/* 
             TRUYỀN DỮ LIỆU ĐỘNG VÀO COMPONENT HIỂN THỊ:
             - projects: Danh sách dự án đã qua xử lý Fallback.
             - categories: Danh sách dịch vụ thực tế để làm bộ lọc.
         */}
-        <PortfolioSection 
-          projects={duLieuPortfolio.danhSachDuAn} 
-          categories={duLieuPortfolio.danhSachDanhMuc}
-          lang={lang} 
-          dict={tuDien} 
-        />
+        <section className="pb-32 relative z-10">
+          <PortfolioListContent
+            projects={duLieuPortfolio.danhSachDuAn}
+            categories={duLieuPortfolio.danhSachDanhMuc}
+            lang={lang}
+            dict={tuDien}
+          />
+        </section>
       </div>
 
       <Footer lang={lang} dict={tuDien} />

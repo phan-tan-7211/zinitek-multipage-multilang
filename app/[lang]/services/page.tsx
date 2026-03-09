@@ -1,4 +1,5 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
+
 
 import Link from "next/link"
 import { Footer } from "@/components/footer"
@@ -9,6 +10,7 @@ import { createClient } from "next-sanity"
 import { DynamicIcon } from "@/components/ui/dynamic-icon"
 // SỬA: Import FallbackBadge chuẩn
 import { FallbackBadge } from "@/components/fallback-badge"
+import { ServiceListContent } from "@/components/service-list-content"
 
 // --- 1. CẤU HÌNH SANITY CLIENT ---
 const trinhKetNoiSanity = createClient({
@@ -33,7 +35,8 @@ async function layDanhSachDichVu(ngonNguHienTai: string) {
       "slug": slug.current,
       language,
       icon,
-      orderRank
+      orderRank,
+      tags
     }
   `
   const tatCaDichVu = await trinhKetNoiSanity.fetch(cauTruyVan)
@@ -98,15 +101,15 @@ export default async function ServicesHubPage({
   ])
 
   return (
-    <main className="min-h-screen bg-[#020617] text-foreground relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground relative">
       {/* Nền Blueprint */}
-      <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
+      <div className="absolute inset-0 z-0 opacity-20 dark:opacity-50 pointer-events-none">
         <BlueprintBackground />
       </div>
 
       {/* Lới kỹ thuật mờ (giống các trang khác) */}
       <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        className="absolute inset-0 opacity-0 dark:opacity-[0.02] pointer-events-none"
         style={{
           backgroundImage: `
             linear-gradient(#f97316 1px, transparent 1px),
@@ -116,10 +119,10 @@ export default async function ServicesHubPage({
         }}
       />
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-16 relative z-10">
+      {/* Hero Section - Tối ưu spacing mobile (pt-28 thay vì pt-40) */}
+      <section className="pt-28 md:pt-40 pb-16 relative z-10">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-6 uppercase">
+          <h1 className="text-4xl md:text-6xl font-serif font-bold text-foreground mb-6 uppercase">
             {dict.services?.title_main || "Dịch vụ"}{" "}
             <span className="text-[#f97316] italic">{dict.services?.title_highlight || "Kỹ thuật"}</span>
           </h1>
@@ -129,48 +132,13 @@ export default async function ServicesHubPage({
         </div>
       </section>
 
-      {/* Grid danh sách dịch vụ */}
+      {/* Grid danh sách dịch vụ (Client Component xử lý Filter) */}
       <section className="pb-24 relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {danhSachDichVu.map((dichVu: any) => (
-              <Link
-                key={dichVu._id}
-                href={`/${lang}/services/${dichVu.slug}`}
-                className="group bg-[#0f172a]/50 border border-[#334155]/50 p-8 rounded-2xl hover:border-[#f97316]/50 transition-all duration-300 flex flex-col h-full relative overflow-hidden"
-              >
-                {/* Nhãn phiên bản dự phòng — chỉ hiện khi khác ngôn ngữ hiện tại */}
-                <FallbackBadge ngonNguThucTe={dichVu.language} ngonNguNguoiDung={lang} />
-
-                {/* Icon động từ Sanity */}
-                <div className="mb-6 w-12 h-12 flex items-center justify-center bg-[#f97316]/10 rounded-xl group-hover:bg-[#f97316] transition-colors duration-300">
-                  <DynamicIcon
-                    iconData={dichVu.icon}
-                    className="w-6 h-6 text-[#f97316] group-hover:text-[#020617] transition-colors"
-                  />
-                </div>
-
-                <h3 className="text-2xl font-serif font-bold text-white mb-4 group-hover:text-[#f97316] transition-colors">
-                  {dichVu.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
-                  {dichVu.description}
-                </p>
-                <div className="flex items-center gap-2 text-[#f97316] font-medium text-sm mt-auto">
-                  {dict.services?.read_more || "Tìm hiểu chi tiết"}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Hiển thị thông báo nếu không có dữ liệu (Hiếm khi xảy ra với logic mới) */}
-          {danhSachDichVu.length === 0 && (
-            <div className="text-center text-muted-foreground py-20">
-              Đang cập nhật dữ liệu từ hệ thống...
-            </div>
-          )}
-        </div>
+        <ServiceListContent
+          danhSachDichVu={danhSachDichVu}
+          lang={lang}
+          dict={dict}
+        />
       </section>
 
       <Footer lang={lang} dict={dict} />

@@ -1,4 +1,4 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
 
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
@@ -83,19 +83,19 @@ export default async function ProductDetailPage({
 
   return (
     // SỬA LỖI: Giảm padding top để tránh khoảng trống thừa dưới header cố định
-    <main className="min-h-screen bg-[#020617] text-foreground relative pt-24 pb-20">
+    <main className="min-h-screen bg-background text-foreground relative pt-24 pb-20">
       <div className="container mx-auto px-4 lg:px-6">
 
         {/* Nút quay lại danh sách */}
         <div className="mb-10">
           <Link
             href={`/${lang}/products`}
-            className="group inline-flex items-center gap-2 text-slate-400 hover:text-[#f97316] transition-colors"
+            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
           >
-            <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-[#f97316]/50">
-              <ArrowLeft className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 bg-card">
+              <ArrowLeft className="w-4 h-4 text-foreground group-hover:text-[#f97316]" />
             </div>
-            <span className="text-sm font-bold uppercase tracking-widest">
+            <span className="text-sm font-bold uppercase tracking-widest text-foreground group-hover:text-[#f97316]">
               {tuDien.navigation?.products || "Danh mục sản phẩm"}
             </span>
           </Link>

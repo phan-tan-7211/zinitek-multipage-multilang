@@ -1,8 +1,9 @@
-// Không viết tắt; dùng tên biến đầy đủ; giải thích thay đổi bằng tiếng Việt rõ ràng.
+
+
 
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
-import { BlogSection } from "@/components/blog-section"
+import { BlogListContent } from "@/components/blog-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
 import { createClient } from "next-sanity"
@@ -17,12 +18,6 @@ const trinhKetNoiSanity = createClient({
 
 // --- 2. HÀM TRUY VẤN DANH SÁCH BÀI VIẾT VỚI LOGIC DỰ PHÒNG THÔNG MINH ---
 async function layDanhSachBaiVietTuSanity(ngonNguHienTai: string) {
-  /**
-   * LÔ-GIC: 
-   * 1. Lấy tất cả tài liệu có kiểu là 'post' (bài viết blog).
-   * 2. Gom nhóm theo _translationKey để tránh trùng lặp bản dịch.
-   * 3. Ưu tiên lấy bản dịch theo thứ tự: Ngôn ngữ hiện tại > Tiếng Anh > Tiếng Việt.
-   */
   const cauTruyVanBaiViet = `
     *[_type == "blogPost" && defined(slug.current) && !(_id in path("drafts.**"))] {
       _id,
@@ -38,8 +33,6 @@ async function layDanhSachBaiVietTuSanity(ngonNguHienTai: string) {
   `;
 
   const danhSachBaiVietTho = await trinhKetNoiSanity.fetch(cauTruyVanBaiViet);
-
-  // Thuật toán lọc bản dịch tốt nhất cho từng bài viết
   const cacNhomBaiViet: Record<string, any[]> = {};
 
   danhSachBaiVietTho.forEach((baiViet: any) => {
@@ -58,7 +51,6 @@ async function layDanhSachBaiVietTuSanity(ngonNguHienTai: string) {
     return banDichDungNgonNgu || banDichTiengAnh || banDichTiengViet || nhomPhienBan[0];
   });
 
-  // Sắp xếp bài viết theo ngày đăng mới nhất
   return danhSachBaiVietCuoiCung.sort((doiTuongA, doiTuongB) =>
     new Date(doiTuongB.publishedAt).getTime() - new Date(doiTuongA.publishedAt).getTime()
   );
@@ -84,19 +76,19 @@ export default async function BlogPage({
   const thamSoDuongDan = await params;
   const ngonNgu = thamSoDuongDan.lang;
 
-  // Lấy từ điển và dữ liệu bài viết song song
   const [tuDien, danhSachBaiViet] = await Promise.all([
     getDictionary(ngonNgu),
     layDanhSachBaiVietTuSanity(ngonNgu)
   ]);
 
   return (
-    <main className="min-h-screen bg-[#020617] text-foreground relative overflow-hidden">
-      <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
+    <main className="min-h-screen bg-background text-foreground relative">
+      <div className="absolute inset-0 z-0 opacity-50 dark:opacity-10 pointer-events-none">
         <BlueprintBackground />
       </div>
 
-      <div className="relative z-10 pt-20 lg:pt-28">
+      {/* Loai bỏ pt-20 thừa thãi */}
+      <div className="relative z-10">
         <PageHeader
           title={tuDien.blog?.title || "Blog"}
           subtitle={tuDien.blog?.subtitle || "Bài viết"}
@@ -105,15 +97,13 @@ export default async function BlogPage({
           dict={tuDien}
         />
 
-        {/* 
-            TRUYỀN DỮ LIỆU ĐỘNG VÀO BLOG SECTION:
-            - posts: Danh sách bài viết đã qua lọc Fallback.
-        */}
-        <BlogSection
-          posts={danhSachBaiViet}
-          lang={ngonNgu}
-          dict={tuDien}
-        />
+        <section className="pb-32 relative z-10">
+          <BlogListContent
+            posts={danhSachBaiViet}
+            lang={ngonNgu}
+            dict={tuDien}
+          />
+        </section>
       </div>
 
       <Footer lang={ngonNgu} dict={tuDien} />
