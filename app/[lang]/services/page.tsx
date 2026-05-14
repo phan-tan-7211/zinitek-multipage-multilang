@@ -80,9 +80,31 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params
   const dict = await getDictionary(lang)
 
+  const title = dict.services?.meta_title || "Dịch vụ - ZINITEK"
+  const description = dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK."
+
   return {
-    title: dict.services?.meta_title || "Dịch vụ - ZINITEK",
-    description: dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/services`,
+      languages: {
+        'vi': '/vi/services',
+        'en': '/en/services',
+        'cn': '/cn/services',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/services`,
+      siteName: 'ZINITEK',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
   }
 }
 
@@ -100,8 +122,28 @@ export default async function ServicesHubPage({
     layDanhSachDichVu(lang)
   ])
 
+  // Khởi tạo Schema.org (JSON-LD) kiểu ItemList động cho danh sách dịch vụ
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": dict.services?.meta_title || "Dịch vụ ZINITEK",
+    "description": dict.services?.meta_desc,
+    "itemListElement": danhSachDichVu.map((dv, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://zinitek.vn/${lang}/services/${dv.slug}`,
+      "name": dv.title,
+      "description": dv.description
+    }))
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground relative">
+      {/* Chèn JSON-LD ItemList cho bot SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Nền Blueprint */}
       <div className="absolute inset-0 z-0 opacity-20 dark:opacity-50 pointer-events-none">
         <BlueprintBackground />

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef } from "react"
+import { toast } from "sonner"
 import { motion, useInView, AnimatePresence } from "framer-motion"
 import {
   MapPin,
@@ -24,6 +25,7 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
   const t = dict?.contact_section;
 
   const [step, setStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -47,10 +49,77 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log(formData)
-    alert(t?.form?.success_msg || "Cảm ơn bạn! Chúng tôi sẽ liên hệ trong 24 giờ.")
+
+    if (!formData.name || !formData.email || !formData.phone) {
+      toast.error("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const submitData = new FormData();
+    submitData.append("name", formData.name);
+    submitData.append("company", formData.company);
+    submitData.append("email", formData.email);
+    submitData.append("phone", formData.phone);
+    submitData.append("service", formData.service);
+    submitData.append("message", formData.message);
+    if (formData.file) {
+      submitData.append("file", formData.file);
+    }
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: submitData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(
+          <span className="text-2xl md:text-3xl font-bold p-2 block text-center leading-relaxed">
+            {t?.form?.success_msg || "Cảm ơn bạn! Yêu cầu đã được gửi thành công."}
+          </span>,
+          {
+            duration: 8000, // Hiện lâu hơn 1 chút để đọc kịp chữ to
+            style: { 
+              padding: '24px',
+              maxWidth: '600px', // Cho phép khung bự hơn
+              width: 'auto'
+            }
+          }
+        );
+        setStep(1); // Reset form
+        setFormData({
+          name: "",
+          company: "",
+          email: "",
+          phone: "",
+          service: "",
+          message: "",
+          file: null,
+        });
+      } else {
+        toast.error(
+          <span className="text-xl font-bold">
+            {result.error || "Có lỗi xảy ra khi gửi thư."}
+          </span>,
+          { style: { padding: '16px' } }
+        );
+      }
+    } catch (error) {
+      console.error("Submit Error:", error);
+      toast.error(
+        <span className="text-xl font-bold">
+          Không thể kết nối đến máy chủ. Vui lòng thử lại sau.
+        </span>,
+        { style: { padding: '16px' } }
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -103,13 +172,13 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                 </h3>
                 <div className="space-y-2 text-[12px] md:text-sm">
                   <p className="text-muted-foreground leading-relaxed">{office.address}</p>
-                  <a href={`tel:${dict?.common?.phone || "+84 274 123 456"}`} className="flex items-center gap-2 text-foreground/80 hover:text-[#f97316] transition-colors">
+                  <a href={`tel:${dict?.common?.phone_label || "+84 77 622 0031"}`} className="flex items-center gap-2 text-foreground/80 hover:text-[#f97316] transition-colors">
                     <Phone className="w-4 h-4" />
-                    {dict?.common?.phone || "+84 274 123 456"}
+                    {dict?.common?.phone_label || "+84 77 622 0031"}
                   </a>
-                  <a href={`mailto:${dict?.common?.email || "info@zinitek.vn"}`} className="flex items-center gap-2 text-foreground/80 hover:text-[#f97316] transition-colors">
+                  <a href={`mailto:${dict?.common?.email_label || "phantan7211@gmail.com"}`} className="flex items-center gap-2 text-foreground/80 hover:text-[#f97316] transition-colors">
                     <Mail className="w-4 h-4" />
-                    {dict?.common?.email || "info@zinitek.vn"}
+                    {dict?.common?.email_label || "phantan7211@gmail.com"}
                   </a>
                 </div>
               </div>
@@ -381,10 +450,20 @@ export function ContactSection({ dict, lang }: { dict: any; lang?: string }) {
                         </Button>
                         <Button
                           type="submit"
-                          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-white font-bold shadow-lg shadow-[#f97316]/25"
+                          disabled={isSubmitting}
+                          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-white font-bold shadow-lg shadow-[#f97316]/25 disabled:opacity-50"
                         >
-                          <Send className="w-4 h-4 mr-2" />
-                          {t?.form?.buttons?.submit}
+                          {isSubmitting ? (
+                            <span className="flex items-center">
+                              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                              Đang gửi...
+                            </span>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              {t?.form?.buttons?.submit || "Gửi đi"}
+                            </>
+                          )}
                         </Button>
                       </div>
                     </motion.div>

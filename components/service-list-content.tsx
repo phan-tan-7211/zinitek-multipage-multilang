@@ -49,6 +49,8 @@ export function ServiceListContent({ danhSachDichVu, lang, dict }: ServiceListCo
                 >
                     <button
                         onClick={() => setActiveTag(null)}
+                        aria-label="Hiển thị tất cả dịch vụ"
+                        aria-pressed={activeTag === null}
                         className={`flex-shrink-0 px-4 py-1.5 md:py-2 rounded-full text-[13px] md:text-[12px] font-medium transition-all snap-start border ${activeTag === null
                                 ? "bg-[#f97316] text-white border-[#f97316]"
                                 : "bg-secondary/50 text-muted-foreground border-transparent hover:bg-secondary"
@@ -61,6 +63,8 @@ export function ServiceListContent({ danhSachDichVu, lang, dict }: ServiceListCo
                         <button
                             key={tag}
                             onClick={() => setActiveTag(tag)}
+                            aria-label={`Lọc dịch vụ theo danh mục: ${tag}`}
+                            aria-pressed={activeTag === tag}
                             className={`flex-shrink-0 px-4 py-1.5 md:py-2 rounded-full text-[13px] md:text-[12px] font-medium transition-all snap-start border ${activeTag === tag
                                     ? "bg-[#f97316] text-white border-[#f97316]"
                                     : "bg-card border-border hover:border-[#f97316]/30 text-muted-foreground"
@@ -90,6 +94,7 @@ export function ServiceListContent({ danhSachDichVu, lang, dict }: ServiceListCo
                         >
                             <Link
                                 href={`/${lang}/services/${dichVu.slug}`}
+                                aria-label={`Xem chi tiết dịch vụ: ${dichVu.title}`}
                                 className="group bg-card border border-border p-2.5 md:p-5 rounded-2xl hover:border-[#f97316]/50 transition-all duration-300 flex flex-col h-full relative overflow-hidden shadow-sm hover:shadow-md"
                             >
                                 {/* Nhãn phiên bản dự phòng */}

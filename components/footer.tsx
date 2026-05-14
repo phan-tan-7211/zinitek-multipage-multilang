@@ -218,13 +218,13 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
               <div className="flex gap-3">
                 <Phone className="w-5 h-5 text-[#f97316] flex-shrink-0" />
                 <a href={`tel:${tuDienChung?.phone_label}`} className="text-sm text-muted-foreground hover:text-[#f97316] transition-colors">
-                  {tuDienChung?.phone_label || "+84 274 123 456"}
+                  {tuDienChung?.phone_label || "+84 77 622 0031"}
                 </a>
               </div>
               <div className="flex gap-3">
                 <Mail className="w-5 h-5 text-[#f97316] flex-shrink-0" />
                 <a href={`mailto:${tuDienChung?.email_label}`} className="text-sm text-muted-foreground hover:text-[#f97316] transition-colors">
-                  {tuDienChung?.email_label || "info@zinitek.vn"}
+                  {tuDienChung?.email_label || "phantan7211@gmail.com"}
                 </a>
               </div>
             </div>

@@ -2,16 +2,36 @@
 import { useDrag } from "@use-gesture/react";
 import { motion, useAnimation } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNode; lang: string }) {
+// Hàm kiểm tra xem element nguồn có nằm trong một scrollable container ngang không
+// Giống cách TikTok/Facebook xử lý: vuốt trong carousel → carousel scroll, không chuyển trang
+function isInsideHorizontalScroller(target: EventTarget | null): boolean {
+  if (!target || !(target instanceof Element)) return false;
+  let el: Element | null = target;
+  while (el && el !== document.body) {
+    const style = window.getComputedStyle(el);
+    const overflowX = style.overflowX;
+    const isScrollableX = (overflowX === 'auto' || overflowX === 'scroll');
+    if (isScrollableX && el.scrollWidth > el.clientWidth) return true;
+    // Kiểm tra data attribute để component có thể tự đánh dấu vùng cuộn ngang
+    if (el.getAttribute('data-swipe-zone') === 'horizontal') return true;
+    el = el.parentElement;
+  }
+  return false;
+}
+
+export function SmartSwipeWrapper({ children, lang, services = [] }: { children: React.ReactNode; lang: string; services?: { slug: string }[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const controls = useAnimation();
   const [desktopSwipeEnabled, setDesktopSwipeEnabled] = useState(false);
+  const touchStartTarget = useRef<EventTarget | null>(null);
 
   const mainRoutes = [`/${lang}`, `/${lang}/about`, `/${lang}/services`, `/${lang}/products`, `/${lang}/portfolio`, `/${lang}/blog`, `/${lang}/contact`];
-  const subServices = [`/${lang}/services/cnc`, `/${lang}/services/molds`, `/${lang}/services/3d-scan`, `/${lang}/services/plc`, `/${lang}/services/coils`, `/${lang}/services/ems`, `/${lang}/services/it-software`];
+  const subServices = services.length > 0
+    ? services.map(s => `/${lang}/services/${s.slug}`)
+    : [`/${lang}/services/cnc`, `/${lang}/services/molds`, `/${lang}/services/3d-scan`, `/${lang}/services/plc`, `/${lang}/services/coils`, `/${lang}/services/ems`, `/${lang}/services/it-software`];
 
   useEffect(() => {
     const checkStatus = () => {
@@ -23,7 +43,16 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
     return () => window.removeEventListener("storage", checkStatus);
   }, []);
 
-  const bind = useDrag(({ active, movement: [mx], velocity: [vx] }) => {
+  // Ghi lại element bắt đầu touch để kiểm tra zone sau
+  useEffect(() => {
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartTarget.current = e.target;
+    };
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    return () => window.removeEventListener('touchstart', onTouchStart);
+  }, []);
+
+  const bind = useDrag(({ active, movement: [mx], velocity: [vx], event }) => {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent("swipe-active", {
         detail: { active, velocity: vx, distance: mx }
@@ -33,18 +62,21 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
     const isDesktop = window.innerWidth >= 1024;
     if (isDesktop && !desktopSwipeEnabled) return;
 
+    // --- ZONE CHECK: nếu bắt đầu vuốt trong vùng cuộn ngang → nhường quyền, không chuyển trang ---
+    const startTarget = touchStartTarget.current || (event as TouchEvent | MouseEvent)?.target;
+    if (isInsideHorizontalScroller(startTarget)) return;
+
     if (!active) {
       const distance = Math.abs(mx);
-      const isRight = mx > 0; // Kéo sang phải (Về trước)
-      const isLeft = mx < 0;  // Kéo sang trái (Tiếp theo)
+      const isRight = mx > 0; // Kéo sang phải → Về trước
+      const isLeft = mx < 0;  // Kéo sang trái → Tiếp theo
 
       const subIndex = subServices.indexOf(pathname);
       const isOnSubPage = subIndex !== -1;
 
-      // ĐỒNG BỘ NGƯỠNG TUYỆT ĐỐI
-      // Nếu đang ở trang con, cần vuốt sâu (130px) để về trang cha. Nếu ở trang bình thường (như Trang chủ), chỉ cần 60px.
+      // Ngưỡng vuốt: trang con cần sâu hơn (130px), trang thường chỉ cần 60px
       const isCamThreshold = distance > (isOnSubPage ? 130 : 60);
-      const isWhiteThreshold = distance > 30; // Khoảng cách để chuyển trang CON (Màu Trắng)
+      const isWhiteThreshold = distance > 30;
 
       if (isCamThreshold || isWhiteThreshold) {
         // 1. ƯU TIÊN CHUYỂN TRANG CHA (CAM)
@@ -76,7 +108,6 @@ export function SmartSwipeWrapper({ children, lang }: { children: React.ReactNod
 
       controls.start({ x: 0, transition: { type: "spring", stiffness: 450, damping: 40 } });
     } else {
-      // Giảm hệ số chia để UI di chuyển nhạy và theo tay người dùng hơn (trước kia là 3.8 quá cứng)
       controls.set({ x: mx / 1.5 });
     }
   }, { axis: 'x', pointer: { touch: true }, filterTaps: true });

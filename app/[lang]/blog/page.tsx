@@ -59,11 +59,34 @@ async function layDanhSachBaiVietTuSanity(ngonNguHienTai: string) {
 // --- 3. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const thamSoDuongDan = await params;
-  const tuDien = await getDictionary(thamSoDuongDan.lang);
+  const lang = thamSoDuongDan.lang;
+  const tuDien = await getDictionary(lang);
+
+  const title = tuDien.blog?.meta_title || "Blog Kỹ Thuật - ZINITEK"
+  const description = tuDien.blog?.meta_desc || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK."
 
   return {
-    title: tuDien.blog?.meta_title || "Blog Kỹ Thuật - ZINITEK",
-    description: tuDien.blog?.meta_desc || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.",
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/blog`,
+      languages: {
+        'vi': '/vi/blog',
+        'en': '/en/blog',
+        'cn': '/cn/blog',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/blog`,
+      siteName: 'ZINITEK',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 
@@ -81,8 +104,29 @@ export default async function BlogPage({
     layDanhSachBaiVietTuSanity(ngonNgu)
   ]);
 
+  // Khởi tạo Schema.org (JSON-LD) cho danh sách Blog
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": tuDien.blog?.meta_title || "Blog Kỹ Thuật ZINITEK",
+    "description": tuDien.blog?.meta_desc,
+    "url": `https://zinitek.vn/${ngonNgu}/blog`,
+    "blogPost": danhSachBaiViet.map((baiViet: any) => ({
+      "@type": "BlogPosting",
+      "headline": baiViet.title,
+      "url": `https://zinitek.vn/${ngonNgu}/blog/${baiViet.slug}`,
+      "datePublished": baiViet.publishedAt,
+      "image": baiViet.mainImage?.url
+    }))
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground relative">
+      {/* Chèn JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="absolute inset-0 z-0 opacity-50 dark:opacity-10 pointer-events-none">
         <BlueprintBackground />
       </div>

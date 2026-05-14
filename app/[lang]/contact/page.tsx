@@ -5,9 +5,36 @@ import { ContactSection } from "@/components/contact-section"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
 
-export const metadata = {
-  title: "Liên hệ - ZINITEK",
-  description: "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn.",
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+
+  const title = dict.contact?.title || "Liên hệ - ZINITEK"
+  const description = dict.contact?.description || "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn."
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/contact`,
+      languages: {
+        'vi': '/vi/contact',
+        'en': '/en/contact',
+        'cn': '/cn/contact',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/contact`,
+      siteName: 'ZINITEK',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
+  }
 }
 
 export default async function ContactPage({
@@ -19,8 +46,43 @@ export default async function ContactPage({
   const { lang } = resolvedParams
   const dict = await getDictionary(lang)
 
+  // Khởi tạo Schema.org (JSON-LD) cho trang Liên hệ & Local Business
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ContactPage",
+        "@id": `https://zinitek.vn/${lang}/contact/#webpage`,
+        "url": `https://zinitek.vn/${lang}/contact`,
+        "name": dict.contact?.title || "Liên hệ - ZINITEK",
+        "description": dict.contact?.description
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://zinitek.vn/#localbusiness",
+        "name": "ZINITEK",
+        "image": "https://zinitek.vn/logo.png",
+        "url": "https://zinitek.vn",
+        "telephone": "+84776220031",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Số 200, Đường 2, KP. Nội Hóa 1, Phường Bình An",
+          "addressLocality": "Dĩ An",
+          "addressRegion": "Bình Dương",
+          "postalCode": "820000",
+          "addressCountry": "VN"
+        }
+      }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Chèn JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="absolute inset-0 z-0 opacity-50 dark:opacity-10 pointer-events-none">
         <BlueprintBackground />
       </div>

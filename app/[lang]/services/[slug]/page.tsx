@@ -104,9 +104,33 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   if (!dichVu) return { title: "Dịch vụ không tồn tại | ZINITEK" }
 
+  const title = `${dichVu.title} | ZINITEK`
+  const description = dichVu.description
+
   return {
-    title: `${dichVu.title} | ZINITEK`,
-    description: dichVu.description,
+    title,
+    description,
+    alternates: {
+      canonical: `/${thamSoUrl.lang}/services/${thamSoUrl.slug}`,
+      languages: {
+        'vi': `/vi/services/${thamSoUrl.slug}`,
+        'en': `/en/services/${thamSoUrl.slug}`,
+        'cn': `/cn/services/${thamSoUrl.slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${thamSoUrl.lang}/services/${thamSoUrl.slug}`,
+      siteName: 'ZINITEK',
+      images: dichVu.image ? [{ url: dichVu.image }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: dichVu.image ? [dichVu.image] : [],
+    },
   }
 }
 
@@ -129,8 +153,27 @@ export default async function ServiceDetailPage({
     notFound()
   }
 
+  // Khởi tạo Schema.org (JSON-LD) cho dịch vụ
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": duLieuDichVu.title,
+    "description": duLieuDichVu.description,
+    "provider": {
+      "@type": "Organization",
+      "name": "ZINITEK",
+      "url": `https://zinitek.vn/${lang}`
+    },
+    "url": `https://zinitek.vn/${lang}/services/${slug}`,
+    "image": duLieuDichVu.image || ""
+  };
+
   return (
     <main className="bg-background text-foreground min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ServicePageContent
         service={duLieuDichVu}
         relatedServices={danhSachLienQuan}

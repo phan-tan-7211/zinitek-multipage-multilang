@@ -60,6 +60,10 @@ async function layDuLieuPortfolio(ngonNguHienTai: string) {
 
   const danhSachDuAnCuoiCung = Object.values(nhomDuAn).map((danhSachPhienBan: any[]) => {
     // Thứ tự ưu tiên: Ngôn ngữ đang xem -> Tiếng Anh -> Tiếng Việt -> Bản đầu tiên
+    const banDichDungNgonNgu = danhSachPhienBan.find((phienBan) => phienBan.language === ngonNguHienTai);
+    const banDichTiengAnh = danhSachPhienBan.find((phienBan) => phienBan.language === 'en');
+    const banDichTiengViet = danhSachPhienBan.find((phienBan) => phienBan.language === 'vi');
+
     return banDichDungNgonNgu || banDichTiengAnh || banDichTiengViet || danhSachPhienBan[0];
   });
 
@@ -72,9 +76,32 @@ async function layDuLieuPortfolio(ngonNguHienTai: string) {
 // --- 3. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const thamSoUrl = await params;
+  const { lang } = thamSoUrl;
+  const title = "Dự án tiêu biểu - ZINITEK";
+  const description = "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK.";
+
   return {
-    title: "Dự án tiêu biểu - ZINITEK",
-    description: "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK.",
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/portfolio`,
+      languages: {
+        'vi': '/vi/portfolio',
+        'en': '/en/portfolio',
+        'cn': '/cn/portfolio',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/portfolio`,
+      siteName: 'ZINITEK',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
@@ -93,8 +120,29 @@ export default async function PortfolioPage({
     layDuLieuPortfolio(lang)
   ]);
 
+  // Khởi tạo Schema.org (JSON-LD) cho danh sách dự án
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": tuDien.portfolio?.title || "Dự án tiêu biểu ZINITEK",
+    "description": tuDien.portfolio?.description,
+    "itemListElement": duLieuPortfolio.danhSachDuAn.map((project: any, index: number) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://zinitek.vn/${lang}/portfolio/${project.slug}`,
+      "name": project.title,
+      "description": project.description,
+      "image": project.image?.url
+    }))
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground relative">
+      {/* Chèn JSON-LD ItemList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Nền bản vẽ Blueprint đặc trưng */}
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />

@@ -30,6 +30,18 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // 4. Disable webpack cache to fix memory allocation errors
+  webpack: (config, { dev, isServer }) => {
+    if (dev) {
+      config.cache = false;
+    }
+    return config;
+  },
+
+  // 5. Turbopack config tường minh — bắt buộc khi có webpack config trong Next.js 16
+  // Xem: https://nextjs.org/docs/app/api-reference/next-config-js/turbopack
+  turbopack: {},
+
   // LƯU Ý: Xóa bỏ hoàn toàn block 'eslint' và 'experimental' cũ
 };
 

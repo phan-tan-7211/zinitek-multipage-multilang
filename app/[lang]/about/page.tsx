@@ -11,9 +11,31 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params
   const dict = await getDictionary(lang)
 
+  const title = dict.about_page?.meta_title || "Giới thiệu - ZINITEK"
+  const description = dict.about_page?.header_desc || "Câu chuyện về hành trình ZINITEK"
+
   return {
-    title: dict.about_page?.meta_title || "Giới thiệu - ZINITEK",
-    description: dict.about_page?.header_desc || "Câu chuyện về hành trình ZINITEK",
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/about`,
+      languages: {
+        'vi': '/vi/about',
+        'en': '/en/about',
+        'cn': '/cn/about',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/about`,
+      siteName: 'ZINITEK',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
   }
 }
 
@@ -27,8 +49,35 @@ export default async function AboutPage({
 
   const dict = await getDictionary(lang)
 
+  // Khởi tạo Schema.org (JSON-LD) cho trang Giới thiệu
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AboutPage",
+        "@id": `https://zinitek.vn/${lang}/about/#webpage`,
+        "url": `https://zinitek.vn/${lang}/about`,
+        "name": dict.about_page?.meta_title || "Giới thiệu - ZINITEK",
+        "description": dict.about_page?.header_desc
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://zinitek.vn/#organization",
+        "name": "ZINITEK",
+        "url": "https://zinitek.vn",
+        "logo": "https://zinitek.vn/logo.png"
+      }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Chèn JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
       {/* Nền Blueprint */}
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
         <BlueprintBackground />

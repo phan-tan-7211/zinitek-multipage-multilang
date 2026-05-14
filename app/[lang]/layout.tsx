@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper";
 import { Navigation } from "@/components/navigation";
 import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator";
+import { FloatingContactBar } from "@/components/floating-contact-bar";
 import { getDictionary } from "@/lib/get-dictionary";
 import { createClient } from "next-sanity";
 
@@ -63,24 +64,49 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(
-      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+      // FIX #6: Hardcode domain production — tránh VERCEL_URL preview ngẫu nhiên
+      process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'
     ),
     title: {
       default: siteTitle,
       template: `%s | ZINITEK`
     },
     description: cleanDescription,
-    keywords: ['CNC Machining', 'Precision Engineering', 'Zinitek'],
-    // ... các trường metadata khác giữ nguyên
+    keywords: [
+      'CNC Machining', 'Precision Engineering', 'Zinitek',
+      'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'
+    ],
+    // FIX #9: Sync đủ 5 ngôn ngữ với generateStaticParams
     alternates: {
       canonical: `/${lang}`,
-      languages: { 'vi-VN': '/vi', 'en-US': '/en', 'ja-JP': '/jp' },
+      languages: {
+        'vi-VN': '/vi',
+        'en-US': '/en',
+        'ja-JP': '/jp',
+        'ko-KR': '/kr',
+        'zh-CN': '/cn',
+      },
     },
+    // FIX #8: Thêm type, locale, siteName cho OG chuẩn i18n
     openGraph: {
+      type: 'website',
+      locale: lang === 'vi' ? 'vi_VN'
+            : lang === 'en' ? 'en_US'
+            : lang === 'jp' ? 'ja_JP'
+            : lang === 'kr' ? 'ko_KR'
+            : 'zh_CN',
       title: siteTitle,
       description: cleanDescription,
       url: `/${lang}`,
-      images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+      siteName: 'ZINITEK',
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ZINITEK — Gia công CNC & Khuôn mẫu' }],
+    },
+    // FIX #7: Thêm Twitter Card — trước đó hoàn toàn thiếu
+    twitter: {
+      card: 'summary_large_image',
+      title: siteTitle,
+      description: cleanDescription,
+      images: ['/og-image.jpg'],
     },
   };
 }
@@ -112,7 +138,7 @@ export default async function LanguageLayout({
       <Navigation lang={lang} dict={dict} />
 
       {/* 2. KHUNG BAO QUẢN LÝ VUỐT CHUYỂN TRANG */}
-      <SmartSwipeWrapper lang={lang}>
+      <SmartSwipeWrapper lang={lang} services={servicesSlugs}>
         <main className="min-h-screen">
           {children}
         </main>
@@ -120,6 +146,9 @@ export default async function LanguageLayout({
 
       {/* 3. THANH CHỈ BÁO VỊ TRÍ TRANG TRÊN DI ĐỘNG KÈM DỮ LIỆU ĐỘNG */}
       <MobileWidgetIndicator lang={lang} dict={dict} services={servicesSlugs} />
+
+      {/* 4. THANH LIÊN HỆ NỔI BÊN TRÁI (HOTLINE, ZALO, MAP, LÊN TOP) */}
+      <FloatingContactBar />
     </>
   );
 }

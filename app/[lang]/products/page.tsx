@@ -85,13 +85,65 @@ async function layDanhSachSanPham(ngonNguHienTai: string) {
   });
 }
 
+// --- 2.1. HÀM LẤY DANH MỤC DỊCH VỤ (CATEGORIES) ---
+async function layDanhSachDanhMuc(ngonNguHienTai: string) {
+  const cauTruyVan = `
+    *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] {
+      _id,
+      title,
+      language,
+      _translationKey
+    }
+  `;
+  const tatCaDanhMuc: any[] = await khachHangSanity.fetch(cauTruyVan);
+  
+  const nhomTheoKey: Record<string, any[]> = {};
+  tatCaDanhMuc.forEach((dm) => {
+    const khoa = dm._translationKey || dm._id;
+    if (!nhomTheoKey[khoa]) nhomTheoKey[khoa] = [];
+    nhomTheoKey[khoa].push(dm);
+  });
+
+  return Object.values(nhomTheoKey).map((cacPhienBan) => {
+    return (
+      cacPhienBan.find((v) => v.language === ngonNguHienTai) ||
+      cacPhienBan.find((v) => v.language === 'en') ||
+      cacPhienBan.find((v) => v.language === 'vi') ||
+      cacPhienBan[0]
+    );
+  });
+}
+
 // --- 3. TẠO THÔNG TIN SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const dictionary = await getDictionary(lang)
+  
+  const title = dictionary.products?.meta_title || "Sản phẩm & Thiết bị - ZINITEK"
+  const description = dictionary.products?.meta_desc || "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK."
+
   return {
-    title: dictionary.products?.meta_title || "Sản phẩm & Thiết bị - ZINITEK",
-    description: dictionary.products?.meta_desc || "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK.",
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/products`,
+      languages: {
+        'vi': '/vi/products',
+        'en': '/en/products',
+        'cn': '/cn/products',
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/products`,
+      siteName: 'ZINITEK',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 
@@ -102,13 +154,35 @@ export default async function ProductsListPage({
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  const [dictionary, danhSachSanPham] = await Promise.all([
+  const [dictionary, danhSachSanPham, danhSachDanhMuc] = await Promise.all([
     getDictionary(lang),
-    layDanhSachSanPham(lang)
+    layDanhSachSanPham(lang),
+    layDanhSachDanhMuc(lang)
   ])
+
+  // Khởi tạo Schema.org (JSON-LD) cho danh sách sản phẩm
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": dictionary.products?.title_main || "Danh mục Sản phẩm ZINITEK",
+    "description": dictionary.products?.hub_description,
+    "itemListElement": danhSachSanPham.map((sp: any, index: number) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://zinitek.vn/${lang}/products/${sp.slug}`,
+      "name": sp.title,
+      "description": sp.description,
+      "image": sp.image?.url
+    }))
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground relative">
+      {/* Chèn JSON-LD ItemList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="absolute inset-0 z-0 opacity-50 dark:opacity-10 pointer-events-none">
         <BlueprintBackground />
       </div>
@@ -144,6 +218,7 @@ export default async function ProductsListPage({
         ) : (
           <ProductListContent
             danhSachSanPham={danhSachSanPham}
+            danhSachDanhMuc={danhSachDanhMuc}
             lang={lang}
             dict={dictionary}
           />

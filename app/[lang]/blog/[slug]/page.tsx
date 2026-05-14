@@ -70,9 +70,36 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   if (!baiViet) return { title: "Bài viết không tồn tại | ZINITEK" };
 
+  const title = `${baiViet.title} - Blog ZINITEK`;
+  const description = baiViet.excerpt;
+
   return {
-    title: `${baiViet.title} - Blog ZINITEK`,
-    description: baiViet.excerpt
+    title,
+    description,
+    alternates: {
+      canonical: `/${thamSoTrang.lang}/blog/${thamSoTrang.slug}`,
+      languages: {
+        'vi': `/vi/blog/${thamSoTrang.slug}`,
+        'en': `/en/blog/${thamSoTrang.slug}`,
+        'cn': `/cn/blog/${thamSoTrang.slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${thamSoTrang.lang}/blog/${thamSoTrang.slug}`,
+      siteName: 'ZINITEK',
+      type: 'article',
+      publishedTime: baiViet.publishedAt,
+      authors: [baiViet.author || "ZINITEK Team"],
+      images: baiViet.mainImage ? [{ url: baiViet.mainImage.url }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: baiViet.mainImage ? [baiViet.mainImage.url] : [],
+    },
   };
 }
 
@@ -102,8 +129,40 @@ export default async function BlogDetailPage({
     year: 'numeric'
   });
 
+  // Khởi tạo Schema.org (JSON-LD) cho bài viết BlogPosting
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://zinitek.vn/${lang}/blog/${slug}`
+    },
+    "headline": duLieuBaiViet.title,
+    "description": duLieuBaiViet.excerpt,
+    "image": duLieuBaiViet.mainImage?.url,
+    "author": {
+      "@type": "Person",
+      "name": duLieuBaiViet.author || "ZINITEK Team"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ZINITEK",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://zinitek.vn/logo.png"
+      }
+    },
+    "datePublished": duLieuBaiViet.publishedAt,
+    "dateModified": duLieuBaiViet.publishedAt
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground pt-32 pb-20">
+      {/* Chèn JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="container mx-auto px-4 lg:px-6">
 
         {/* Nút quay lại danh sách Blog (Breadcrumb) */}

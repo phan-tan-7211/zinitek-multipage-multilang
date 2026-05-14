@@ -5,9 +5,15 @@ import { motion, useInView } from "framer-motion"
 import { Eye, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 
 // Danh sách dự án mẫu
-const projects = [
+const fallbackProjects = [
   {
     id: 1,
     title: "Khuôn dập chi tiết ô tô",
@@ -36,7 +42,7 @@ function ProjectCard({
   index,
   btnText
 }: {
-  project: typeof projects[0];
+  project: any;
   index: number;
   btnText: string;
 }) {
@@ -56,7 +62,7 @@ function ProjectCard({
     >
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={project.image || "/placeholder.svg"}
+          src={project.image || project.imageUrl || "/placeholder.svg"}
           alt={project.title}
           className={`w-full h-full object-cover transition-all duration-700 ease-out ${isHovered ? "scale-110" : "scale-100"
             }`}
@@ -73,7 +79,7 @@ function ProjectCard({
           <h3 className="font-serif text-sm md:text-lg font-bold text-foreground mb-1 line-clamp-2">
             {project.title}
           </h3>
-          <span className="text-sm text-muted-foreground font-medium">{project.category}</span>
+          <span className="text-sm text-muted-foreground font-medium">{project.category || project.categoryName}</span>
 
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -92,12 +98,13 @@ function ProjectCard({
   )
 }
 
-export function FeaturedProjects({ dict }: { dict?: any }) {
+export function FeaturedProjects({ dict, projects = [] }: { dict?: any, projects?: any[] }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   // Lấy dữ liệu từ dict.featured_projects hoặc các key liên quan
   const data = dict?.featured_projects || dict?.portfolio || {};
+  const displayProjects = projects.length > 0 ? projects : fallbackProjects;
 
   return (
     <section id="projects" className="relative py-24 lg:py-32 bg-background overflow-hidden">
@@ -141,16 +148,31 @@ export function FeaturedProjects({ dict }: { dict?: any }) {
           </Button>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={index}
-              btnText={data.view_details || "Xem chi tiết"}
-            />
-          ))}
-        </div>
+        <Carousel
+          data-swipe-zone="horizontal"
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          plugins={[
+            Autoplay({
+              delay: 3000,
+            }),
+          ]}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {displayProjects.map((project, index) => (
+              <CarouselItem key={project.id || project.slug || index} className="pl-4 basis-[85%] md:basis-[45%] lg:basis-1/3">
+                <ProjectCard
+                  project={project}
+                  index={index}
+                  btnText={data.view_details || "Xem chi tiết"}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
     </section>
   )

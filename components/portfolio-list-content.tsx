@@ -5,6 +5,7 @@ import { useState, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Eye, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { FallbackBadge } from "./fallback-badge"
 
 interface ThongTinDanhMuc {
@@ -39,6 +40,39 @@ export function PortfolioListContent({
     const [activeCategoryId, setActiveCategoryId] = useState("all")
     const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+    // --- Mouse Drag Scroll for Desktop (giống ProductListContent) ---
+    const isDragging = useRef(false)
+    const wasDragging = useRef(false)
+    const startX = useRef(0)
+    const scrollLeft = useRef(0)
+
+    const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        const el = scrollContainerRef.current
+        if (!el) return
+        isDragging.current = true
+        wasDragging.current = false
+        startX.current = e.pageX - el.offsetLeft
+        scrollLeft.current = el.scrollLeft
+        el.style.cursor = 'grabbing'
+        el.style.userSelect = 'none'
+    }
+    const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!isDragging.current || !scrollContainerRef.current) return
+        e.preventDefault()
+        const el = scrollContainerRef.current
+        const walk = (e.pageX - el.offsetLeft - startX.current) * 1.5
+        if (Math.abs(walk) > 3) wasDragging.current = true
+        el.scrollLeft = scrollLeft.current - walk
+    }
+    const onMouseUp = () => {
+        isDragging.current = false
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.style.cursor = 'grab'
+            scrollContainerRef.current.style.userSelect = ''
+        }
+    }
+    const onMouseLeave = () => { if (isDragging.current) onMouseUp() }
+
     const filteredProjects = useMemo(() => {
         if (activeCategoryId === "all") return projects;
         return projects.filter((duAn) => duAn.categoryIdentifier === activeCategoryId);
@@ -46,40 +80,50 @@ export function PortfolioListContent({
 
     return (
         <div className="container mx-auto px-4">
-            {/* 1. Story-style Horizontal Filter - Sticky on Mobile */}
-            {/* offset top-0 because header hides on scroll down */}
-            <div className="sticky top-0 md:relative md:top-0 z-40 -mx-4 px-4 md:mx-0 md:px-0 mb-8 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40 md:border-0 shadow-sm md:shadow-none transition-all py-2 md:py-0">
-                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" />
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" />
-
-                <div
-                    ref={scrollContainerRef}
-                    className="flex overflow-x-auto pb-1 md:pb-4 gap-2 scrollbar-hide snap-x"
-                >
-                    <button
-                        onClick={() => setActiveCategoryId("all")}
-                        className={`flex-shrink-0 px-4 py-1.5 md:py-2 rounded-full text-[13px] md:text-[12px] font-medium transition-all snap-start border ${activeCategoryId === "all"
-                                ? "bg-[#f97316] text-white border-[#f97316]"
-                                : "bg-secondary/50 text-muted-foreground border-transparent hover:bg-secondary"
-                            }`}
+            {/* 1. Pro Max Filter Bar - Sticky */}
+            <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-4 pb-5 -mx-4 px-4 md:mx-0 md:px-0 mb-6 border-b border-border/30 md:border-0">
+                <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+                    <div
+                        ref={scrollContainerRef}
+                        data-swipe-zone="horizontal"
+                        className="flex overflow-x-auto pb-1 gap-2 scrollbar-hide snap-x cursor-grab select-none"
+                        onMouseDown={onMouseDown}
+                        onMouseMove={onMouseMove}
+                        onMouseUp={onMouseUp}
+                        onMouseLeave={onMouseLeave}
                     >
-                        {lang === 'vi' ? 'Tất cả' : 'All'}
-                    </button>
-
-                    {categories.map((cat) => (
                         <button
-                            key={cat._id}
-                            onClick={() => setActiveCategoryId(cat._id)}
-                            className={`flex-shrink-0 px-4 py-1.5 md:py-2 rounded-full text-[13px] md:text-[12px] font-medium transition-all snap-start border ${activeCategoryId === cat._id
-                                    ? "bg-[#f97316] text-white border-[#f97316]"
-                                    : "bg-card border-border hover:border-[#f97316]/30 text-muted-foreground"
+                            onClick={() => { if (!wasDragging.current) setActiveCategoryId("all") }}
+                            aria-label={lang === 'vi' ? 'Hiển thị tất cả dự án' : 'Show all projects'}
+                            aria-pressed={activeCategoryId === "all"}
+                            className={`flex-shrink-0 px-5 py-2 rounded-full text-[13px] font-medium transition-all snap-start border ${activeCategoryId === "all"
+                                    ? "bg-[#f97316] text-white border-[#f97316] shadow-lg shadow-[#f97316]/20"
+                                    : "bg-card text-muted-foreground border-border hover:border-[#f97316]/30"
                                 }`}
                         >
-                            {cat.title}
+                            {lang === 'vi' ? 'Tất cả' : 'All'}
                         </button>
-                    ))}
+
+                        {categories.map((cat) => (
+                            <button
+                                key={cat._id}
+                                onClick={() => { if (!wasDragging.current) setActiveCategoryId(cat._id) }}
+                                aria-label={`Lọc dự án theo: ${cat.title}`}
+                                aria-pressed={activeCategoryId === cat._id}
+                                className={`flex-shrink-0 px-5 py-2 rounded-full text-[13px] font-medium transition-all snap-start border ${activeCategoryId === cat._id
+                                        ? "bg-[#f97316] text-white border-[#f97316] shadow-lg shadow-[#f97316]/20"
+                                        : "bg-card border-border hover:border-[#f97316]/30 text-muted-foreground"
+                                    }`}
+                            >
+                                {cat.title}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
+
 
             {/* 2. Optimized Project Grid - Social Density */}
             <motion.div layout className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
@@ -96,6 +140,7 @@ export function PortfolioListContent({
                         >
                             <Link
                                 href={`/${lang}/portfolio/${project.slug}`}
+                                aria-label={`Xem chi tiết dự án: ${project.title}`}
                                 className="group bg-card border border-border/50 rounded-xl md:rounded-3xl hover:border-[#f97316]/50 transition-all duration-300 flex flex-col h-full relative overflow-hidden shadow-sm hover:shadow-md"
                             >
                                 {/* Fallback Badge */}
@@ -103,10 +148,12 @@ export function PortfolioListContent({
 
                                 {/* Project Image - Aspect Ratio App-like */}
                                 <div className="relative aspect-square md:aspect-[4/3] overflow-hidden bg-secondary/20">
-                                    <img
+                                    <Image
                                         src={project.image?.url || "/placeholder.svg"}
                                         alt={project.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 400px"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
