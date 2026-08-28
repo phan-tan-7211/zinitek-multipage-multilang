@@ -49,6 +49,7 @@ export function MobileWidgetIndicator({ lang, dict, services = [] }: { lang: str
 
   const isAtSubService = pathname.startsWith(`/${lang}/services/`) && pathname !== `/${lang}/services`
   const [swipeData, setSwipeData] = useState({ active: false, distance: 0, rawDistance: 0 })
+  const [contactDocked, setContactDocked] = useState(false)
 
   useEffect(() => {
     const handleTouch = (e: any) => {
@@ -60,6 +61,21 @@ export function MobileWidgetIndicator({ lang, dict, services = [] }: { lang: str
     }
     window.addEventListener("swipe-active", handleTouch)
     return () => window.removeEventListener("swipe-active", handleTouch)
+  }, [])
+
+  useEffect(() => {
+    const syncInitialState = () => {
+      setContactDocked(document.documentElement.dataset.contactDocked === "true")
+    }
+
+    const handleContactDock = (event: Event) => {
+      const customEvent = event as CustomEvent<{ active?: boolean }>
+      setContactDocked(Boolean(customEvent.detail?.active))
+    }
+
+    syncInitialState()
+    window.addEventListener("zinitek-contact-dock", handleContactDock)
+    return () => window.removeEventListener("zinitek-contact-dock", handleContactDock)
   }, [])
 
   const d = swipeData.distance
@@ -162,72 +178,79 @@ export function MobileWidgetIndicator({ lang, dict, services = [] }: { lang: str
         )}
       </AnimatePresence>
 
-      {isAtSubService && (
-        <div
-          className={cn(
-            "fixed z-[100] transition-all duration-500 lg:hidden",
-            "bottom-4 left-1/2 -translate-x-1/2 w-[95%] flex flex-row items-center justify-center",
-            "landscape:right-4 landscape:top-1/2 landscape:bottom-auto landscape:left-auto landscape:-translate-y-1/2 landscape:-translate-x-0 landscape:w-20 landscape:flex-col landscape:h-auto landscape:max-h-[85vh]"
-          )}
-        >
-          <div
-            ref={subMenuContainerRef}
+      <AnimatePresence>
+        {isAtSubService && !contactDocked && (
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 28, scale: 0.97 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
             className={cn(
-              "flex items-center gap-3 p-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-x-auto no-scrollbar scroll-smooth touch-pan-x",
-              "landscape:flex-col landscape:overflow-y-auto landscape:overflow-x-hidden landscape:h-full landscape:w-full landscape:py-6 landscape:touch-pan-y"
+              "fixed z-[100] lg:hidden",
+              "bottom-4 left-1/2 -translate-x-1/2 w-[95%] flex flex-row items-center justify-center",
+              "landscape:right-4 landscape:top-1/2 landscape:bottom-auto landscape:left-auto landscape:-translate-y-1/2 landscape:-translate-x-0 landscape:w-20 landscape:flex-col landscape:h-auto landscape:max-h-[85vh]"
             )}
-            style={{
-              WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-              maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-            }}
           >
-            {subServices.map((service, dotIdx) => {
-              const isActive = dotIdx === currentSubIndex
+            <div
+              ref={subMenuContainerRef}
+              className={cn(
+                "flex items-center gap-3 p-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-x-auto no-scrollbar scroll-smooth touch-pan-x",
+                "landscape:flex-col landscape:overflow-y-auto landscape:overflow-x-hidden landscape:h-full landscape:w-full landscape:py-6 landscape:touch-pan-y"
+              )}
+              style={{
+                WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+                maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+              }}
+              aria-label="Service navigation"
+            >
+              {subServices.map((service, dotIdx) => {
+                const isActive = dotIdx === currentSubIndex
 
-              return (
-                <motion.div
-                  key={service.slug || dotIdx}
-                  data-active={isActive}
-                  role="button"
-                  tabIndex={0}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15)
-                    router.push(`/${lang}/services/${service.slug}`)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
+                return (
+                  <motion.div
+                    key={service.slug || dotIdx}
+                    data-active={isActive}
+                    role="button"
+                    tabIndex={0}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15)
                       router.push(`/${lang}/services/${service.slug}`)
-                    }
-                  }}
-                  className={cn(
-                    "relative flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl cursor-pointer transition-all duration-500",
-                    isActive ? "bg-primary/15" : "hover:bg-white/5"
-                  )}
-                  aria-label={`Sub-service ${service.slug}`}
-                >
-                  {isActive && <div className="absolute inset-0 bg-primary/30 blur-xl rounded-2xl -z-10 animate-pulse" />}
-
-                  <DynamicIcon
-                    name={service.icon}
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        router.push(`/${lang}/services/${service.slug}`)
+                      }
+                    }}
                     className={cn(
-                      "w-8 h-8 z-10 transition-all duration-500",
-                      isActive ? "text-primary drop-shadow-[0_0_12px_rgba(249,115,22,1)] scale-110" : "text-white/30"
+                      "relative flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl cursor-pointer transition-all duration-500",
+                      isActive ? "bg-primary/15" : "hover:bg-white/5"
                     )}
-                    strokeWidth={isActive ? 2.5 : 1.5}
-                  />
+                    aria-label={`Sub-service ${service.slug}`}
+                  >
+                    {isActive && <div className="absolute inset-0 bg-primary/30 blur-xl rounded-2xl -z-10 animate-pulse" />}
 
-                  {isActive && (
-                    <div className="hidden landscape:block absolute -right-1 w-1.5 h-4 bg-primary rounded-full shadow-[0_0_15px_#f97316]" />
-                  )}
-                </motion.div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+                    <DynamicIcon
+                      name={service.icon}
+                      className={cn(
+                        "w-8 h-8 z-10 transition-all duration-500",
+                        isActive ? "text-primary drop-shadow-[0_0_12px_rgba(249,115,22,1)] scale-110" : "text-white/30"
+                      )}
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                    />
+
+                    {isActive && (
+                      <div className="hidden landscape:block absolute -right-1 w-1.5 h-4 bg-primary rounded-full shadow-[0_0_15px_#f97316]" />
+                    )}
+                  </motion.div>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
