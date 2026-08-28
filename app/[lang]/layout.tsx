@@ -29,7 +29,12 @@ async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
 }
 
 async function layCauHinhWebsite() {
-  return await trinhKetNoiSanity.fetch(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{phoneDisplay,phoneTel,zaloNumber,email,addressDisplay,googleMapsUrl}`)
+  return await trinhKetNoiSanity.fetch(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{
+    phoneDisplay, phoneTel, email, zaloNumber,
+    wechatId, wechatUrl, lineUrl,
+    facebookUrl, youtubeUrl, tiktokUrl, twitterUrl,
+    addressDisplay, googleMapsUrl
+  }`)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
