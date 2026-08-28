@@ -13,7 +13,7 @@ const sanityClient = createClient({
 })
 
 async function getSiteSettings() {
-  return sanityClient.fetch(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{phoneTel}`)
+  return sanityClient.fetch(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{phoneTel,addressDisplay,googleMapsUrl}`)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
@@ -50,16 +50,16 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
     name: "ZINITEK",
     image: "https://zinitek.vn/logo.png",
     url: "https://zinitek.vn",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Số 200, Đường 2, KP. Nội Hóa 1, Phường Bình An",
-      addressLocality: "Dĩ An",
-      addressRegion: "Bình Dương",
-      postalCode: "820000",
-      addressCountry: "VN",
-    },
   }
   if (siteSettings?.phoneTel) localBusiness.telephone = siteSettings.phoneTel
+  if (siteSettings?.addressDisplay) {
+    localBusiness.address = {
+      "@type": "PostalAddress",
+      streetAddress: siteSettings.addressDisplay,
+      addressCountry: "VN",
+    }
+  }
+  if (siteSettings?.googleMapsUrl) localBusiness.hasMap = siteSettings.googleMapsUrl
 
   const jsonLd = {
     "@context": "https://schema.org",
