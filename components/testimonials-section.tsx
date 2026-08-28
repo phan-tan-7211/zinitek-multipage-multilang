@@ -1,162 +1,272 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import { Quote, Star } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { ExternalLink, Star } from "lucide-react"
+import { motion, useInView, useReducedMotion } from "framer-motion"
 
-// Giả định testimonials này sẽ được fetch từ Sanity sau này
-// Hiện tại giữ để render cấu trúc card
-const testimonials = [
-  {
-    id: 1,
-    content: "ZINITEK đã vượt qua mọi kỳ vọng của chúng tôi về độ chính xác và tiến độ giao hàng. Họ là đối tác tin cậy cho các dự án khuôn mẫu phức tạp.",
-    author: "Tanaka Hiroshi",
-    position: "Giám đốc kỹ thuật",
-    company: "Toyota Boshoku Vietnam",
-    rating: 5,
-  },
-  {
-    id: 2,
-    content: "Đội ngũ kỹ sư ZINITEK rất chuyên nghiệp và am hiểu sâu về tự động hóa. Hệ thống PLC họ triển khai đã giúp chúng tôi tăng năng suất 40%.",
-    author: "Kim Sung-ho",
-    position: "Plant Manager",
-    company: "Samsung Electronics Vietnam",
-    rating: 5,
-  },
-  {
-    id: 3,
-    content: "Chất lượng gia công CNC của ZINITEK đạt tiêu chuẩn Nhật Bản. Đặc biệt ấn tượng với khả năng xử lý các chi tiết có dung sai cực kỳ chặt.",
-    author: "Nguyễn Minh Tuấn",
-    position: "Trưởng phòng R&D",
-    company: "VinFast Manufacturing",
-    rating: 5,
-  },
-]
+interface GoogleLocalizedText {
+  text?: string
+  languageCode?: string
+}
+
+interface GoogleReview {
+  name?: string
+  rating?: number
+  text?: GoogleLocalizedText
+  originalText?: GoogleLocalizedText
+  relativePublishTimeDescription?: string
+  publishTime?: string
+  googleMapsUri?: string
+  author?: {
+    displayName?: string
+    uri?: string
+    photoUri?: string
+  } | null
+}
+
+interface GoogleReviewsPayload {
+  configured?: boolean
+  displayName?: GoogleLocalizedText
+  rating?: number
+  userRatingCount?: number
+  googleMapsUri?: string
+  reviews?: GoogleReview[]
+}
 
 interface TestimonialsSectionProps {
-  dict: any // Nhận dictionary từ page/layout
+  dict: any
   lang?: string
 }
 
-function TestimonialCard({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-50px" })
+const uiText: Record<string, Record<string, string>> = {
+  vi: {
+    reviews: "đánh giá trên Google",
+    viewGoogle: "Xem trên Google",
+    translated: "Được Google dịch",
+    original: "Ngôn ngữ gốc",
+    ordering: "Đánh giá do Google sắp xếp theo mức độ liên quan.",
+  },
+  en: {
+    reviews: "reviews on Google",
+    viewGoogle: "View on Google",
+    translated: "Translated by Google",
+    original: "Original language",
+    ordering: "Reviews are ordered by Google by relevance.",
+  },
+  jp: {
+    reviews: "Google のクチコミ",
+    viewGoogle: "Googleで見る",
+    translated: "Google による翻訳",
+    original: "原文",
+    ordering: "クチコミは Google の関連性順で表示されます。",
+  },
+  kr: {
+    reviews: "Google 리뷰",
+    viewGoogle: "Google에서 보기",
+    translated: "Google 번역",
+    original: "원문 언어",
+    ordering: "리뷰는 Google의 관련성 기준으로 정렬됩니다.",
+  },
+  cn: {
+    reviews: "Google 评价",
+    viewGoogle: "在 Google 上查看",
+    translated: "由 Google 翻译",
+    original: "原文语言",
+    ordering: "评价由 Google 按相关性排序。",
+  },
+}
 
+function Stars({ rating = 0 }: { rating?: number }) {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.15 }}
-      className="relative group"
-    >
-      <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-border hover:border-[#f97316]/30 transition-all duration-500">
-        <div className="absolute -top-4 left-6 w-8 h-8 bg-[#f97316] rounded-lg flex items-center justify-center">
-          <Quote className="w-4 h-4 text-[#020617]" />
-        </div>
-
-        <div className="flex gap-1 mb-4 pt-2">
-          {[...Array(testimonial.rating)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 fill-[#f97316] text-[#f97316]" />
-          ))}
-        </div>
-
-        <p className="text-foreground leading-relaxed mb-6 italic">
-          &ldquo;{testimonial.content}&rdquo;
-        </p>
-
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#f97316] to-[#ea580c] flex items-center justify-center text-lg font-bold text-[#020617]">
-            {testimonial.author.charAt(0)}
-          </div>
-          <div>
-            <h4 className="font-serif font-semibold text-foreground">
-              {testimonial.author}
-            </h4>
-            <p className="text-sm text-muted-foreground">
-              {testimonial.position}
-            </p>
-            <p className="text-xs text-[#f97316]">
-              {testimonial.company}
-            </p>
-          </div>
-        </div>
-
-        <div className="absolute bottom-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-          <div className="absolute bottom-4 right-4 w-10 h-10 border-r-2 border-b-2 border-[#f97316]/30 rounded-br-lg" />
-        </div>
-      </div>
-    </motion.div>
+    <div className="flex gap-0.5" aria-label={`${rating} / 5`}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`size-4 ${star <= Math.round(rating) ? "fill-amber-500 text-amber-500" : "text-border"}`}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
   )
 }
 
-export function TestimonialsSection({ dict }: TestimonialsSectionProps) {
+function ReviewCard({ review, index, translatedLabel, originalLabel }: { review: GoogleReview; index: number; translatedLabel: string; originalLabel: string }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-
-  // Tách text từ dict để code gọn hơn
-  const {
-    badge,
-    title_part1,
-    title_highlight,
-    description,
-    trusted_by
-  } = dict.testimonials
+  const inView = useInView(ref, { once: true, margin: "-40px" })
+  const reduceMotion = useReducedMotion()
+  const translated = Boolean(
+    review.text?.languageCode &&
+      review.originalText?.languageCode &&
+      review.text.languageCode !== review.originalText.languageCode,
+  )
 
   return (
-    <section className="relative py-24 lg:py-32 bg-background overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#f97316]/5 rounded-full blur-[150px] pointer-events-none" />
+    <motion.article
+      ref={ref}
+      initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.45, delay: index * 0.07 }}
+      className="group flex h-full flex-col rounded-[var(--radius-card)] border border-border/70 bg-card/85 p-5 shadow-soft backdrop-blur-sm transition-all lg:hover:-translate-y-1.5 lg:hover:border-primary/30 lg:hover:shadow-card sm:p-6"
+    >
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <Stars rating={review.rating} />
+        <span className="inline-flex items-center rounded-full border border-border/60 bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Google
+        </span>
+      </div>
 
-      <div ref={ref} className="container mx-auto px-4 lg:px-6 relative z-10">
-        {/* Header Section - Đã chuyển sang đa ngôn ngữ */}
+      <p className="flex-1 text-[15px] leading-7 text-foreground">
+        “{review.text?.text || review.originalText?.text || ""}”
+      </p>
+
+      {translated && (
+        <p className="mt-3 text-[11px] font-medium text-muted-foreground">
+          {translatedLabel}
+          {review.originalText?.languageCode ? ` · ${originalLabel}: ${review.originalText.languageCode}` : ""}
+        </p>
+      )}
+
+      <div className="mt-5 flex items-center gap-3 border-t border-border/60 pt-4">
+        {review.author?.photoUri ? (
+          <img
+            src={review.author.photoUri}
+            alt=""
+            className="size-10 rounded-full border border-border object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+            {(review.author?.displayName || "G").charAt(0)}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          {review.author?.uri ? (
+            <a
+              href={review.author.uri}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block truncate font-semibold text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {review.author.displayName || "Google user"}
+            </a>
+          ) : (
+            <div className="truncate font-semibold text-foreground">{review.author?.displayName || "Google user"}</div>
+          )}
+          <div className="text-xs text-muted-foreground">{review.relativePublishTimeDescription || "Google Maps"}</div>
+        </div>
+        {review.googleMapsUri && (
+          <a
+            href={review.googleMapsUri}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open review on Google Maps"
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/70 text-muted-foreground transition-all hover:border-primary/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ExternalLink className="size-4" aria-hidden="true" />
+          </a>
+        )}
+      </div>
+    </motion.article>
+  )
+}
+
+export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionProps) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const reduceMotion = useReducedMotion()
+  const [data, setData] = useState<GoogleReviewsPayload | null>(null)
+
+  const labels = uiText[lang] || uiText.vi
+  const t = dict?.testimonials || {}
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    fetch(`/api/google-reviews?lang=${encodeURIComponent(lang)}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`Google reviews ${response.status}`)
+        return response.json()
+      })
+      .then((payload) => setData(payload))
+      .catch((error) => {
+        if (error?.name !== "AbortError") console.error("Google reviews:", error)
+        setData({ configured: false, reviews: [] })
+      })
+
+    return () => controller.abort()
+  }, [lang])
+
+  const reviews = useMemo(
+    () => (data?.reviews || []).filter((review) => review.text?.text || review.originalText?.text).slice(0, 5),
+    [data],
+  )
+
+  if (data && (!data.configured || reviews.length === 0)) return null
+
+  return (
+    <section className="relative overflow-hidden border-y border-border/60 bg-secondary/20 py-20 sm:py-24 lg:py-28">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 size-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.045] blur-[140px]" aria-hidden="true" />
+
+      <div ref={ref} className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="max-w-3xl mx-auto text-center mb-16"
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.6 }}
+          className="mx-auto mb-10 max-w-3xl text-center"
         >
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-px bg-gradient-to-r from-transparent to-[#f97316]" />
-            <span className="text-[#f97316] text-sm font-medium uppercase tracking-widest">
-              {badge}
-            </span>
-            <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#f97316]" />
+          <div className="mb-4 inline-flex items-center gap-3">
+            <span className="h-px w-10 bg-gradient-to-r from-transparent to-primary" aria-hidden="true" />
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">{t.badge || "Google Reviews"}</span>
+            <span className="h-px w-10 bg-gradient-to-l from-transparent to-primary" aria-hidden="true" />
           </div>
 
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
-            {title_part1} <span className="italic text-[#f97316]">{title_highlight}</span>
+          <h2 className="text-balance font-serif text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
+            {t.title_part1 || "Đối tác"} <span className="italic text-primary">{t.title_highlight || "tin cậy"}</span>
           </h2>
-
-          <p className="text-muted-foreground text-base lg:text-lg">
-            {description}
+          <p className="mx-auto mt-4 max-w-[65ch] text-base leading-7 text-muted-foreground sm:text-lg">
+            {t.description || "Những đánh giá thực tế từ khách hàng và đối tác trên Google."}
           </p>
+
+          {data && (
+            <div className="mx-auto mt-6 inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-full border border-border/70 bg-background/90 px-4 py-2.5 shadow-soft">
+              <Stars rating={data.rating || 0} />
+              <strong className="text-lg text-foreground">{Number(data.rating || 0).toFixed(1)}</strong>
+              <span className="text-sm text-muted-foreground">· {data.userRatingCount || 0} {labels.reviews}</span>
+              {data.googleMapsUri && (
+                <a
+                  href={data.googleMapsUri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {labels.viewGoogle}<ExternalLink className="size-3.5" aria-hidden="true" />
+                </a>
+              )}
+            </div>
+          )}
         </motion.div>
 
-        {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {testimonials.map((testimonial, index) => (
-            <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
-          ))}
-        </div>
-
-        {/* Trusted By Section - Đã chuyển sang đa ngôn ngữ */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-20 pt-12 border-t border-border/50"
-        >
-          <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider">
-            {trusted_by}
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-16 opacity-50">
-            {["Toyota", "Samsung", "Panasonic", "LG", "VinFast", "Thaco"].map((brand) => (
-              <span key={brand} className="text-xl font-serif font-bold text-foreground/60 hover:text-[#f97316] transition-colors cursor-default">
-                {brand}
-              </span>
+        {!data ? (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((item) => <div key={item} className="h-64 animate-pulse rounded-[var(--radius-card)] border border-border/60 bg-card/60" />)}
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {reviews.map((review, index) => (
+              <ReviewCard
+                key={review.name || `${review.author?.displayName}-${index}`}
+                review={review}
+                index={index}
+                translatedLabel={labels.translated}
+                originalLabel={labels.original}
+              />
             ))}
           </div>
-        </motion.div>
+        )}
+
+        {data && reviews.length > 0 && (
+          <p className="mt-6 text-center text-xs text-muted-foreground">{labels.ordering}</p>
+        )}
       </div>
     </section>
   )
