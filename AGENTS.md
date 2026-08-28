@@ -292,3 +292,29 @@ Examples:
 ```
 
 Do not paste entire external skill specifications into `AGENTS.md`. This file should route and prioritize them, while each skill keeps its own detailed instructions.
+
+## 11. Current Handoff — MUST READ
+
+Before modifying this branch, read:
+
+```text
+docs/project/CURRENT_HANDOFF.md
+```
+
+It records current branch decisions, owner preferences, coordinated interaction behavior and mistakes already made during the UI/UX audit. Current source code remains authoritative when a time-sensitive detail in the handoff becomes stale.
+
+## 12. Project Guardrails Learned From Previous Mistakes
+
+These rules are mandatory unless the owner explicitly changes them:
+
+- Do not make the site visually static. Preserve intentional particles, autoplay carousels, infinite decorative motion and strong desktop hover effects. Keep `prefers-reduced-motion` as an accessibility fallback, not as the default design direction.
+- Do not replace a component's owner-approved/original visual style with a generic reinterpretation. If the owner says "giống bản gốc", compare against the original source and preserve its defining colors, scale and interaction.
+- Global phone, email, Zalo, address, Maps and social URLs must come from Sanity `siteSettings` when they are intended to be editable. Do not spread stale contact values into JSX or JSON-LD.
+- Do not render fake `#` social links, invented testimonials, invented customers or unsupported certifications/capabilities.
+- Google Places review API is intentionally not used. Reviews are manually curated in Sanity and keep their original language. Do not add `GOOGLE_PLACES_API_KEY`, scraping or paid review integrations without explicit approval.
+- The floating contact bar and mobile service submenu are coordinated. `FloatingContactBar` publishes `zinitek-contact-dock`; changing one without testing the other is unsafe.
+- Preserve the floating contact visual identity: Hotline orange, Zalo blue, Map red, Top orange, with large colored slide-out labels. Current desktop placement is on the right; near the Footer on mobile/tablet it docks horizontally at the bottom.
+- Before changing a Sanity schema, fetch the full current schema and preserve all existing fields. Small feature additions must not accidentally delete unrelated settings.
+- Be conservative about Server/Client Component boundaries and serializable props. A previous service-icon change caused a detail-page crash.
+- Never claim a build, `/studio`, Vercel deployment or runtime route works unless it was actually verified in the current environment.
+- After shared shell, mobile widget, Sanity or SEO changes, inspect related files and run `npm run lint` / `npm run build` when possible before declaring completion.
