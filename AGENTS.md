@@ -41,7 +41,7 @@ When instructions conflict, use this order:
 1. User's explicit request
 2. Repository-level `AGENTS.md`
 3. Relevant project/local skill under `.agents/skills/`
-4. Existing root `SKILL.md` for already-implemented ZINITEK UX interaction patterns
+4. Existing ZINITEK interaction patterns in `docs/ux/INTERACTION_PATTERNS.md`
 5. General external skill guidance
 6. Agent defaults
 
@@ -107,7 +107,7 @@ Use for:
 
 Do not redesign a page from intuition alone when this skill is available.
 
-Also inspect the existing root `SKILL.md` before changing interaction patterns already implemented in ZINITEK, especially horizontal drag-scroll, swipe zones and filter bars.
+Also inspect `docs/ux/INTERACTION_PATTERNS.md` before changing interaction patterns already implemented in ZINITEK, especially horizontal drag-scroll, swipe zones and filter bars.
 
 ### Anthropic `frontend-design`
 
@@ -223,13 +223,14 @@ Requirements for UI changes:
 - avoid excessive animation that harms clarity or performance
 - test narrow mobile layouts and large desktop layouts
 
-Before changing existing swipe, carousel or horizontal filter behavior, read the root `SKILL.md`.
+Before changing existing swipe, carousel or horizontal filter behavior, read `docs/ux/INTERACTION_PATTERNS.md`.
 
 ## 7. Content Rules
 
 - Do not invent manufacturing capabilities, certifications, machine specifications, customer names or technical claims.
 - Do not present old notes as current implementation facts.
-- `DEVELOPMENT_NOTES_ARCHIVE.md` is historical/archive material and is not a source of truth for current behavior.
+- `docs/archive/DEVELOPMENT_NOTES.md` is historical/archive material and is not a source of truth for current behavior.
+- `docs/project/PROJECT_CONTEXT.md` is project context only; verify time-sensitive claims against current source code.
 - Verify current behavior from source code and Sanity schemas/queries.
 
 ## 8. Change Discipline
@@ -260,9 +261,19 @@ For SEO changes, verify generated metadata, canonical/hreflang URLs, JSON-LD and
 
 A task is not complete merely because TypeScript code looks plausible.
 
-## 10. External Skills Location
+## 10. Documentation Layout
 
-Repository-scoped external skills should live under:
+Project documentation should live under `docs/` by purpose:
+
+```text
+docs/
+├─ project/   # current project context and architecture notes
+├─ ux/        # implemented UX interaction patterns
+├─ audits/    # dated technical/UI/SEO audits
+└─ archive/   # historical notes that are not current source of truth
+```
+
+Repository-scoped external AI skills live under:
 
 ```text
 .agents/skills/<skill-name>/SKILL.md
