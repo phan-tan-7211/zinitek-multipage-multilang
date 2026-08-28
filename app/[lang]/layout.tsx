@@ -4,6 +4,7 @@ import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper";
 import { Navigation } from "@/components/navigation";
 import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator";
 import { FloatingContactBar } from "@/components/floating-contact-bar";
+import { SiteSettingsProvider } from "@/components/site-settings-context";
 import { getDictionary } from "@/lib/get-dictionary";
 import { createClient } from "next-sanity";
 
@@ -38,14 +39,12 @@ async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
   });
 
   return Object.values(cacNhom)
-    .map((nhom: any[]) => {
-      return (
-        nhom.find((p) => p.language === ngonNguHienTai) ||
-        nhom.find((p) => p.language === 'en') ||
-        nhom.find((p) => p.language === 'vi') ||
-        nhom[0]
-      );
-    })
+    .map((nhom: any[]) => (
+      nhom.find((p) => p.language === ngonNguHienTai) ||
+      nhom.find((p) => p.language === 'en') ||
+      nhom.find((p) => p.language === 'vi') ||
+      nhom[0]
+    ))
     .sort((a, b) => (a.orderRank || 0) - (b.orderRank || 0))
     .map((service) => ({
       slug: service.slug,
@@ -56,58 +55,44 @@ async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
     }));
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: Promise<{ lang: string }>
-}): Promise<Metadata> {
-  const resolvedParams = await params;
-  const { lang } = resolvedParams;
-  const dict = await getDictionary(lang);
+async function layCauHinhWebsite() {
+  return await trinhKetNoiSanity.fetch(`
+    *[_type == "siteSettings" && !(_id in path("drafts.**"))][0] {
+      phoneDisplay,
+      phoneTel,
+      zaloNumber,
+      email
+    }
+  `)
+}
 
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
   const cleanDescription = dict.hero.description.replace(/<[^>]*>?/gm, '');
   const siteTitle = `ZINITEK - ${dict.hero.title_line1} ${dict.hero.title_highlight}`;
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'),
-    title: {
-      default: siteTitle,
-      template: `%s | ZINITEK`
-    },
+    title: { default: siteTitle, template: `%s | ZINITEK` },
     description: cleanDescription,
-    keywords: [
-      'CNC Machining', 'Precision Engineering', 'Zinitek',
-      'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'
-    ],
+    keywords: ['CNC Machining', 'Precision Engineering', 'Zinitek', 'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'],
     alternates: {
       canonical: `/${lang}`,
       languages: {
-        'vi-VN': '/vi',
-        'en-US': '/en',
-        'ja-JP': '/jp',
-        'ko-KR': '/kr',
-        'zh-CN': '/cn',
+        'vi-VN': '/vi', 'en-US': '/en', 'ja-JP': '/jp', 'ko-KR': '/kr', 'zh-CN': '/cn',
       },
     },
     openGraph: {
       type: 'website',
-      locale: lang === 'vi' ? 'vi_VN'
-            : lang === 'en' ? 'en_US'
-            : lang === 'jp' ? 'ja_JP'
-            : lang === 'kr' ? 'ko_KR'
-            : 'zh_CN',
+      locale: lang === 'vi' ? 'vi_VN' : lang === 'en' ? 'en_US' : lang === 'jp' ? 'ja_JP' : lang === 'kr' ? 'ko_KR' : 'zh_CN',
       title: siteTitle,
       description: cleanDescription,
       url: `/${lang}`,
       siteName: 'ZINITEK',
       images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ZINITEK — Gia công CNC & Khuôn mẫu' }],
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: siteTitle,
-      description: cleanDescription,
-      images: ['/og-image.jpg'],
-    },
+    twitter: { card: 'summary_large_image', title: siteTitle, description: cleanDescription, images: ['/og-image.jpg'] },
   };
 }
 
@@ -115,25 +100,18 @@ export async function generateStaticParams() {
   return [{ lang: 'vi' }, { lang: 'en' }, { lang: 'jp' }, { lang: 'kr' }, { lang: 'cn' }];
 }
 
-export default async function LanguageLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ lang: string }>;
-}) {
-  const resolvedParams = await params;
-  const { lang } = resolvedParams;
-
-  const [dict, services] = await Promise.all([
+export default async function LanguageLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  const [dict, services, siteSettings] = await Promise.all([
     getDictionary(lang),
-    layDanhSachDichVuTuSanity(lang)
+    layDanhSachDichVuTuSanity(lang),
+    layCauHinhWebsite(),
   ]);
 
   const servicesSlugs = services.map(({ slug, icon }) => ({ slug, icon }));
 
   return (
-    <>
+    <SiteSettingsProvider value={siteSettings || {}}>
       <Navigation lang={lang} dict={dict} initialServices={services} />
 
       <SmartSwipeWrapper lang={lang} services={servicesSlugs}>
@@ -144,6 +122,6 @@ export default async function LanguageLayout({
 
       <MobileWidgetIndicator lang={lang} dict={dict} services={servicesSlugs} />
       <FloatingContactBar />
-    </>
+    </SiteSettingsProvider>
   );
 }
