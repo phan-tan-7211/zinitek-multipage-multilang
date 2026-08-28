@@ -7,7 +7,7 @@ import { useSiteSettings } from "@/components/site-settings-context"
 const baseItem = "group relative flex size-14 flex-col items-center justify-center gap-1 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:size-16"
 
 export function FloatingContactBar() {
-  const { phoneDisplay, phoneTel, zaloNumber } = useSiteSettings()
+  const { phoneDisplay, phoneTel, zaloNumber, addressDisplay, googleMapsUrl } = useSiteSettings()
   const [showTop, setShowTop] = useState(false)
   const [nearFooter, setNearFooter] = useState(false)
 
@@ -77,6 +77,7 @@ export function FloatingContactBar() {
     : "border-t border-border/60"
 
   const zaloHref = zaloNumber ? `https://zalo.me/${zaloNumber.replace(/\D/g, "")}` : undefined
+  const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
 
   return (
     <aside className={shellClass} aria-label="Quick contact">
@@ -107,16 +108,18 @@ export function FloatingContactBar() {
         </a>
       )}
 
-      <a
-        href="https://maps.google.com/?q=KCN+My+Phuoc+3+Ben+Cat+Binh+Duong"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Open Google Maps"
-        className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
-      >
-        <MapPin className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
-        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Map</span>
-      </a>
+      {mapHref && (
+        <a
+          href={mapHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={addressDisplay ? `Open Google Maps: ${addressDisplay}` : "Open Google Maps"}
+          className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
+        >
+          <MapPin className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Map</span>
+        </a>
+      )}
 
       {showTop && (
         <button
