@@ -18,15 +18,58 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
+      name: 'email',
+      title: 'Email liên hệ',
+      type: 'string',
+    },
+    {
       name: 'zaloNumber',
       title: 'Số Zalo',
       type: 'string',
       description: 'Ví dụ: 077291501. Dùng để tạo link zalo.me.',
     },
     {
-      name: 'email',
-      title: 'Email liên hệ',
+      name: 'wechatId',
+      title: 'WeChat ID',
       type: 'string',
+      description: 'ID WeChat hiển thị cho khách hàng.',
+    },
+    {
+      name: 'wechatUrl',
+      title: 'Liên kết WeChat',
+      type: 'url',
+      description: 'Nếu có link/QR landing page WeChat, dán tại đây.',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
+    },
+    {
+      name: 'lineUrl',
+      title: 'Liên kết LINE',
+      type: 'url',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
+    },
+    {
+      name: 'facebookUrl',
+      title: 'Facebook URL',
+      type: 'url',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
+    },
+    {
+      name: 'youtubeUrl',
+      title: 'YouTube URL',
+      type: 'url',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
+    },
+    {
+      name: 'tiktokUrl',
+      title: 'TikTok URL',
+      type: 'url',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
+    },
+    {
+      name: 'twitterUrl',
+      title: 'X / Twitter URL',
+      type: 'url',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
     },
     {
       name: 'addressDisplay',
@@ -45,7 +88,7 @@ export default {
   ],
   preview: {
     prepare() {
-      return { title: 'Cấu hình liên hệ toàn website' }
+      return { title: 'Cấu hình liên hệ & mạng xã hội toàn website' }
     },
   },
 }
