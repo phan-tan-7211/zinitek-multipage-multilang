@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { ArrowUp, MapPin, Phone } from "lucide-react"
 import { useSiteSettings } from "@/components/site-settings-context"
 
-const baseItem = "group relative flex size-14 flex-col items-center justify-center gap-1 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:size-16"
+const itemBase = "group relative flex size-16 flex-col items-center justify-center p-3 text-center transition-all duration-300 sm:size-20"
 
 export function FloatingContactBar() {
   const { phoneDisplay, phoneTel, zaloNumber, addressDisplay, googleMapsUrl } = useSiteSettings()
@@ -37,7 +37,7 @@ export function FloatingContactBar() {
 
       if (footer) {
         footer.style.paddingBottom = active
-          ? "calc(4.75rem + env(safe-area-inset-bottom))"
+          ? "calc(5.25rem + env(safe-area-inset-bottom))"
           : ""
       }
 
@@ -69,16 +69,14 @@ export function FloatingContactBar() {
   }
 
   const shellClass = nearFooter
-    ? "fixed bottom-0 left-1/2 z-50 flex -translate-x-1/2 flex-row overflow-visible rounded-t-2xl rounded-b-none border border-b-0 border-border/70 bg-background/95 shadow-card backdrop-blur-xl transition-all duration-300 xl:bottom-auto xl:left-auto xl:right-0 xl:top-1/2 xl:-translate-x-0 xl:-translate-y-1/2 xl:flex-col xl:rounded-l-2xl xl:rounded-r-none xl:border-b"
-    : "fixed right-0 top-1/2 z-50 flex -translate-y-1/2 flex-col overflow-visible rounded-l-2xl rounded-r-none border border-r-0 border-border/70 bg-background/92 shadow-card backdrop-blur-xl transition-all duration-300"
+    ? "fixed bottom-0 left-1/2 z-50 flex -translate-x-1/2 flex-row overflow-visible rounded-t-xl border border-b-0 border-border bg-background shadow-lg transition-all duration-300 xl:bottom-auto xl:left-auto xl:right-0 xl:top-1/2 xl:-translate-x-0 xl:-translate-y-1/2 xl:flex-col xl:rounded-l-xl xl:rounded-r-none xl:border-r-0 xl:border-b"
+    : "fixed right-0 top-1/2 z-50 flex -translate-y-1/2 flex-col overflow-visible rounded-l-xl border border-r-0 border-border bg-background shadow-lg transition-all duration-300"
 
-  const separatorClass = nearFooter
-    ? "border-l border-border/60 xl:border-l-0 xl:border-t"
-    : "border-t border-border/60"
+  const separatorClass = nearFooter ? "border-l border-border" : "border-t border-border"
 
-  const tooltipClass = nearFooter
-    ? "pointer-events-none absolute bottom-full left-1/2 z-[70] mb-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-xl border border-border/70 bg-background/95 px-3 py-2 text-[11px] font-semibold text-foreground opacity-0 shadow-card backdrop-blur-xl transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
-    : "pointer-events-none absolute right-full top-1/2 z-[70] mr-2 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-xl border border-border/70 bg-background/95 px-3 py-2 text-[11px] font-semibold text-foreground opacity-0 shadow-card backdrop-blur-xl transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+  const expandClass = nearFooter
+    ? "absolute bottom-full left-[-1px] z-[-1] mb-0 flex h-12 min-w-[calc(100%+2px)] items-center justify-center whitespace-nowrap rounded-t-xl border px-5 text-sm font-bold text-white opacity-0 invisible translate-y-2 transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:visible group-focus-visible:translate-y-0 group-focus-visible:opacity-100 sm:h-14 sm:text-base"
+    : "absolute right-full top-[-1px] z-[-1] flex h-[calc(100%+2px)] items-center whitespace-nowrap rounded-l-xl border px-6 text-sm font-bold text-white opacity-0 invisible translate-x-2 transition-all duration-300 group-hover:visible group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:visible group-focus-visible:translate-x-0 group-focus-visible:opacity-100 sm:text-base"
 
   const zaloHref = zaloNumber ? `https://zalo.me/${zaloNumber.replace(/\D/g, "")}` : undefined
   const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
@@ -89,13 +87,11 @@ export function FloatingContactBar() {
         <a
           href={`tel:${phoneTel}`}
           aria-label={`Hotline ${phoneDisplay}`}
-          className={`${baseItem} ${nearFooter ? "rounded-tl-2xl xl:rounded-bl-none" : "rounded-tl-2xl"} hover:bg-primary/10`}
+          className={`${itemBase} ${nearFooter ? "rounded-tl-xl" : "rounded-tl-xl"} hover:bg-orange-50 dark:hover:bg-orange-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f97316]`}
         >
-          <Phone className="size-5 text-primary transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Hotline</span>
-          <span className={tooltipClass}>
-            <span className="mr-1.5 text-primary">●</span>{phoneDisplay}
-          </span>
+          <Phone className="relative z-10 mb-1 size-5 text-[#f97316] transition-transform group-hover:scale-110 sm:size-6" aria-hidden="true" />
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-[#f97316] sm:text-xs">Hotline</span>
+          <span className={`${expandClass} border-[#f97316] bg-[#f97316] shadow-[0_8px_24px_rgba(249,115,22,0.35)]`}>{phoneDisplay}</span>
         </a>
       )}
 
@@ -105,13 +101,11 @@ export function FloatingContactBar() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat Zalo"
-          className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
+          className={`${itemBase} ${separatorClass} hover:bg-blue-50 dark:hover:bg-blue-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0068ff]`}
         >
-          <span className="flex size-6 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black text-white shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_14px_rgba(0,104,255,0.45)]">Z</span>
-          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Zalo</span>
-          <span className={tooltipClass}>
-            <span className="mr-1.5 text-[#0068ff]">●</span>Chat Zalo
-          </span>
+          <span className="relative z-10 mb-1 flex size-7 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black leading-none text-white shadow-sm transition-transform group-hover:scale-110 sm:size-8 sm:text-[10px]">Zalo</span>
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-[#0068ff] sm:text-xs">Zalo</span>
+          <span className={`${expandClass} border-[#0068ff] bg-[#0068ff] shadow-[0_8px_24px_rgba(0,104,255,0.35)]`}>Chat Zalo ngay</span>
         </a>
       )}
 
@@ -121,13 +115,11 @@ export function FloatingContactBar() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={addressDisplay ? `Open Google Maps: ${addressDisplay}` : "Open Google Maps"}
-          className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
+          className={`${itemBase} ${separatorClass} hover:bg-red-50 dark:hover:bg-red-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500`}
         >
-          <MapPin className="size-5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Map</span>
-          <span className={tooltipClass}>
-            <span className="mr-1.5 text-primary">●</span>Chỉ đường Google Maps
-          </span>
+          <MapPin className="relative z-10 mb-1 size-5 text-red-500 transition-transform group-hover:scale-110 sm:size-6" aria-hidden="true" />
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-red-500 sm:text-xs">Map</span>
+          <span className={`${expandClass} border-red-500 bg-red-500 shadow-[0_8px_24px_rgba(239,68,68,0.35)]`}>Chỉ đường Google Maps</span>
         </a>
       )}
 
@@ -136,13 +128,11 @@ export function FloatingContactBar() {
           type="button"
           onClick={scrollTop}
           aria-label="Back to top"
-          className={`${baseItem} ${separatorClass} ${nearFooter ? "rounded-tr-2xl xl:rounded-tr-none xl:rounded-bl-2xl" : "rounded-bl-2xl"} hover:bg-primary/10`}
+          className={`${itemBase} ${separatorClass} ${nearFooter ? "rounded-tr-xl" : "rounded-bl-xl"} hover:bg-orange-50 dark:hover:bg-orange-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f97316]`}
         >
-          <ArrowUp className="size-5 text-primary transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Top</span>
-          <span className={tooltipClass}>
-            <span className="mr-1.5 text-primary">↑</span>Lên đầu trang
-          </span>
+          <ArrowUp className="relative z-10 mb-1 size-5 text-[#f97316] transition-transform group-hover:-translate-y-1 sm:size-6" aria-hidden="true" />
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-[#f97316] sm:text-xs">Lên Top</span>
+          <span className={`${expandClass} border-[#f97316] bg-[#f97316] shadow-[0_8px_24px_rgba(249,115,22,0.35)]`}>Lên đầu trang</span>
         </button>
       )}
     </aside>
