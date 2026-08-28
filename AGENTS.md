@@ -57,6 +57,25 @@ Use `.agents/skills/zinitek-project/SKILL.md` for any task that touches this rep
 
 This is the default project skill and should normally be considered first.
 
+### `seo-nextjs`
+
+Use `.agents/skills/seo-nextjs/SKILL.md` whenever a task touches:
+
+- metadata / `generateMetadata`
+- canonical URLs
+- hreflang / localized alternates
+- JSON-LD / structured data
+- sitemap / robots
+- crawlability / indexability
+- semantic HTML for SEO
+- image alt behavior
+- Core Web Vitals / SEO performance
+- SEO audits
+
+For ZINITEK, current Next.js 16 App Router native APIs are authoritative. External repositories such as `next-seo`, `next-sitemap`, SEO checklist collections, Precedent and Next Enterprise are references only unless the user explicitly asks to add a dependency.
+
+Do not vendor `next.js-canary`, `gpt-crawler` or `chatbot-main` into the production website merely because they are available as reference folders.
+
 ### `superpowers`
 
 Use for disciplined engineering workflow such as:
@@ -162,6 +181,8 @@ If fallback behavior must change, inspect all affected list/detail/navigation qu
 
 ## 5. SEO Rules
 
+For SEO work, read `.agents/skills/seo-nextjs/SKILL.md` before editing.
+
 When modifying routes or content pages, consider:
 
 - page metadata
@@ -172,8 +193,13 @@ When modifying routes or content pages, consider:
 - JSON-LD where applicable
 - sitemap coverage
 - robots behavior
+- semantic HTML
+- crawl/index intent
+- Core Web Vitals impact
 
 Never generate hreflang links by reusing one locale's slug when translated slugs differ.
+
+Do not install or migrate to `next-seo` / `next-sitemap` by default: ZINITEK already uses Next.js native Metadata API, `app/sitemap.ts` and `app/robots.ts`.
 
 ## 6. UI/UX Rules
 
@@ -230,6 +256,8 @@ npm run build
 
 For interaction/UI changes, also verify the actual rendered behavior when browser tooling is available.
 
+For SEO changes, verify generated metadata, canonical/hreflang URLs, JSON-LD and sitemap output when tooling allows.
+
 A task is not complete merely because TypeScript code looks plausible.
 
 ## 10. External Skills Location
@@ -244,6 +272,7 @@ Examples:
 
 ```text
 .agents/skills/zinitek-project/SKILL.md
+.agents/skills/seo-nextjs/SKILL.md
 .agents/skills/ui-ux-pro-max/SKILL.md
 .agents/skills/last30days/SKILL.md
 .agents/skills/superpowers/...
