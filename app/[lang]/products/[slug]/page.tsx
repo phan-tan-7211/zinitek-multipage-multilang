@@ -1,5 +1,3 @@
-
-
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
@@ -8,20 +6,18 @@ import { Footer } from "@/components/footer"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
-const trinhKetNoiSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
+const sanityClient = createClient({
+  projectId: "g4o3uumy",
+  dataset: "production",
+  apiVersion: "2024-01-01",
   useCdn: false,
 })
 
-// --- 2. HÀM TRUY VẤN CHI TIẾT SẢN PHẨM VỚI LOGIC DỰ PHÒNG THÔNG MINH ---
-async function layThongTinSanPham(duongDanSlug: string, ngonNguHienTai: string) {
-  const cauTruyVanGroq = `
-    *[_type == "product" && slug.current == $duongDanSlug][0] {
-      "duLieuDaXuLy": coalesce(
-        *[_type == "product" && _translationKey == ^._translationKey && language == $ngonNguHienTai][0],
+async function getProduct(slug: string, lang: string) {
+  const query = `
+    *[_type == "product" && slug.current == $slug][0] {
+      "resolved": coalesce(
+        *[_type == "product" && _translationKey == ^._translationKey && language == $lang][0],
         *[_type == "product" && _translationKey == ^._translationKey && language == "en"][0],
         *[_type == "product" && _translationKey == ^._translationKey && language == "vi"][0],
         ^
@@ -39,74 +35,60 @@ async function layThongTinSanPham(duongDanSlug: string, ngonNguHienTai: string) 
         "features": coalesce(features, []),
         "specifications": coalesce(specifications, []),
         "serviceCategory": coalesce(
-          *[_type == "service" && _translationKey == ^.serviceCategory->_translationKey && language == $ngonNguHienTai][0],
+          *[_type == "service" && _translationKey == ^.serviceCategory->_translationKey && language == $lang][0],
           *[_type == "service" && _translationKey == ^.serviceCategory->_translationKey && language == "en"][0],
           serviceCategory->
         ) { title, "slug": slug.current }
       }
-    }.duLieuDaXuLy
-  `;
+    }.resolved
+  `
 
-  return await trinhKetNoiSanity.fetch(cauTruyVanGroq, { duongDanSlug, ngonNguHienTai });
+  return sanityClient.fetch(query, { slug, lang })
 }
 
-// --- 3. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const thamSoTrang = await params;
-  const sanPham = await layThongTinSanPham(thamSoTrang.slug, thamSoTrang.lang);
+  const { lang, slug } = await params
+  const product = await getProduct(slug, lang)
 
-  if (!sanPham) return { title: "Sản phẩm không tồn tại | ZINITEK" };
+  if (!product) return { title: "Sản phẩm không tồn tại | ZINITEK" }
 
   return {
-    title: `${sanPham.title || "Sản phẩm Zinitek"} - ZINITEK`,
-    description: sanPham.description
-  };
+    title: `${product.title || "Sản phẩm Zinitek"} - ZINITEK`,
+    description: product.description,
+  }
 }
 
-// --- 4. THÀNH PHẦN TRANG CHÍNH ---
-export default async function ProductDetailPage({
-  params
-}: {
-  params: Promise<{ lang: string; slug: string }>
-}) {
-  const thamSoTrang = await params;
-  const { lang, slug } = thamSoTrang;
+export default async function ProductDetailPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
+  const { lang, slug } = await params
 
-  const [tuDien, duLieuSanPham] = await Promise.all([
+  const [dict, product] = await Promise.all([
     getDictionary(lang),
-    layThongTinSanPham(slug, lang)
-  ]);
+    getProduct(slug, lang),
+  ])
 
-  if (!duLieuSanPham) {
-    notFound();
-  }
+  if (!product) notFound()
 
   return (
-    // SỬA LỖI: Giảm padding top để tránh khoảng trống thừa dưới header cố định
-    <main className="min-h-screen bg-background text-foreground relative pt-24 pb-20">
-      <div className="container mx-auto px-4 lg:px-6">
-
-        {/* Nút quay lại danh sách */}
-        <div className="mb-10">
+    <div className="min-h-dvh bg-background text-foreground">
+      <main className="content-shell pb-24 pt-32 sm:pt-36 lg:pb-28 lg:pt-40">
+        <nav className="mb-8 sm:mb-10" aria-label="Breadcrumb">
           <Link
             href={`/${lang}/products`}
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-xl text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <div className="w-8 h-8 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 bg-card">
-              <ArrowLeft className="w-4 h-4 text-foreground group-hover:text-[#f97316]" />
-            </div>
-            <span className="text-sm font-bold uppercase tracking-widest text-foreground group-hover:text-[#f97316]">
-              {tuDien.navigation?.products || "Danh mục sản phẩm"}
+            <span className="flex size-9 items-center justify-center rounded-full border border-border/70 bg-card transition-all group-hover:border-primary/50 group-hover:bg-primary/5">
+              <ArrowLeft className="size-4 text-foreground transition-colors group-hover:text-primary" aria-hidden="true" />
+            </span>
+            <span className="text-sm font-bold uppercase tracking-[0.12em] text-foreground transition-colors group-hover:text-primary">
+              {dict.navigation?.products || "Danh mục sản phẩm"}
             </span>
           </Link>
-        </div>
+        </nav>
 
-        {/* Nội dung chi tiết sản phẩm */}
-        <ProductDetailPageContent product={duLieuSanPham} dictionary={tuDien} lang={lang} />
-      </div>
+        <ProductDetailPageContent product={product} dictionary={dict} lang={lang} />
+      </main>
 
-      {/* SỬA LỖI: Thêm Footer vào trang chi tiết sản phẩm */}
-      <Footer lang={lang} dict={tuDien} />
-    </main>
-  );
+      <Footer lang={lang} dict={dict} />
+    </div>
+  )
 }
