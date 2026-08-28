@@ -14,25 +14,34 @@ const sanityClient = createClient({
   useCdn: true,
 })
 
+interface LegalDocLink {
+  _id: string
+  slug: string
+  title: string
+  language: string
+}
+
 export function Footer({ lang, dict }: { lang: string; dict: any }) {
   const footer = dict?.footer || {}
   const navigation = dict?.navigation || {}
   const common = dict?.common || {}
   const [services, setServices] = useState<any[]>([])
-  const [legalDocs, setLegalDocs] = useState<any[]>([])
+  const [legalDocs, setLegalDocs] = useState<LegalDocLink[]>([])
 
   useEffect(() => {
     async function loadFooterData() {
       try {
-        const serviceQuery = `*[_type == "service" && defined(slug.current)] | order(orderRank asc) {
+        const serviceQuery = `*[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc) {
           _id, _translationKey, language, "slug": slug.current, title
         }`
-        const legalQuery = `*[_type == "legalDoc" && language == $lang && defined(slug.current)] {
-          _id, "slug": slug.current, title
+
+        const legalQuery = `*[_type == "legalDoc" && defined(slug.current) && !(_id in path("drafts.**"))] | order(_createdAt asc) {
+          _id, language, "slug": slug.current, title
         }`
-        const [allServices, docs] = await Promise.all([
+
+        const [allServices, allLegalDocs] = await Promise.all([
           sanityClient.fetch(serviceQuery),
-          sanityClient.fetch(legalQuery, { lang }),
+          sanityClient.fetch(legalQuery),
         ])
 
         const groups: Record<string, any[]> = {}
@@ -41,18 +50,41 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
           if (!groups[key]) groups[key] = []
           groups[key].push(item)
         })
+
         setServices(Object.values(groups).map((group: any[]) =>
           group.find((item) => item.language === lang) ||
           group.find((item) => item.language === "en") ||
           group.find((item) => item.language === "vi") ||
           group[0]
         ))
-        setLegalDocs(docs.map((item: any) => ({
+
+        const normalizedDocs: LegalDocLink[] = allLegalDocs.map((item: any) => ({
           ...item,
-          slug: item.slug.includes("/") ? item.slug.split("/").pop() : item.slug,
-        })))
+          language: typeof item.language === "string" ? item.language : "vi",
+          slug: typeof item.slug === "string" && item.slug.includes("/")
+            ? item.slug.split("/").filter(Boolean).pop()
+            : item.slug,
+        })).filter((item: LegalDocLink) => item.slug && item.title)
+
+        const docsByLanguage = (language: string) => normalizedDocs.filter((item) => item.language === language)
+        const currentLanguageDocs = docsByLanguage(lang)
+        const englishDocs = docsByLanguage("en")
+        const vietnameseDocs = docsByLanguage("vi")
+
+        // Ưu tiên bộ tài liệu của ngôn ngữ hiện tại. Nếu CMS chưa có bản dịch,
+        // dùng nguyên bộ EN/VI thực tế để các link pháp lý không bao giờ biến thành text chết.
+        const selectedDocs = currentLanguageDocs.length > 0
+          ? currentLanguageDocs
+          : englishDocs.length > 0
+            ? englishDocs
+            : vietnameseDocs.length > 0
+              ? vietnameseDocs
+              : normalizedDocs
+
+        setLegalDocs(selectedDocs.slice(0, 3))
       } catch (error) {
         console.error("Lỗi tải dữ liệu tại Footer:", error)
+        setLegalDocs([])
       }
     }
     loadFooterData()
@@ -71,6 +103,12 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
     { icon: Facebook, href: "#", label: "Facebook" },
     { icon: Youtube, href: "#", label: "YouTube" },
     { icon: Linkedin, href: "#", label: "LinkedIn" },
+  ]
+
+  const fallbackLegalLinks = [
+    { name: footer?.privacy_policy || "Chính sách bảo mật", slug: "chinh-sach-bao-mat" },
+    { name: footer?.terms_of_use || "Điều khoản sử dụng", slug: "dieu-khoan-su-dung" },
+    { name: footer?.cookie_policy || "Chính sách cookie", slug: "chinh-sach-cookie" },
   ]
 
   return (
@@ -174,15 +212,21 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
           <p className="text-center text-xs font-medium text-muted-foreground md:text-left">{footer?.copyright || "© 2026 ZINITEK. Tất cả quyền được bảo lưu."}</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             {legalDocs.length > 0 ? legalDocs.map((link, index) => (
-              <Link key={link._id || `${link.slug}-${index}`} href={`/${lang}/policy/${link.slug}`} className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <Link
+                key={link._id || `${link.slug}-${index}`}
+                href={`/${link.language || lang}/policy/${link.slug}`}
+                className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
                 {link.title}
               </Link>
-            )) : [
-              footer?.privacy_policy || "Privacy",
-              footer?.terms_of_use || "Terms",
-              footer?.cookie_policy || "Cookies",
-            ].map((name) => (
-              <span key={name} className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/50">{name}</span>
+            )) : fallbackLegalLinks.map((link) => (
+              <Link
+                key={link.slug}
+                href={`/${lang}/policy/${link.slug}`}
+                className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {link.name}
+              </Link>
             ))}
           </div>
         </div>
