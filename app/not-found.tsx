@@ -1,236 +1,68 @@
-
 "use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
-import { Home, ArrowLeft, Cog } from "lucide-react"
+import { motion, useReducedMotion } from "framer-motion"
+import { ArrowLeft, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-// --- 1. BỘ TỪ ĐIỂN NỘI BỘ CHO TRANG LỖI ---
-const danhSachNgonNguLoi = {
-  vi: {
-    badge: "Lỗi 404",
-    title: "Trang không",
-    titleHighlight: "tìm thấy",
-    description: "Có vẻ như đường dẫn này đã bị hỏng giống như bánh răng kia. Hãy quay lại trang chủ để tiếp tục.",
-    buttonHome: "Về trang chủ",
-    buttonBack: "Quay lại",
-    status: "TRẠNG THÁI: KHÔNG TÌM THẤY",
-    gearStatus: "BÁNH RĂNG: BỊ HỎNG"
-  },
-  en: {
-    badge: "Error 404",
-    title: "Page",
-    titleHighlight: "Not Found",
-    description: "It seems this link is broken just like that gear. Please return to the home page to continue.",
-    buttonHome: "Back to Home",
-    buttonBack: "Go Back",
-    status: "STATUS: NOT FOUND",
-    gearStatus: "GEAR: BROKEN"
-  },
-  jp: {
-    badge: "404 エラー",
-    title: "ページが",
-    titleHighlight: "見つかりません",
-    description: "このリンクはあの歯車のように壊れているようです。ホームに戻って続行してください。",
-    buttonHome: "ホームへ戻る",
-    buttonBack: "戻る",
-    status: "ステータス: 未検出",
-    gearStatus: "ギア: 破損"
-  },
-  kr: {
-    badge: "404 오류",
-    title: "페이지를",
-    titleHighlight: "찾을 수 없습니다",
-    description: "이 링크는 저 톱니바퀴처럼 고장 난 것 같습니다. 계속하려면 홈 페이지로 돌아가십시오.",
-    buttonHome: "홈으로 돌아가기",
-    buttonBack: "뒤로 가기",
-    status: "상태: 찾을 수 없음",
-    gearStatus: "기어: 고장"
-  },
-  cn: {
-    badge: "404 错误",
-    title: "页面",
-    titleHighlight: "未找到",
-    description: "看来这个链接就像那个齿轮一样坏了。请返回首页继续。",
-    buttonHome: "返回首页",
-    buttonBack: "返回",
-    status: "状态: 未找到",
-    gearStatus: "齿轮: 损坏"
-  }
-};
-
-function BrokenGear({ className, delay = 0 }: { className?: string; delay?: number }) {
-  return (
-    <motion.svg
-      viewBox="0 0 100 100"
-      className={className}
-      initial={{ rotate: 0 }}
-      animate={{ rotate: 360 }}
-      transition={{ duration: 8, repeat: Infinity, ease: "linear", delay }}
-    >
-      <defs>
-        <linearGradient id="gearGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f97316" />
-          <stop offset="100%" stopColor="#ea580c" />
-        </linearGradient>
-      </defs>
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
-        <rect
-          key={angle}
-          x="46"
-          y="5"
-          width="8"
-          height="15"
-          fill={i === 2 || i === 5 ? "#334155" : "url(#gearGradient)"}
-          transform={`rotate(${angle} 50 50)`}
-          opacity={i === 2 || i === 5 ? 0.3 : 1}
-        />
-      ))}
-      <circle cx="50" cy="50" r="30" fill="url(#gearGradient)" />
-      <circle cx="50" cy="50" r="12" fill="#020617" />
-      <circle cx="50" cy="50" r="8" fill="none" stroke="#f97316" strokeWidth="1" opacity="0.5" />
-      <motion.path
-        d="M 50 20 L 55 35 L 45 35 Z"
-        fill="#f97316"
-        initial={{ y: 0, opacity: 1 }}
-        animate={{ y: [0, 80, 80], opacity: [1, 1, 0], rotate: [0, 45, 90] }}
-        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-      />
-    </motion.svg>
-  )
+const copy = {
+  vi: { badge: "Lỗi 404", title: "Trang không", highlight: "tìm thấy", description: "Đường dẫn này không còn tồn tại hoặc đã được thay đổi. Bạn có thể quay lại trang trước hoặc về trang chủ.", home: "Về trang chủ", back: "Quay lại" },
+  en: { badge: "Error 404", title: "Page", highlight: "Not Found", description: "This page no longer exists or may have moved. Return to the previous page or continue from the home page.", home: "Back to Home", back: "Go Back" },
+  jp: { badge: "404 エラー", title: "ページが", highlight: "見つかりません", description: "このページは存在しないか、移動された可能性があります。前のページまたはホームに戻ってください。", home: "ホームへ戻る", back: "戻る" },
+  kr: { badge: "404 오류", title: "페이지를", highlight: "찾을 수 없습니다", description: "이 페이지가 존재하지 않거나 이동되었습니다. 이전 페이지 또는 홈으로 돌아가 주세요.", home: "홈으로", back: "뒤로" },
+  cn: { badge: "404 错误", title: "页面", highlight: "未找到", description: "此页面不存在或已移动。您可以返回上一页或回到首页。", home: "返回首页", back: "返回" },
 }
 
-function FloatingPart({ delay, x, y }: { delay: number; x: number; y: number }) {
+function Gear({ reduceMotion }: { reduceMotion: boolean }) {
   return (
     <motion.div
-      className="absolute w-4 h-4 bg-[#f97316]/20 rounded"
-      style={{ left: `${x}%`, top: `${y}%` }}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{
-        opacity: [0, 0.6, 0],
-        scale: [0, 1, 0.5],
-        y: [0, -50, -100],
-        rotate: [0, 180, 360]
-      }}
-      transition={{ duration: 3, delay, repeat: Infinity, repeatDelay: 2 }}
-    />
+      className="relative flex size-40 items-center justify-center rounded-full border-8 border-primary/20 sm:size-48"
+      animate={reduceMotion ? undefined : { rotate: 360 }}
+      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+      aria-hidden="true"
+    >
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+        <span key={angle} className="absolute left-1/2 top-1/2 h-8 w-4 -translate-x-1/2 -translate-y-[6.5rem] rounded-sm bg-primary sm:-translate-y-[7.75rem]" style={{ transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-72px)` }} />
+      ))}
+      <div className="flex size-24 items-center justify-center rounded-full bg-primary shadow-brand sm:size-28">
+        <div className="size-10 rounded-full border-4 border-primary-foreground/70 bg-background" />
+      </div>
+    </motion.div>
   )
 }
 
 export default function NotFound() {
-  // --- 2. LOGIC NHẬN DIỆN NGÔN NGỮ TỪ URL ---
-  const duongDanHienTai = usePathname();
-
-  // Tách chuỗi URL để lấy mã ngôn ngữ (ví dụ: /en/blog -> en)
-  const cacPhanDuongDan = duongDanHienTai.split('/');
-  const maNgonNgu = (cacPhanDuongDan[1] || 'vi') as keyof typeof danhSachNgonNguLoi;
-
-  // Lấy dữ liệu ngôn ngữ tương ứng, mặc định là tiếng Việt nếu không tìm thấy
-  const ngonNgu = danhSachNgonNguLoi[maNgonNgu] || danhSachNgonNguLoi.vi;
+  const pathname = usePathname()
+  const reduceMotion = useReducedMotion()
+  const segment = (pathname.split("/")[1] || "vi") as keyof typeof copy
+  const lang = copy[segment] ? segment : "vi"
+  const t = copy[lang]
 
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center relative overflow-hidden">
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `
-            linear-gradient(#f97316 1px, transparent 1px),
-            linear-gradient(90deg, #f97316 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px'
-        }}
-      />
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-20 text-foreground">
+      <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-30 dark:opacity-40" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-24 top-10 size-80 rounded-full bg-primary/[0.06] blur-3xl" aria-hidden="true" />
 
-      <FloatingPart delay={0} x={20} y={30} />
-      <FloatingPart delay={0.5} x={70} y={40} />
-      <FloatingPart delay={1} x={30} y={60} />
-      <FloatingPart delay={1.5} x={80} y={70} />
-      <FloatingPart delay={2} x={15} y={50} />
+      <div className="relative z-10 mx-auto max-w-2xl text-center">
+        <div className="mx-auto mb-10 flex justify-center"><Gear reduceMotion={!!reduceMotion} /></div>
+        <motion.div initial={reduceMotion ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <span className="inline-flex min-h-10 items-center rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">{t.badge}</span>
+          <h1 className="mt-6 text-balance font-serif text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">{t.title} <span className="text-primary italic">{t.highlight}</span></h1>
+          <p className="mx-auto mt-5 max-w-[55ch] text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">{t.description}</p>
 
-      <BrokenGear className="absolute top-20 left-10 w-24 h-24 opacity-10" delay={0} />
-      <BrokenGear className="absolute bottom-20 right-10 w-32 h-32 opacity-10" delay={2} />
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button asChild className="min-h-12 rounded-xl bg-primary px-6 text-primary-foreground transition-transform lg:hover:scale-[1.03]">
+              <Link href={`/${lang}`}><Home className="mr-2 size-4" aria-hidden="true" />{t.home}</Link>
+            </Button>
+            <Button type="button" variant="outline" onClick={() => window.history.back()} className="min-h-12 rounded-xl border-border bg-background px-6 hover:border-primary/40 hover:text-primary">
+              <ArrowLeft className="mr-2 size-4" aria-hidden="true" />{t.back}
+            </Button>
+          </div>
 
-      <div className="relative z-10 text-center px-4">
-        <div className="relative w-48 h-48 mx-auto mb-8">
-          <BrokenGear className="w-full h-full" />
-          <motion.div
-            className="absolute top-1/4 right-1/4 w-2 h-2 bg-[#f97316] rounded-full"
-            animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-4"
-        >
-          <span className="inline-block px-4 py-1.5 bg-[#f97316]/10 border border-[#f97316]/30 rounded-full text-[#f97316] text-sm font-medium">
-            {ngonNgu.badge}
-          </span>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4"
-        >
-          {ngonNgu.title} <span className="text-[#f97316] italic">{ngonNgu.titleHighlight}</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-muted-foreground text-lg mb-8 max-w-md mx-auto"
-        >
-          {ngonNgu.description}
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
-          <Button
-            asChild
-            className="bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[#020617] font-semibold px-6"
-          >
-            {/* Điều hướng về trang chủ đúng ngôn ngữ */}
-            <Link href={`/${maNgonNgu}`}>
-              <Home className="w-4 h-4 mr-2" />
-              {ngonNgu.buttonHome}
-            </Link>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => window.history.back()}
-            className="border-[#334155] hover:border-[#f97316]/50 text-foreground bg-transparent"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {ngonNgu.buttonBack}
-          </Button>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="mt-16 flex justify-center gap-8 text-xs text-muted-foreground/50 font-mono"
-        >
-          <span>ERR_CODE: 404</span>
-          <span>{ngonNgu.status}</span>
-          <span>{ngonNgu.gearStatus}</span>
+          <p className="mt-12 font-mono text-xs text-muted-foreground/60">ERR_CODE: 404 · ZINITEK</p>
         </motion.div>
       </div>
-
-      <div className="absolute top-8 left-8 w-24 h-24 border-l-2 border-t-2 border-[#334155]/30" />
-      <div className="absolute bottom-8 right-8 w-24 h-24 border-r-2 border-b-2 border-[#334155]/30" />
-    </div>
+    </main>
   )
 }
