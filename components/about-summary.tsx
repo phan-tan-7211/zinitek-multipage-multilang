@@ -19,16 +19,21 @@ export function AboutSummary({ lang, dict }: { lang: string; dict: any }) {
 
   const particles = useMemo(
     () =>
-      Array.from({ length: 72 }, (_, index) => ({
-        id: index,
-        size: 1 + ((index * 7) % 17) / 10,
-        left: 8 + ((index * 37) % 84),
-        top: 8 + ((index * 53) % 84),
-        duration: 3.5 + ((index * 11) % 30) / 10,
-        delay: ((index * 13) % 40) / 10,
-        driftX: ((index % 5) - 2) * 4,
-        driftY: (((index * 3) % 5) - 2) * 4,
-      })),
+      Array.from({ length: 180 }, (_, index) => {
+        const palette = ["#f97316", "#00f2ff", "#fb923c", "#67e8f9"]
+
+        return {
+          id: index,
+          color: palette[index % palette.length],
+          size: 0.8 + ((index * 7) % 18) / 10,
+          left: 4 + ((index * 37) % 92),
+          top: 4 + ((index * 53) % 92),
+          duration: 2.8 + ((index * 11) % 36) / 10,
+          delay: ((index * 13) % 50) / 10,
+          driftX: ((index % 7) - 3) * 3,
+          driftY: (((index * 3) % 7) - 3) * 3,
+        }
+      }),
     [],
   )
 
@@ -134,7 +139,7 @@ export function AboutSummary({ lang, dict }: { lang: string; dict: any }) {
               {!shouldReduceMotion && (
                 <>
                   <motion.div
-                    className="pointer-events-none absolute inset-[3%] rounded-full"
+                    className="pointer-events-none absolute inset-[2%] rounded-full"
                     animate={{ rotate: 360 }}
                     transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
                     aria-hidden="true"
@@ -142,19 +147,20 @@ export function AboutSummary({ lang, dict }: { lang: string; dict: any }) {
                     {particles.map((particle) => (
                       <motion.span
                         key={particle.id}
-                        className="absolute rounded-full bg-primary"
+                        className="absolute rounded-full"
                         style={{
                           width: particle.size,
                           height: particle.size,
                           left: `${particle.left}%`,
                           top: `${particle.top}%`,
-                          boxShadow: "0 0 8px hsl(var(--primary) / 0.55)",
+                          backgroundColor: particle.color,
+                          boxShadow: `0 0 8px ${particle.color}, 0 0 14px ${particle.color}66`,
                         }}
                         animate={{
-                          opacity: [0.18, 0.9, 0.22],
+                          opacity: [0.16, 1, 0.22],
                           x: [0, particle.driftX, 0],
                           y: [0, particle.driftY, 0],
-                          scale: [0.8, 1.25, 0.8],
+                          scale: [0.72, 1.3, 0.78],
                         }}
                         transition={{
                           duration: particle.duration,
@@ -167,7 +173,7 @@ export function AboutSummary({ lang, dict }: { lang: string; dict: any }) {
                   </motion.div>
 
                   <motion.div
-                    className="absolute inset-[7%] rounded-full border border-primary/15"
+                    className="absolute inset-[7%] rounded-full border border-cyan-300/20"
                     animate={{ rotate: -360 }}
                     transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
                     aria-hidden="true"
