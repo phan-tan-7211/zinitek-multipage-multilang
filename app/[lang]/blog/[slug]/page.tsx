@@ -1,281 +1,127 @@
-
-
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
-import { Calendar, User, Tag, ArrowLeft, Clock, Share2, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Calendar, Clock, Tag, User } from "lucide-react"
 import Link from "next/link"
 import { SanityImage } from "@/components/sanity-image"
+import { Footer } from "@/components/footer"
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY (SANITY CLIENT) ---
-const trinhKetNoiSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: false, // Lấy dữ liệu mới nhất trực tiếp từ máy chủ
-})
+const sanityClient = createClient({ projectId: "g4o3uumy", dataset: "production", apiVersion: "2024-01-01", useCdn: false })
 
-// --- 2. HÀM TRUY VẤN CHI TIẾT BÀI VIẾT VỚI DỰ PHÒNG THÔNG MINH ---
-async function layChiTietBaiViet(duongDanSlug: string, ngonNguHienTai: string) {
-  const cauTruyVanGroq = `
-    *[_type == "blogPost" && slug.current == $duongDanSlug][0] {
-      "duLieuTotNhat": coalesce(
-        *[_type == "blogPost" && _translationKey == ^._translationKey && language == $ngonNguHienTai][0],
-        *[_type == "blogPost" && _translationKey == ^._translationKey && language == "en"][0],
-        *[_type == "blogPost" && _translationKey == ^._translationKey && language == "vi"][0],
-        ^
-      )
-    }.duLieuTotNhat {
-      _id,
-      title,
-      excerpt,
-      body,
-      publishedAt,
-      author,
-      readTime,
-      language,
-      "slug": slug.current,
-      "mainImage": mainImage.asset->{ _id, url },
-      "category": category->{ title, "slug": slug.current },
-      "banDichTuongUng": *[_type == "blogPost" && _translationKey == ^._translationKey && defined(slug.current)] {
-        language,
-        "slug": slug.current
-      }
-    }
-  `;
+type RawPost = Record<string, any>
 
-  const ketQuaTruyVan = await trinhKetNoiSanity.fetch(cauTruyVanGroq, { duongDanSlug, ngonNguHienTai });
-  return ketQuaTruyVan;
+async function getPost(slug: string, lang: string) {
+  const source = await sanityClient.fetch(`*[_type == "blogPost" && slug.current == $slug && !(_id in path("drafts.**"))][0]{_id,_translationKey}`, { slug })
+  if (!source) return null
+
+  const query = source._translationKey
+    ? `coalesce(
+        *[_type == "blogPost" && _translationKey == $key && language == $lang && !(_id in path("drafts.**"))][0],
+        *[_type == "blogPost" && _translationKey == $key && language == "en" && !(_id in path("drafts.**"))][0],
+        *[_type == "blogPost" && _translationKey == $key && language == "vi" && !(_id in path("drafts.**"))][0],
+        *[_type == "blogPost" && slug.current == $slug && !(_id in path("drafts.**"))][0]
+      ){
+        _id,_translationKey,title,excerpt,body,publishedAt,author,readTime,language,"slug":slug.current,
+        "mainImage":mainImage.asset->{_id,url},"category":category->{title,"slug":slug.current},
+        "translations":*[_type=="blogPost" && _translationKey==^._translationKey && defined(slug.current) && !(_id in path("drafts.**"))]{language,"slug":slug.current}
+      }`
+    : `*[_type == "blogPost" && slug.current == $slug && !(_id in path("drafts.**"))][0]{
+        _id,_translationKey,title,excerpt,body,publishedAt,author,readTime,language,"slug":slug.current,
+        "mainImage":mainImage.asset->{_id,url},"category":category->{title,"slug":slug.current},"translations":[]
+      }`
+
+  return sanityClient.fetch(query, { slug, lang, key: source._translationKey || "" })
 }
 
-// --- 3. HÀM LẤY BÀI VIẾT LIÊN QUAN ---
-async function layBaiVietLienQuan(idHienTai: string, ngonNgu: string) {
-  const cauTruyVan = `
-    *[_type == "blogPost" && language == $ngonNgu && _id != $idHienTai][0...3] {
-      _id,
-      title,
-      "slug": slug.current,
-      "mainImage": mainImage.asset->{ url },
-      publishedAt
-    }
-  `;
-  return await trinhKetNoiSanity.fetch(cauTruyVan, { idHienTai, ngonNgu });
+async function getRelated(currentId: string, lang: string) {
+  return sanityClient.fetch(`*[_type == "blogPost" && _id != $currentId && language == $lang && defined(slug.current) && !(_id in path("drafts.**"))] | order(publishedAt desc)[0...3]{_id,title,"slug":slug.current,"mainImage":mainImage.asset->{url},publishedAt}`, { currentId, lang })
 }
 
-// --- 4. TẠO THÔNG TIN MÔ TẢ SEO ĐỘNG ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const thamSoTrang = await params;
-  const baiViet = await layChiTietBaiViet(thamSoTrang.slug, thamSoTrang.lang);
+  const { lang, slug } = await params
+  const post = await getPost(slug, lang)
+  if (!post) return { title: "Bài viết không tồn tại | ZINITEK" }
 
-  if (!baiViet) return { title: "Bài viết không tồn tại | ZINITEK" };
-
-  const title = `${baiViet.title} - Blog ZINITEK`;
-  const description = baiViet.excerpt;
+  const title = `${post.title} | ZINITEK`
+  const description = post.excerpt || ""
+  const translationMap = Object.fromEntries((post.translations || []).map((item: any) => [item.language, `/${item.language}/blog/${item.slug}`]))
 
   return {
     title,
     description,
     alternates: {
-      canonical: `/${thamSoTrang.lang}/blog/${thamSoTrang.slug}`,
+      canonical: `/${lang}/blog/${post.slug || slug}`,
       languages: {
-        'vi': `/vi/blog/${thamSoTrang.slug}`,
-        'en': `/en/blog/${thamSoTrang.slug}`,
-        'cn': `/cn/blog/${thamSoTrang.slug}`,
+        ...(translationMap.vi ? { "vi-VN": translationMap.vi } : {}),
+        ...(translationMap.en ? { "en-US": translationMap.en } : {}),
+        ...(translationMap.jp ? { "ja-JP": translationMap.jp } : {}),
+        ...(translationMap.kr ? { "ko-KR": translationMap.kr } : {}),
+        ...(translationMap.cn ? { "zh-CN": translationMap.cn } : {}),
       },
     },
-    openGraph: {
-      title,
-      description,
-      url: `/${thamSoTrang.lang}/blog/${thamSoTrang.slug}`,
-      siteName: 'ZINITEK',
-      type: 'article',
-      publishedTime: baiViet.publishedAt,
-      authors: [baiViet.author || "ZINITEK Team"],
-      images: baiViet.mainImage ? [{ url: baiViet.mainImage.url }] : [],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: baiViet.mainImage ? [baiViet.mainImage.url] : [],
-    },
-  };
+    openGraph: { title, description, url: `/${lang}/blog/${post.slug || slug}`, siteName: "ZINITEK", type: "article", publishedTime: post.publishedAt, authors: [post.author || "ZINITEK Team"], images: post.mainImage?.url ? [{ url: post.mainImage.url }] : [] },
+    twitter: { card: "summary_large_image", title, description, images: post.mainImage?.url ? [post.mainImage.url] : [] },
+  }
 }
 
-// --- 5. THÀNH PHẦN TRANG CHI TIẾT ---
-export default async function BlogDetailPage({
-  params
-}: {
-  params: Promise<{ lang: string; slug: string }>
-}) {
-  const thamSoTrang = await params;
-  const { lang, slug } = thamSoTrang;
-
-  const [tuDienNgonNgu, duLieuBaiViet] = await Promise.all([
-    getDictionary(lang),
-    layChiTietBaiViet(slug, lang)
-  ]);
-
-  if (!duLieuBaiViet) {
-    notFound();
-  }
-
-  const danhSachLienQuan = await layBaiVietLienQuan(duLieuBaiViet._id, duLieuBaiViet.language);
-
-  const ngayDangBai = new Date(duLieuBaiViet.publishedAt).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  });
-
-  // Khởi tạo Schema.org (JSON-LD) cho bài viết BlogPosting
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `https://zinitek.vn/${lang}/blog/${slug}`
-    },
-    "headline": duLieuBaiViet.title,
-    "description": duLieuBaiViet.excerpt,
-    "image": duLieuBaiViet.mainImage?.url,
-    "author": {
-      "@type": "Person",
-      "name": duLieuBaiViet.author || "ZINITEK Team"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "ZINITEK",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://zinitek.vn/logo.png"
-      }
-    },
-    "datePublished": duLieuBaiViet.publishedAt,
-    "dateModified": duLieuBaiViet.publishedAt
-  };
+export default async function BlogDetailPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
+  const { lang, slug } = await params
+  const [dict, post] = await Promise.all([getDictionary(lang), getPost(slug, lang)])
+  if (!post) notFound()
+  const related = await getRelated(post._id, post.language || lang)
+  const locale = lang === "vi" ? "vi-VN" : lang === "jp" ? "ja-JP" : lang === "kr" ? "ko-KR" : lang === "cn" ? "zh-CN" : "en-US"
+  const date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" }) : ""
+  const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description: post.excerpt, image: post.mainImage?.url, author: { "@type": "Organization", name: post.author || "ZINITEK Team" }, publisher: { "@type": "Organization", name: "ZINITEK" }, datePublished: post.publishedAt, mainEntityOfPage: `https://zinitek.vn/${lang}/blog/${post.slug || slug}` }
 
   return (
-    <main className="min-h-screen bg-background text-foreground pt-32 pb-20">
-      {/* Chèn JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <div className="container mx-auto px-4 lg:px-6">
+    <main className="min-h-dvh bg-background text-foreground">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <article className="container mx-auto px-4 pb-24 pt-32 sm:px-6 lg:px-8 lg:pt-36">
+        <Link href={`/${lang}/blog`} className="inline-flex min-h-11 items-center gap-2 rounded-xl text-sm font-semibold text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <span className="flex size-10 items-center justify-center rounded-full border border-border bg-card"><ArrowLeft className="size-4" aria-hidden="true" /></span>
+          {dict.blog?.back_to_blog || "Back to Blog"}
+        </Link>
 
-        {/* Nút quay lại danh sách Blog (Breadcrumb) */}
-        <div className="mb-12">
-          <Link
-            href={`/${lang}/blog`}
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 transition-all bg-card">
-              <ArrowLeft className="w-5 h-5 text-foreground group-hover:text-[#f97316]" />
-            </div>
-            <span className="text-sm font-bold uppercase tracking-widest">
-              {tuDienNgonNgu.blog?.back_to_blog || "Quay lại Blog"}
-            </span>
-          </Link>
+        <header className="mx-auto mt-10 max-w-4xl text-center">
+          <div className="inline-flex min-h-10 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Tag className="size-4" aria-hidden="true" />{post.category?.title || "TECH"}</div>
+          <h1 className="mt-6 text-balance font-serif text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">{post.title}</h1>
+          <p className="mx-auto mt-6 max-w-[68ch] text-lg leading-8 text-muted-foreground">{post.excerpt}</p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-y border-border/60 py-5 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2"><User className="size-4 text-primary" aria-hidden="true" />{post.author || "ZINITEK Team"}</span>
+            {date && <span className="flex items-center gap-2"><Calendar className="size-4 text-primary" aria-hidden="true" />{date}</span>}
+            <span className="flex items-center gap-2"><Clock className="size-4 text-primary" aria-hidden="true" />{post.readTime || "5 min"}</span>
+          </div>
+        </header>
+
+        <div className="mx-auto mt-10 max-w-5xl overflow-hidden rounded-3xl border border-border/70 shadow-card">
+          <div className="relative aspect-[16/9]"><SanityImage imageData={post.mainImage} alt={post.title} width={1600} height={900} className="h-full w-full object-cover" priority /></div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          {/* Đầu bài viết: Tiêu đề và Thông tin Meta */}
-          <header className="mb-12 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#f97316]/10 border border-[#f97316]/20 rounded-full text-[#f97316] text-xs font-black uppercase tracking-widest mb-8">
-              <Tag className="w-3.5 h-3.5" />
-              {duLieuBaiViet.category?.title || "Kỹ thuật"}
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight mb-8 text-balance text-foreground">
-              {duLieuBaiViet.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground border-y border-border/50 py-6">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-[#f97316]" />
-                <span className="font-medium text-foreground">{duLieuBaiViet.author || "ZINITEK Team"}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#f97316]" />
-                <span>{ngayDangBai}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#f97316]" />
-                <span>{duLieuBaiViet.readTime || "5 phút"} đọc</span>
-              </div>
-            </div>
-          </header>
-
-          {/* Ảnh đại diện bài viết */}
-          <div className="relative aspect-[21/9] rounded-3xl overflow-hidden border border-border/50 mb-16 shadow-xl shadow-black/5 dark:shadow-none">
-            <SanityImage
-              imageData={duLieuBaiViet.mainImage}
-              alt={duLieuBaiViet.title}
-              width={1600}
-              height={900}
-              className="w-full h-full object-cover"
-              priority
-            />
-            {duLieuBaiViet.language !== lang && (
-              <div className="absolute top-6 right-6 bg-[#f97316] text-[#020617] text-xs font-black px-3 py-1 rounded-lg uppercase shadow-xl">
-                {duLieuBaiViet.language} Version
-              </div>
-            )}
-          </div>
-
-          {/* Nội dung chi tiết bài viết (Portable Text) */}
-          <article className="prose prose-invert prose-orange max-w-none prose-headings:font-serif prose-p:text-muted-foreground prose-p:leading-relaxed prose-img:rounded-2xl prose-a:text-[#f97316] prose-headings:text-foreground">
-            <PortableText value={duLieuBaiViet.body} />
-          </article>
-
-          {/* --- SỬA ĐỔI: CHÈN NÚT XEM TẤT CẢ BÀI VIẾT VÀO ĐÂY --- */}
-          <div className="mt-16 pt-10 border-t border-border/50">
-            <Link href={`/${lang}/blog`}>
-              <button className="inline-flex items-center gap-2 px-6 py-3 border border-[#f97316]/50 text-[#f97316] rounded-lg hover:bg-[#f97316]/10 transition-colors font-bold uppercase tracking-widest text-xs shadow-lg shadow-[#f97316]/5 group">
-                {tuDienNgonNgu.news_section?.view_all || "Xem tất cả bài viết"}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </Link>
-          </div>
-
-          {/* Chân bài viết: Chia sẻ và Liên hệ */}
-          <footer className="mt-12 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Chia sẻ:</span>
-              <button className="w-10 h-10 rounded-full bg-card border border-border/50 flex items-center justify-center hover:bg-[#f97316] hover:text-[#020617] hover:border-[#f97316] transition-all text-foreground">
-                <Share2 className="w-4 h-4" />
-              </button>
-            </div>
-            <Link href={`/${lang}/contact`}>
-              <button className="px-8 py-4 bg-[#f97316] text-[#020617] font-black rounded-xl hover:bg-[#fb923c] transition-all uppercase tracking-tighter shadow-lg shadow-[#f97316]/20">
-                Liên hệ tư vấn kỹ thuật
-              </button>
-            </Link>
-          </footer>
+        <div className="prose prose-slate mx-auto mt-14 max-w-3xl dark:prose-invert prose-headings:font-serif prose-a:text-primary prose-p:leading-8">
+          <PortableText value={Array.isArray(post.body) ? post.body : []} />
         </div>
 
-        {/* Khối bài viết liên quan */}
-        {danhSachLienQuan.length > 0 && (
-          <div className="mt-32">
-            <h3 className="text-2xl font-serif font-bold mb-12 flex items-center gap-4 text-foreground">
-              <span className="w-12 h-px bg-[#f97316]"></span>
-              Bài viết liên quan
-            </h3>
-            <div className="grid md:grid-cols-3 gap-8">
-              {danhSachLienQuan.map((baiLienQuan: any) => (
-                <Link key={baiLienQuan._id} href={`/${lang}/blog/${baiLienQuan.slug}`} className="group">
-                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-border/50 shadow-sm dark:shadow-none">
-                    <SanityImage imageData={baiLienQuan.mainImage} alt={baiLienQuan.title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  </div>
-                  <h4 className="font-bold text-lg group-hover:text-[#f97316] transition-colors line-clamp-2">{baiLienQuan.title}</h4>
+        <div className="mx-auto mt-14 flex max-w-3xl flex-col gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
+          <Link href={`/${lang}/blog`} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-primary/35 px-5 text-sm font-semibold text-primary transition-all hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict.news_section?.view_all || "View all articles"}<ArrowRight className="size-4" aria-hidden="true" /></Link>
+          <Link href={`/${lang}/contact`} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-transform lg:hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict.common?.contact_btn || "Contact us"}</Link>
+        </div>
+
+        {related.length > 0 && (
+          <section className="mt-24">
+            <h2 className="font-serif text-2xl font-bold sm:text-3xl">{dict.blog?.related_posts || "Related articles"}</h2>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {related.map((item: RawPost) => (
+                <Link key={item._id} href={`/${lang}/blog/${item.slug}`} className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft transition-all lg:hover:-translate-y-1 lg:hover:border-primary/40 lg:hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <div className="aspect-video overflow-hidden"><SanityImage imageData={item.mainImage} alt={item.title} width={600} height={400} className="h-full w-full object-cover transition-transform duration-700 lg:group-hover:scale-110" /></div>
+                  <h3 className="p-4 font-semibold leading-snug transition-colors lg:group-hover:text-primary">{item.title}</h3>
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
         )}
-      </div>
+      </article>
+      <Footer lang={lang} dict={dict} />
     </main>
-  );
+  )
 }
