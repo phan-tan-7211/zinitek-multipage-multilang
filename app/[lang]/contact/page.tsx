@@ -3,6 +3,18 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { ContactSection } from "@/components/contact-section"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
+import { createClient } from "next-sanity"
+
+const sanityClient = createClient({
+  projectId: "g4o3uumy",
+  dataset: "production",
+  apiVersion: "2024-01-01",
+  useCdn: false,
+})
+
+async function getSiteSettings() {
+  return sanityClient.fetch(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{phoneTel}`)
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
@@ -31,7 +43,24 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
+  const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const localBusiness: Record<string, any> = {
+    "@type": "LocalBusiness",
+    "@id": "https://zinitek.vn/#localbusiness",
+    name: "ZINITEK",
+    image: "https://zinitek.vn/logo.png",
+    url: "https://zinitek.vn",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Số 200, Đường 2, KP. Nội Hóa 1, Phường Bình An",
+      addressLocality: "Dĩ An",
+      addressRegion: "Bình Dương",
+      postalCode: "820000",
+      addressCountry: "VN",
+    },
+  }
+  if (siteSettings?.phoneTel) localBusiness.telephone = siteSettings.phoneTel
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -42,22 +71,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
         name: dict.contact?.title || "Liên hệ - ZINITEK",
         description: dict.contact?.description,
       },
-      {
-        "@type": "LocalBusiness",
-        "@id": "https://zinitek.vn/#localbusiness",
-        name: "ZINITEK",
-        image: "https://zinitek.vn/logo.png",
-        url: "https://zinitek.vn",
-        telephone: "+84776220031",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Số 200, Đường 2, KP. Nội Hóa 1, Phường Bình An",
-          addressLocality: "Dĩ An",
-          addressRegion: "Bình Dương",
-          postalCode: "820000",
-          addressCountry: "VN",
-        },
-      },
+      localBusiness,
     ],
   }
 
