@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { Cog, MapPin, Phone, Mail, Facebook, Youtube, Linkedin, ArrowRight } from "lucide-react"
+import { Cog, MapPin, Phone, Mail, Facebook, Youtube, Linkedin, ArrowRight, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createClient } from "next-sanity"
@@ -26,7 +26,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
   const footer = dict?.footer || {}
   const navigation = dict?.navigation || {}
   const common = dict?.common || {}
-  const { phoneDisplay, phoneTel, email } = useSiteSettings()
+  const { phoneDisplay, phoneTel, email, addressDisplay, googleMapsUrl } = useSiteSettings()
   const [services, setServices] = useState<any[]>([])
   const [legalDocs, setLegalDocs] = useState<LegalDocLink[]>([])
 
@@ -106,6 +106,8 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
     { name: footer?.cookie_policy || "Chính sách cookie", slug: "chinh-sach-cookie" },
   ]
 
+  const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
+
   return (
     <footer className="relative border-t border-border/60 bg-secondary/20">
       <div className="content-shell py-14 lg:py-16">
@@ -161,10 +163,23 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
           <div>
             <h4 className="mb-5 text-sm font-serif font-bold uppercase tracking-wider text-foreground">{navigation?.contact || "Liên hệ"}</h4>
             <div className="mb-7 space-y-3">
-              <div className="flex gap-3">
-                <MapPin className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-                <p className="text-sm leading-6 text-muted-foreground">{footer?.address_label || "KCN Mỹ Phước 3, Bến Cát, Bình Dương"}</p>
-              </div>
+              {addressDisplay && mapHref && (
+                <a
+                  href={mapHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex min-h-10 items-start gap-3 rounded-md text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={`Mở Google Maps: ${addressDisplay}`}
+                >
+                  <MapPin className="mt-0.5 size-5 shrink-0 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+                  <span className="leading-6">
+                    {addressDisplay}
+                    <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                      Map <ExternalLink className="size-3" aria-hidden="true" />
+                    </span>
+                  </span>
+                </a>
+              )}
               {phoneDisplay && phoneTel && (
                 <a href={`tel:${phoneTel}`} className="flex min-h-10 items-center gap-3 rounded-md text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Phone className="size-5 shrink-0 text-primary" aria-hidden="true" />
