@@ -1,0 +1,227 @@
+# ZINITEK Current Handoff
+
+Last updated: 2026-08-28
+
+This file is the practical handoff for the next developer or AI agent. Read this together with the root `AGENTS.md` before modifying code.
+
+## Active work
+
+- Repository: `phan-tan-7211/zinitek-multipage-multilang`
+- Active branch: `audit/ui-ux-pro-max-homepage`
+- Branch head before this handoff document was added: `16d8d5ed3b0084c26c0a5292c8401d1b940bcaa8`
+- Original audit base: `9945ca44d86b25e5a5ee3261d3850fd3086c32b8`
+- No pull request is currently part of this workflow.
+
+Local project path used by the owner:
+
+```text
+C:\Users\T\Documents\Inventor\zinitek\WEB\load ve test
+```
+
+Typical local verification:
+
+```powershell
+git pull origin audit/ui-ux-pro-max-homepage
+npm run build
+npm start
+```
+
+Do not claim the latest branch builds successfully unless you actually run the build or CI verifies it. Several recent changes were committed without a confirmed local build.
+
+## Owner's non-negotiable UI direction
+
+This website must stay visually expressive. Do not make it static or generic in the name of optimization.
+
+Keep these characteristics unless the owner explicitly asks otherwise:
+
+- particles and decorative technical motion
+- multiple intentional infinite animations
+- carousel autoplay
+- strong/exaggerated desktop hover effects
+- industrial / high-tech identity
+- strong orange accent near `#f97316`
+- rich interaction on desktop while keeping mobile touch behavior usable
+
+`prefers-reduced-motion` support is still required for accessibility, but reduced-motion safety must not be used as an excuse to remove the normal motion design.
+
+## Important current interaction behavior
+
+### Floating contact bar
+
+File: `components/floating-contact-bar.tsx`
+
+The owner explicitly preferred the visual style of the original implementation. Its visible identity must remain:
+
+- HOTLINE = orange
+- ZALO = blue
+- MAP = red
+- TOP = orange
+- each item has a large, clearly colored slide-out label
+- desktop location is on the right side in the current implementation
+- near the Footer on mobile/tablet, the bar docks horizontally at the bottom
+
+Do not replace this with subtle monochrome pills, tiny tooltips or a generic floating-action-button design.
+
+The original source can be recovered from audit base commit `9945ca44d86b25e5a5ee3261d3850fd3086c32b8` if exact visual comparison is needed.
+
+### Mobile service submenu vs contact dock
+
+`FloatingContactBar` publishes the custom event:
+
+```text
+zinitek-contact-dock
+```
+
+When the contact bar docks near the Footer on mobile, the service submenu/indicator is expected to hide so the two controls do not overlap. When scrolling back up, the service submenu returns.
+
+Do not modify either component independently without checking this coordination.
+
+### Existing swipe/drag patterns
+
+Read `docs/ux/INTERACTION_PATTERNS.md` before changing horizontal filters, Embla carousels or smart swipe navigation.
+
+## Site settings: never hard-code business contact data
+
+Sanity `siteSettings` is the source of truth for global contact/business settings.
+
+Current managed fields include:
+
+- `phoneDisplay`
+- `phoneTel`
+- `zaloNumber`
+- `email`
+- `addressDisplay`
+- `googleMapsUrl`
+- `wechatId`
+- `wechatUrl`
+- `lineUrl`
+- `facebookUrl`
+- `youtubeUrl`
+- `tiktokUrl`
+- `twitterUrl`
+- manual Google review display fields described below
+
+Before adding a phone, address, email or social URL to JSX/JSON-LD, inspect whether that value is already available from `siteSettings`.
+
+### Known remaining hard-code to fix later
+
+At the time of this handoff, `app/[lang]/page.tsx` still contains stale hard-coded contact details inside home-page JSON-LD, including address, telephone and social links. This should be migrated to dynamic Sanity settings when SEO/global-hardcode cleanup continues.
+
+Do not copy those stale values to other files.
+
+## Google reviews decision: NO Google Places API
+
+The owner explicitly decided not to use Google Places API because Google Cloud requested billing/tax information.
+
+Do not reintroduce Google Places API, `GOOGLE_PLACES_API_KEY`, automatic Google review fetching, scraping Google Maps or a paid third-party review service unless the owner explicitly changes this decision.
+
+The former route:
+
+```text
+app/api/google-reviews/route.ts
+```
+
+was intentionally deleted.
+
+Current approach:
+
+- real Google reviews are entered manually in Sanity
+- review language stays exactly as the original review; no translation is required
+- website shows the review cards directly
+- `Xem trên Google` opens `googleMapsUrl`
+- optional per-review `reviewUrl` can link to a specific Google review
+- when there are no manually entered reviews, the testimonial/review section hides instead of inventing fake reviews
+
+Sanity fields:
+
+```text
+googleRating
+googleReviewCount
+googleReviews[]
+  author
+  rating
+  content
+  meta
+  reviewUrl
+```
+
+Relevant files:
+
+- `sanity/schemaTypes/siteSettings.ts`
+- `components/testimonials-section.tsx`
+
+Never restore the previously hard-coded fake testimonials for Toyota Boshoku, Samsung Electronics or VinFast. Do not invent customer names or reviews.
+
+## Dynamic address/social work already done
+
+Global address and social settings were moved toward Sanity-managed values. Preserve this direction.
+
+The Footer should not render fake `#` social links. Only configured social URLs should be shown.
+
+The map/contact controls should use `googleMapsUrl`, with address-search fallback only where already implemented.
+
+## Multilingual rules
+
+Supported route locales are exactly:
+
+```text
+vi, en, jp, kr, cn
+```
+
+Sanity translated content fallback is intended to be:
+
+```text
+requested language -> en -> vi
+```
+
+Do not confuse the site's `jp` route code with standard language code `ja` when working with external services.
+
+Do not assume translated documents share the same slug. Preserve `_translationKey` relationships.
+
+## Layout details to treat carefully
+
+The language layout currently boxes the main desktop content using a width calculation and max width. Before changing shell overflow/width classes, inspect the current rendered page because floating elements, carousels and decorative effects can be clipped by overly aggressive `overflow-hidden`.
+
+Do not casually replace global overflow behavior across the site as a cleanup.
+
+## Mistakes already made in this audit — do not repeat
+
+1. **Generic redesign replacing a preferred original component style.** The floating contact bar was initially made too subtle. When the owner asks to preserve an original style, compare against the original source instead of interpreting it loosely.
+2. **Hard-coded dynamic information.** Phone/address/social/business data must be managed via Sanity when intended to be editable globally.
+3. **Fake social or customer data.** Do not render placeholder `#` social links, invented customers, fake testimonials or unsupported business claims.
+4. **Rewriting too much while adding one schema field.** A previous small schema change caused an unexpectedly large diff. Always fetch and preserve the full current schema before editing it; review the diff after the write.
+5. **Assuming a route or deployment works without verification.** Do not state that `/studio`, Vercel, build, or a deployment works unless confirmed in the current environment.
+6. **Breaking server/client boundaries.** A previous service-icon implementation caused a service-detail crash. Be conservative when passing non-serializable/component values between Server and Client Components.
+7. **Ignoring coordinated mobile widgets.** Contact docking and mobile service controls interact. Test them together.
+8. **Over-optimizing motion away.** Accessibility is required, but the normal experience is intentionally animated and expressive.
+9. **Google reviews via API after owner rejects billing/tax.** Current decision is manual Sanity reviews. Do not silently bring API billing back.
+
+## Verification expectations
+
+After meaningful code changes, run when possible:
+
+```bash
+npm run lint
+npm run build
+```
+
+For UI work also verify:
+
+- narrow mobile
+- tablet/mobile near Footer
+- large desktop
+- light/dark theme when affected
+- hover/focus behavior
+- no horizontal page overflow
+- carousel/swipe zones
+
+For Sanity changes, verify that every frontend field the admin needs can actually be edited from Studio and that previously existing fields were not accidentally deleted.
+
+## Recommended first action for the next session
+
+1. Read root `AGENTS.md`.
+2. Read this file.
+3. Fetch the exact current files involved in the user's next request.
+4. Compare branch state before editing.
+5. Make the smallest coherent change.
+6. Verify before declaring success.
