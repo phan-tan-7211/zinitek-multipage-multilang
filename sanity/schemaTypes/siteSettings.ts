@@ -17,60 +17,8 @@ export default {
       description: 'Chỉ nhập số và dấu +, ví dụ: +8477291501.',
       validation: (Rule: any) => Rule.required(),
     },
-    {
-      name: 'email',
-      title: 'Email liên hệ',
-      type: 'string',
-    },
-    {
-      name: 'zaloNumber',
-      title: 'Số Zalo',
-      type: 'string',
-      description: 'Ví dụ: 077291501. Dùng để tạo link zalo.me.',
-    },
-    {
-      name: 'wechatId',
-      title: 'WeChat ID',
-      type: 'string',
-      description: 'ID WeChat hiển thị cho khách hàng.',
-    },
-    {
-      name: 'wechatUrl',
-      title: 'Liên kết WeChat',
-      type: 'url',
-      description: 'Nếu có link/QR landing page WeChat, dán tại đây.',
-      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
-    },
-    {
-      name: 'lineUrl',
-      title: 'Liên kết LINE',
-      type: 'url',
-      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
-    },
-    {
-      name: 'facebookUrl',
-      title: 'Facebook URL',
-      type: 'url',
-      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
-    },
-    {
-      name: 'youtubeUrl',
-      title: 'YouTube URL',
-      type: 'url',
-      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
-    },
-    {
-      name: 'tiktokUrl',
-      title: 'TikTok URL',
-      type: 'url',
-      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
-    },
-    {
-      name: 'twitterUrl',
-      title: 'X / Twitter URL',
-      type: 'url',
-      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
-    },
+    { name: 'zaloNumber', title: 'Số Zalo', type: 'string', description: 'Ví dụ: 077291501. Dùng để tạo link zalo.me.' },
+    { name: 'email', title: 'Email liên hệ', type: 'string' },
     {
       name: 'addressDisplay',
       title: 'Địa chỉ hiển thị',
@@ -85,10 +33,23 @@ export default {
       description: 'Dán link Share từ Google Maps. Người dùng bấm địa chỉ hoặc nút MAP sẽ mở link này.',
       validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
     },
+    {
+      name: 'googlePlaceId',
+      title: 'Google Place ID',
+      type: 'string',
+      description: 'Place ID của hồ sơ doanh nghiệp trên Google Maps. Dùng để tải rating và đánh giá thật qua Google Places API.',
+    },
+    { name: 'wechatId', title: 'WeChat ID', type: 'string' },
+    { name: 'wechatUrl', title: 'WeChat URL', type: 'url', validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }) },
+    { name: 'lineUrl', title: 'LINE URL', type: 'url', validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }) },
+    { name: 'facebookUrl', title: 'Facebook URL', type: 'url', validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }) },
+    { name: 'youtubeUrl', title: 'YouTube URL', type: 'url', validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }) },
+    { name: 'tiktokUrl', title: 'TikTok URL', type: 'url', validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }) },
+    { name: 'twitterUrl', title: 'X / Twitter URL', type: 'url', validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }) },
   ],
   preview: {
     prepare() {
-      return { title: 'Cấu hình liên hệ & mạng xã hội toàn website' }
+      return { title: 'Cấu hình liên hệ toàn website' }
     },
   },
 }
