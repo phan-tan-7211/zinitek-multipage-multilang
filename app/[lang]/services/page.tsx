@@ -1,33 +1,20 @@
-
-
-
-import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
-import { ArrowRight } from "lucide-react"
+import { PageHeader } from "@/components/page-header"
+import { ServiceListContent } from "@/components/service-list-content"
 import { getDictionary } from "@/lib/get-dictionary"
 import { createClient } from "next-sanity"
-import { DynamicIcon } from "@/components/ui/dynamic-icon"
-// SỬA: Import FallbackBadge chuẩn
-import { FallbackBadge } from "@/components/fallback-badge"
-import { ServiceListContent } from "@/components/service-list-content"
 
-// --- 1. CẤU HÌNH SANITY CLIENT ---
-const trinhKetNoiSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
+const sanityClient = createClient({
+  projectId: "g4o3uumy",
+  dataset: "production",
+  apiVersion: "2024-01-01",
   useCdn: false,
 })
 
-// --- 2. HÀM LẤY DỮ LIỆU DỊCH VỤ (LOGIC GOM NHÓM THÔNG MINH) ---
-async function layDanhSachDichVu(ngonNguHienTai: string) {
-  /**
-   * TRUY VẤN: Lấy tất cả dịch vụ (không lọc ngôn ngữ ngay từ đầu)
-   * Sắp xếp theo orderRank để giữ đúng thứ tự hiển thị mong muốn
-   */
-  const cauTruyVan = `
-    *[_type == "service" && defined(slug.current)] | order(orderRank asc) {
+async function layDanhSachDichVu(lang: string) {
+  const query = `
+    *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc) {
       _id,
       _translationKey,
       title,
@@ -36,52 +23,38 @@ async function layDanhSachDichVu(ngonNguHienTai: string) {
       language,
       icon,
       orderRank,
-      tags
+      "tags": coalesce(tags, [])
     }
   `
-  const tatCaDichVu = await trinhKetNoiSanity.fetch(cauTruyVan)
 
-  // --- THUẬT TOÁN GOM NHÓM VÀ CHỌN BẢN DỊCH TỐT NHẤT ---
-  const nhomDichVu: Record<string, any[]> = {};
+  const allServices = await sanityClient.fetch(query)
+  const groups: Record<string, any[]> = {}
 
-  // A. Gom nhóm
-  tatCaDichVu.forEach((dichVu: any) => {
-    const khoaNhom = dichVu._translationKey || dichVu._id;
-    if (!nhomDichVu[khoaNhom]) {
-      nhomDichVu[khoaNhom] = [];
-    }
-    nhomDichVu[khoaNhom].push(dichVu);
-  });
+  allServices.forEach((service: any) => {
+    const key = service._translationKey || service._id
+    if (!groups[key]) groups[key] = []
+    groups[key].push(service)
+  })
 
-  // B. Chọn đại diện tốt nhất
-  const danhSachDichVuSauCung = Object.values(nhomDichVu).map((nhom: any[]) => {
-    // Ưu tiên 1: Đúng ngôn ngữ
-    const banDichDung = nhom.find((p) => p.language === ngonNguHienTai);
-    if (banDichDung) return banDichDung;
-
-    // Ưu tiên 2: Tiếng Anh
-    const banDichAnh = nhom.find((p) => p.language === 'en');
-    if (banDichAnh) return banDichAnh;
-
-    // Ưu tiên 3: Tiếng Việt
-    const banDichViet = nhom.find((p) => p.language === 'vi');
-    if (banDichViet) return banDichViet;
-
-    return nhom[0];
-  });
-
-  // C. Sắp xếp lại theo orderRank (nếu có) để menu không bị lộn xộn
-  danhSachDichVuSauCung.sort((a, b) => (a.orderRank || 0) - (b.orderRank || 0));
-
-  return danhSachDichVuSauCung;
+  return Object.values(groups)
+    .map(
+      (group) =>
+        group.find((item) => item.language === lang) ||
+        group.find((item) => item.language === "en") ||
+        group.find((item) => item.language === "vi") ||
+        group[0]
+    )
+    .filter(Boolean)
+    .sort((a, b) => (a.orderRank || 0) - (b.orderRank || 0))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const dict = await getDictionary(lang)
-
   const title = dict.services?.meta_title || "Dịch vụ - ZINITEK"
-  const description = dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK."
+  const description =
+    dict.services?.meta_desc ||
+    "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK."
 
   return {
     title,
@@ -89,101 +62,78 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     alternates: {
       canonical: `/${lang}/services`,
       languages: {
-        'vi': '/vi/services',
-        'en': '/en/services',
-        'cn': '/cn/services',
+        "vi-VN": "/vi/services",
+        "en-US": "/en/services",
+        "ja-JP": "/jp/services",
+        "ko-KR": "/kr/services",
+        "zh-CN": "/cn/services",
       },
     },
     openGraph: {
       title,
       description,
       url: `/${lang}/services`,
-      siteName: 'ZINITEK',
+      siteName: "ZINITEK",
     },
     twitter: {
-      card: 'summary',
+      card: "summary",
       title,
       description,
     },
   }
 }
 
-// --- 3. COMPONENT CHÍNH ---
-export default async function ServicesHubPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+export default async function ServicesHubPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
+  const [dict, services] = await Promise.all([getDictionary(lang), layDanhSachDichVu(lang)])
 
-  // Lấy dữ liệu song song
-  const [dict, danhSachDichVu] = await Promise.all([
-    getDictionary(lang),
-    layDanhSachDichVu(lang)
-  ])
+  const titleMain = dict.services?.title_main || "Dịch vụ"
+  const titleHighlight = dict.services?.title_highlight || "Kỹ thuật"
+  const pageTitle = `${titleMain} ${titleHighlight}`
+  const description =
+    dict.services?.hub_description ||
+    "Giải pháp toàn diện từ gia công cơ khí đến tự động hóa nhà máy với kỹ thuật Nhật Bản và chi phí tối ưu."
 
-  // Khởi tạo Schema.org (JSON-LD) kiểu ItemList động cho danh sách dịch vụ
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": dict.services?.meta_title || "Dịch vụ ZINITEK",
-    "description": dict.services?.meta_desc,
-    "itemListElement": danhSachDichVu.map((dv, index) => ({
+    name: dict.services?.meta_title || "Dịch vụ ZINITEK",
+    description: dict.services?.meta_desc || description,
+    itemListElement: services.map((service: any, index: number) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "url": `https://zinitek.vn/${lang}/services/${dv.slug}`,
-      "name": dv.title,
-      "description": dv.description
-    }))
-  };
+      position: index + 1,
+      url: `https://zinitek.vn/${lang}/services/${service.slug}`,
+      name: service.title,
+      description: service.description,
+    })),
+  }
 
   return (
-    <main className="min-h-screen bg-background text-foreground relative">
-      {/* Chèn JSON-LD ItemList cho bot SEO */}
+    <div className="relative min-h-dvh overflow-x-clip bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* Nền Blueprint */}
-      <div className="absolute inset-0 z-0 opacity-20 dark:opacity-50 pointer-events-none">
+
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-20 dark:opacity-35" aria-hidden="true">
         <BlueprintBackground />
       </div>
 
-      {/* Lới kỹ thuật mờ (giống các trang khác) */}
-      <div
-        className="absolute inset-0 opacity-0 dark:opacity-[0.02] pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(#f97316 1px, transparent 1px),
-            linear-gradient(90deg, #f97316 1px, transparent 1px)
-          `,
-          backgroundSize: '100px 100px'
-        }}
-      />
-
-      {/* Hero Section - Tối ưu spacing mobile (pt-28 thay vì pt-40) */}
-      <section className="pt-28 md:pt-40 pb-16 relative z-10">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-foreground mb-6 uppercase">
-            {dict.services?.title_main || "Dịch vụ"}{" "}
-            <span className="text-[#f97316] italic">{dict.services?.title_highlight || "Kỹ thuật"}</span>
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {dict.services?.hub_description || "Giải pháp toàn diện từ gia công cơ khí đến tự động hóa nhà máy với kỹ thuật Nhật Bản và chi phí tối ưu."}
-          </p>
-        </div>
-      </section>
-
-      {/* Grid danh sách dịch vụ (Client Component xử lý Filter) */}
-      <section className="pb-24 relative z-10">
-        <ServiceListContent
-          danhSachDichVu={danhSachDichVu}
+      <div className="relative z-10">
+        <PageHeader
+          title={pageTitle}
+          subtitle={dict.services?.badge || dict.navigation?.services || "Dịch vụ kỹ thuật"}
+          description={description}
           lang={lang}
           dict={dict}
         />
-      </section>
 
-      <Footer lang={lang} dict={dict} />
-    </main>
+        <section className="section-space" aria-label={dict.navigation?.services || "Dịch vụ"}>
+          <ServiceListContent danhSachDichVu={services} lang={lang} dict={dict} />
+        </section>
+
+        <Footer lang={lang} dict={dict} />
+      </div>
+    </div>
   )
 }
