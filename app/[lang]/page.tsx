@@ -45,12 +45,12 @@ function selectLocalizedItems<T extends LocalizedContent>(
 ): T[] {
   const grouped = new Map<string, T[]>()
 
-  for (const item of items) {
-    const key = item._translationKey || item.slug || crypto.randomUUID()
+  items.forEach((item, index) => {
+    const key = item._translationKey || item.slug || `item-${index}`
     const group = grouped.get(key) || []
     group.push(item)
     grouped.set(key, group)
-  }
+  })
 
   return Array.from(grouped.values())
     .map(
