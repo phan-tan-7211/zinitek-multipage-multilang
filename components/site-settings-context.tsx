@@ -5,8 +5,15 @@ import React, { createContext, useContext } from "react"
 export interface SiteSettings {
   phoneDisplay?: string
   phoneTel?: string
-  zaloNumber?: string
   email?: string
+  zaloNumber?: string
+  wechatId?: string
+  wechatUrl?: string
+  lineUrl?: string
+  facebookUrl?: string
+  youtubeUrl?: string
+  tiktokUrl?: string
+  twitterUrl?: string
   addressDisplay?: string
   googleMapsUrl?: string
 }
