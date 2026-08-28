@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { useSiteSettings } from "@/components/site-settings-context"
 
 export function ContactSection({ dict }: { dict: any; lang?: string }) {
   const t = dict?.contact_section || {}
+  const { phoneDisplay, phoneTel, email } = useSiteSettings()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-80px" })
   const reduceMotion = useReducedMotion()
@@ -86,10 +88,20 @@ export function ContactSection({ dict }: { dict: any; lang?: string }) {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <a href={`tel:${dict?.common?.phone_label || "+84776220031"}`} className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Phone className="size-4" aria-hidden="true" />{dict?.common?.phone_label || "+84 77 622 0031"}</a>
-              <a href={`mailto:${dict?.common?.email_label || "phantan7211@gmail.com"}`} className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Mail className="size-4" aria-hidden="true" />{dict?.common?.email_label || "phantan7211@gmail.com"}</a>
-            </div>
+            {(phoneDisplay || email) && (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                {phoneDisplay && phoneTel && (
+                  <a href={`tel:${phoneTel}`} className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <Phone className="size-4" aria-hidden="true" />{phoneDisplay}
+                  </a>
+                )}
+                {email && (
+                  <a href={`mailto:${email}`} className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <Mail className="size-4" aria-hidden="true" />{email}
+                  </a>
+                )}
+              </div>
+            )}
           </motion.aside>
 
           <motion.div {...reveal(36, 0.15)} className="lg:col-span-3">
