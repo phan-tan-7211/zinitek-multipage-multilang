@@ -1,51 +1,61 @@
 "use client"
 
 import { useEffect, useState } from "react"
-// 1. Thay đổi import: thêm LazyMotion, domMax và m
-import { LazyMotion, domMax, m } from "framer-motion"
+import { LazyMotion, domMax, m, useReducedMotion } from "framer-motion"
 import { ArrowRight, Play, ChevronDown, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-function AnimatedCounter({ value, suffix = "", prefix = "" }: { value: number; suffix?: string; prefix?: string }) {
+function AnimatedCounter({
+  value,
+  suffix = "",
+  prefix = "",
+}: {
+  value: number
+  suffix?: string
+  prefix?: string
+}) {
   const [count, setCount] = useState(0)
-  const [mounted, setMounted] = useState(false)
+  const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
-    setMounted(true)
-    const timeout = setTimeout(() => {
-      let start = 0
-      const end = value
-      const duration = 2000
-      const frameRate = 1000 / 60
-      const totalFrames = Math.round(duration / frameRate)
-      const increment = end / totalFrames
+    if (shouldReduceMotion) {
+      setCount(value)
+      return
+    }
 
-      const timer = setInterval(() => {
-        start += increment
-        if (start >= end) {
-          setCount(end)
-          clearInterval(timer)
-        } else {
-          setCount(start)
-        }
-      }, frameRate)
-      return () => clearInterval(timer)
-    }, 500)
-    return () => clearTimeout(timeout)
-  }, [value])
+    let frame = 0
+    const duration = 1200
+    const startTime = performance.now()
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(value * eased)
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(animate)
+      }
+    }
+
+    frame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frame)
+  }, [shouldReduceMotion, value])
 
   const displayValue = value < 1 ? count.toFixed(3) : Math.floor(count)
 
   return (
-    <span className={`text-4xl md:text-5xl font-serif font-bold text-foreground transition-all duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-      {prefix}{mounted ? displayValue : value}{suffix}
+    <span className="font-serif text-3xl font-bold tabular-nums text-foreground sm:text-4xl lg:text-5xl">
+      {prefix}
+      {displayValue}
+      {suffix}
     </span>
   )
 }
 
-export function HeroSection({ dict }: { dict: any }) {
-  const data = dict?.hero || dict;
+export function HeroSection({ dict, lang }: { dict: any; lang: string }) {
+  const data = dict?.hero || dict
+  const shouldReduceMotion = useReducedMotion()
 
   const stats = [
     { value: 500, suffix: "+", label: data?.stats?.projects || "Dự án hoàn thành" },
@@ -54,123 +64,135 @@ export function HeroSection({ dict }: { dict: any }) {
     { value: 50, suffix: "+", label: data?.stats?.experts || "Kỹ sư chuyên gia" },
   ]
 
+  const reveal = shouldReduceMotion
+    ? { initial: false as const, animate: undefined }
+    : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }
+
   return (
-    // 2. Bọc toàn bộ section trong LazyMotion với features={domMax}
     <LazyMotion features={domMax}>
-      <section id="hero" className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden bg-background">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-50 dark:opacity-100" />
-          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[#f97316]/10 blur-[150px] rounded-full" />
-          <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-[#f97316]/5 blur-[100px] rounded-full" />
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `linear-gradient(#f97316 1px, transparent 1px), linear-gradient(90deg, #f97316 1px, transparent 1px)`, backgroundSize: '100px 100px' }} />
+      <section
+        id="hero"
+        aria-labelledby="hero-title"
+        className="relative flex min-h-dvh items-center overflow-hidden bg-background py-20 sm:py-24 lg:py-28"
+      >
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-card/70 to-background" />
+          <div className="absolute right-[-10%] top-[8%] size-[28rem] rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute bottom-[5%] left-[-8%] size-[22rem] rounded-full bg-primary/5 blur-3xl" />
         </div>
 
-        <div className="container mx-auto px-4 lg:px-6 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-
-            {/* 3. Đổi motion.div -> m.div */}
+        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl text-center">
             <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f97316]/10 border border-[#f97316]/30 text-[#f97316] text-sm font-medium mb-8"
+              {...reveal}
+              transition={{ duration: 0.35 }}
+              className="mb-7 inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary"
             >
-              <CheckCircle2 className="w-4 h-4" />
-              {data?.badge || "Vận hành theo tiêu chuẩn Nhật Bản"}
+              <CheckCircle2 className="size-4" aria-hidden="true" />
+              <span>{data?.badge || "Vận hành theo tiêu chuẩn Nhật Bản"}</span>
             </m.div>
 
-            <div className="mb-8">
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[0.95] text-balance uppercase text-foreground">
-                {/* Đổi motion.span -> m.span */}
-                <m.span
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="block"
-                >
-                  {data?.title_line1 || "Kỹ thuật tin cậy"}
-                </m.span>
-
-                <m.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="block mt-2 italic font-light text-[#f97316] normal-case"
-                >
-                  {data?.title_highlight || "Hiệu quả"}
-                </m.span>
-
-                <m.span
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  className="block mt-2"
-                >
-                  {data?.title_line2 || "Vượt mong đợi"}
-                </m.span>
-              </h1>
-            </div>
+            <h1
+              id="hero-title"
+              className="text-balance font-serif text-4xl font-bold uppercase leading-[1.02] tracking-[-0.03em] text-foreground sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
+            >
+              <m.span {...reveal} transition={{ duration: 0.4 }} className="block">
+                {data?.title_line1 || "Kỹ thuật tin cậy"}
+              </m.span>
+              <m.span
+                initial={shouldReduceMotion ? false : { opacity: 0 }}
+                animate={shouldReduceMotion ? undefined : { opacity: 1 }}
+                transition={{ duration: 0.35, delay: 0.12 }}
+                className="mt-2 block normal-case text-primary"
+              >
+                {data?.title_highlight || "Hiệu quả"}
+              </m.span>
+              <m.span
+                {...reveal}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className="mt-2 block"
+              >
+                {data?.title_line2 || "Vượt mong đợi"}
+              </m.span>
+            </h1>
 
             <m.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed text-pretty"
-              dangerouslySetInnerHTML={{ __html: data?.description || "ZINITEK chuyên gia công CNC và thiết kế khuôn mẫu." }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+              animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.18 }}
+              className="mx-auto mt-7 max-w-[68ch] text-pretty text-base leading-7 text-muted-foreground sm:text-lg lg:text-xl lg:leading-8"
+              dangerouslySetInnerHTML={{
+                __html: data?.description || "ZINITEK chuyên gia công CNC và thiết kế khuôn mẫu.",
+              }}
             />
 
             <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+              animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.26 }}
+              className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center"
             >
-              <Button size="lg" asChild className="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold px-8 py-6 text-lg shadow-2xl transition-all duration-500 hover:scale-105 group border-none">
-                <Link href="/services">
+              <Button
+                size="lg"
+                asChild
+                className="group min-h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-soft transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <Link href={`/${lang}/services`}>
                   {data?.cta_primary || "Khám phá dịch vụ"}
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight
+                    className="ml-2 size-5 transition-transform group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="border-border text-foreground hover:bg-[#f97316]/10 px-8 py-6 text-lg transition-all duration-300 bg-transparent">
-                <Link href="/portfolio">
-                  <Play className="mr-2 w-5 h-5 text-[#f97316]" />
+
+              <Button
+                variant="outline"
+                size="lg"
+                asChild
+                className="min-h-12 rounded-full border-border bg-background/70 px-7 text-base font-semibold text-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <Link href={`/${lang}/portfolio`}>
+                  <Play className="mr-2 size-5 text-primary" aria-hidden="true" />
                   {data?.cta_secondary || "Dự án tiêu biểu"}
                 </Link>
               </Button>
             </m.div>
 
-            <m.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 pt-12 border-t border-slate-800"
+            <m.dl
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+              animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.34 }}
+              className="mt-14 grid grid-cols-2 gap-x-4 gap-y-8 border-t border-border/80 pt-9 md:grid-cols-4 md:gap-6 lg:mt-16 lg:pt-10"
             >
-              {stats.map((stat, idx) => (
-                <div key={idx} className="text-center group cursor-default">
-                  <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                  <div className="text-xs sm:text-sm text-muted-foreground mt-2 uppercase tracking-wider font-medium">
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <dd>
+                    <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                  </dd>
+                  <dt className="mx-auto mt-2 max-w-36 text-xs font-medium uppercase leading-5 tracking-[0.12em] text-muted-foreground sm:text-sm">
                     {stat.label}
-                  </div>
+                  </dt>
                 </div>
               ))}
-            </m.div>
+            </m.dl>
           </div>
 
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.2 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground"
+          <div
+            className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1 text-muted-foreground lg:flex"
+            aria-hidden="true"
           >
-            <span className="text-xs uppercase tracking-widest">{data?.scroll_text || "Cuộn xuống"}</span>
-            {/* Đổi motion.div con ở đây nữa */}
-            <m.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-              <ChevronDown className="w-5 h-5 text-[#f97316]" />
+            <span className="text-xs uppercase tracking-[0.18em]">
+              {data?.scroll_text || "Cuộn xuống"}
+            </span>
+            <m.div
+              animate={shouldReduceMotion ? undefined : { y: [0, 5, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ChevronDown className="size-5 text-primary" />
             </m.div>
-          </m.div>
+          </div>
         </div>
-
-        <div className="absolute top-32 left-8 w-32 h-32 border-l-2 border-t-2 border-border/50 hidden lg:block" />
-        <div className="absolute bottom-32 right-8 w-32 h-32 border-r-2 border-b-2 border-border/50 hidden lg:block" />
       </section>
     </LazyMotion>
   )
