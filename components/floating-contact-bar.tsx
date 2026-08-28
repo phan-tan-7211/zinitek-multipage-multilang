@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Phone, MapPin, ArrowUp } from "lucide-react"
+import { ArrowUp, MapPin, Phone } from "lucide-react"
 import { useSiteSettings } from "@/components/site-settings-context"
 
 const baseItem = "group relative flex size-14 flex-col items-center justify-center gap-1 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:size-16"
@@ -76,6 +76,10 @@ export function FloatingContactBar() {
     ? "border-l border-border/60 xl:border-l-0 xl:border-t"
     : "border-t border-border/60"
 
+  const tooltipClass = nearFooter
+    ? "pointer-events-none absolute bottom-full left-1/2 z-[70] mb-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-xl border border-border/70 bg-background/95 px-3 py-2 text-[11px] font-semibold text-foreground opacity-0 shadow-card backdrop-blur-xl transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+    : "pointer-events-none absolute right-full top-1/2 z-[70] mr-2 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-xl border border-border/70 bg-background/95 px-3 py-2 text-[11px] font-semibold text-foreground opacity-0 shadow-card backdrop-blur-xl transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+
   const zaloHref = zaloNumber ? `https://zalo.me/${zaloNumber.replace(/\D/g, "")}` : undefined
   const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
 
@@ -87,10 +91,10 @@ export function FloatingContactBar() {
           aria-label={`Hotline ${phoneDisplay}`}
           className={`${baseItem} ${nearFooter ? "rounded-tl-2xl xl:rounded-bl-none" : "rounded-tl-2xl"} hover:bg-primary/10`}
         >
-          <Phone className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+          <Phone className="size-5 text-primary transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />
           <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Hotline</span>
-          <span className="pointer-events-none absolute right-full top-1/2 mr-2 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground opacity-0 shadow-soft transition-all group-hover:opacity-100 group-focus-visible:opacity-100 xl:block">
-            {phoneDisplay}
+          <span className={tooltipClass}>
+            <span className="mr-1.5 text-primary">●</span>{phoneDisplay}
           </span>
         </a>
       )}
@@ -103,8 +107,11 @@ export function FloatingContactBar() {
           aria-label="Chat Zalo"
           className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
         >
-          <span className="flex size-6 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black text-white transition-transform group-hover:scale-110">Z</span>
+          <span className="flex size-6 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black text-white shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_14px_rgba(0,104,255,0.45)]">Z</span>
           <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Zalo</span>
+          <span className={tooltipClass}>
+            <span className="mr-1.5 text-[#0068ff]">●</span>Chat Zalo
+          </span>
         </a>
       )}
 
@@ -116,8 +123,11 @@ export function FloatingContactBar() {
           aria-label={addressDisplay ? `Open Google Maps: ${addressDisplay}` : "Open Google Maps"}
           className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
         >
-          <MapPin className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+          <MapPin className="size-5 text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />
           <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Map</span>
+          <span className={tooltipClass}>
+            <span className="mr-1.5 text-primary">●</span>Chỉ đường Google Maps
+          </span>
         </a>
       )}
 
@@ -128,8 +138,11 @@ export function FloatingContactBar() {
           aria-label="Back to top"
           className={`${baseItem} ${separatorClass} ${nearFooter ? "rounded-tr-2xl xl:rounded-tr-none xl:rounded-bl-2xl" : "rounded-bl-2xl"} hover:bg-primary/10`}
         >
-          <ArrowUp className="size-5 text-primary transition-transform group-hover:-translate-y-0.5" aria-hidden="true" />
+          <ArrowUp className="size-5 text-primary transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />
           <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Top</span>
+          <span className={tooltipClass}>
+            <span className="mr-1.5 text-primary">↑</span>Lên đầu trang
+          </span>
         </button>
       )}
     </aside>
