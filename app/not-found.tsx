@@ -1,5 +1,6 @@
 "use client"
 
+// 404 experience: expressive motion is intentional; reduced-motion is respected below.
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
