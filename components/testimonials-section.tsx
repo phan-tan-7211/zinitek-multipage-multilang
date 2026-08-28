@@ -1,36 +1,24 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ExternalLink, Star } from "lucide-react"
 import { motion, useInView, useReducedMotion } from "framer-motion"
+import { createClient } from "next-sanity"
 
-interface GoogleLocalizedText {
-  text?: string
-  languageCode?: string
+interface SanityReview {
+  _key?: string
+  author?: string
+  rating?: number
+  content?: string
+  meta?: string
+  reviewUrl?: string
 }
 
-interface GoogleReview {
-  name?: string
-  rating?: number
-  text?: GoogleLocalizedText
-  originalText?: GoogleLocalizedText
-  relativePublishTimeDescription?: string
-  publishTime?: string
-  googleMapsUri?: string
-  author?: {
-    displayName?: string
-    uri?: string
-    photoUri?: string
-  } | null
-}
-
-interface GoogleReviewsPayload {
-  configured?: boolean
-  displayName?: GoogleLocalizedText
-  rating?: number
-  userRatingCount?: number
-  googleMapsUri?: string
-  reviews?: GoogleReview[]
+interface ReviewSettings {
+  googleRating?: number
+  googleReviewCount?: number
+  googleMapsUrl?: string
+  googleReviews?: SanityReview[]
 }
 
 interface TestimonialsSectionProps {
@@ -38,42 +26,19 @@ interface TestimonialsSectionProps {
   lang?: string
 }
 
+const sanityClient = createClient({
+  projectId: "g4o3uumy",
+  dataset: "production",
+  apiVersion: "2024-01-01",
+  useCdn: true,
+})
+
 const uiText: Record<string, Record<string, string>> = {
-  vi: {
-    reviews: "đánh giá trên Google",
-    viewGoogle: "Xem trên Google",
-    translated: "Được Google dịch",
-    original: "Ngôn ngữ gốc",
-    ordering: "Đánh giá do Google sắp xếp theo mức độ liên quan.",
-  },
-  en: {
-    reviews: "reviews on Google",
-    viewGoogle: "View on Google",
-    translated: "Translated by Google",
-    original: "Original language",
-    ordering: "Reviews are ordered by Google by relevance.",
-  },
-  jp: {
-    reviews: "Google のクチコミ",
-    viewGoogle: "Googleで見る",
-    translated: "Google による翻訳",
-    original: "原文",
-    ordering: "クチコミは Google の関連性順で表示されます。",
-  },
-  kr: {
-    reviews: "Google 리뷰",
-    viewGoogle: "Google에서 보기",
-    translated: "Google 번역",
-    original: "원문 언어",
-    ordering: "리뷰는 Google의 관련성 기준으로 정렬됩니다.",
-  },
-  cn: {
-    reviews: "Google 评价",
-    viewGoogle: "在 Google 上查看",
-    translated: "由 Google 翻译",
-    original: "原文语言",
-    ordering: "评价由 Google 按相关性排序。",
-  },
+  vi: { reviews: "đánh giá trên Google", viewGoogle: "Xem trên Google" },
+  en: { reviews: "reviews on Google", viewGoogle: "View on Google" },
+  jp: { reviews: "Google のクチコミ", viewGoogle: "Googleで見る" },
+  kr: { reviews: "Google 리뷰", viewGoogle: "Google에서 보기" },
+  cn: { reviews: "Google 评价", viewGoogle: "在 Google 上查看" },
 }
 
 function Stars({ rating = 0 }: { rating?: number }) {
@@ -90,15 +55,10 @@ function Stars({ rating = 0 }: { rating?: number }) {
   )
 }
 
-function ReviewCard({ review, index, translatedLabel, originalLabel }: { review: GoogleReview; index: number; translatedLabel: string; originalLabel: string }) {
+function ReviewCard({ review, index }: { review: SanityReview; index: number }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: "-40px" })
   const reduceMotion = useReducedMotion()
-  const translated = Boolean(
-    review.text?.languageCode &&
-      review.originalText?.languageCode &&
-      review.text.languageCode !== review.originalText.languageCode,
-  )
 
   return (
     <motion.article
@@ -109,56 +69,27 @@ function ReviewCard({ review, index, translatedLabel, originalLabel }: { review:
       className="group flex h-full flex-col rounded-[var(--radius-card)] border border-border/70 bg-card/85 p-5 shadow-soft backdrop-blur-sm transition-all lg:hover:-translate-y-1.5 lg:hover:border-primary/30 lg:hover:shadow-card sm:p-6"
     >
       <div className="mb-4 flex items-center justify-between gap-3">
-        <Stars rating={review.rating} />
+        <Stars rating={review.rating || 5} />
         <span className="inline-flex items-center rounded-full border border-border/60 bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
           Google
         </span>
       </div>
 
-      <p className="flex-1 text-[15px] leading-7 text-foreground">
-        “{review.text?.text || review.originalText?.text || ""}”
-      </p>
-
-      {translated && (
-        <p className="mt-3 text-[11px] font-medium text-muted-foreground">
-          {translatedLabel}
-          {review.originalText?.languageCode ? ` · ${originalLabel}: ${review.originalText.languageCode}` : ""}
-        </p>
-      )}
+      <p className="flex-1 text-[15px] leading-7 text-foreground">“{review.content || ""}”</p>
 
       <div className="mt-5 flex items-center gap-3 border-t border-border/60 pt-4">
-        {review.author?.photoUri ? (
-          <img
-            src={review.author.photoUri}
-            alt=""
-            className="size-10 rounded-full border border-border object-cover"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
-            {(review.author?.displayName || "G").charAt(0)}
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          {review.author?.uri ? (
-            <a
-              href={review.author.uri}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block truncate font-semibold text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {review.author.displayName || "Google user"}
-            </a>
-          ) : (
-            <div className="truncate font-semibold text-foreground">{review.author?.displayName || "Google user"}</div>
-          )}
-          <div className="text-xs text-muted-foreground">{review.relativePublishTimeDescription || "Google Maps"}</div>
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+          {(review.author || "G").charAt(0)}
         </div>
-        {review.googleMapsUri && (
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-semibold text-foreground">{review.author || "Google user"}</div>
+          <div className="text-xs text-muted-foreground">{review.meta || "Google review"}</div>
+        </div>
+        {review.reviewUrl && (
           <a
-            href={review.googleMapsUri}
+            href={review.reviewUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
             aria-label="Open review on Google Maps"
             className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/70 text-muted-foreground transition-all hover:border-primary/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -174,34 +105,30 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const reduceMotion = useReducedMotion()
-  const [data, setData] = useState<GoogleReviewsPayload | null>(null)
+  const [settings, setSettings] = useState<ReviewSettings | null>(null)
 
   const labels = uiText[lang] || uiText.vi
   const t = dict?.testimonials || {}
 
   useEffect(() => {
-    const controller = new AbortController()
-
-    fetch(`/api/google-reviews?lang=${encodeURIComponent(lang)}`, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Google reviews ${response.status}`)
-        return response.json()
+    let active = true
+    sanityClient
+      .fetch<ReviewSettings>(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`)
+      .then((data) => {
+        if (active) setSettings(data || {})
       })
-      .then((payload) => setData(payload))
       .catch((error) => {
-        if (error?.name !== "AbortError") console.error("Google reviews:", error)
-        setData({ configured: false, reviews: [] })
+        console.error("Sanity reviews:", error)
+        if (active) setSettings({})
       })
+    return () => {
+      active = false
+    }
+  }, [])
 
-    return () => controller.abort()
-  }, [lang])
+  const reviews = (settings?.googleReviews || []).filter((review) => review.content && review.author)
 
-  const reviews = useMemo(
-    () => (data?.reviews || []).filter((review) => review.text?.text || review.originalText?.text).slice(0, 5),
-    [data],
-  )
-
-  if (data && (!data.configured || reviews.length === 0)) return null
+  if (settings && reviews.length === 0) return null
 
   return (
     <section className="relative overflow-hidden border-y border-border/60 bg-secondary/20 py-20 sm:py-24 lg:py-28">
@@ -227,16 +154,20 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
             {t.description || "Những đánh giá thực tế từ khách hàng và đối tác trên Google."}
           </p>
 
-          {data && (
+          {settings && (settings.googleRating || settings.googleReviewCount || settings.googleMapsUrl) && (
             <div className="mx-auto mt-6 inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-full border border-border/70 bg-background/90 px-4 py-2.5 shadow-soft">
-              <Stars rating={data.rating || 0} />
-              <strong className="text-lg text-foreground">{Number(data.rating || 0).toFixed(1)}</strong>
-              <span className="text-sm text-muted-foreground">· {data.userRatingCount || 0} {labels.reviews}</span>
-              {data.googleMapsUri && (
+              <Stars rating={settings.googleRating || 0} />
+              {typeof settings.googleRating === "number" && (
+                <strong className="text-lg text-foreground">{settings.googleRating.toFixed(1)}</strong>
+              )}
+              {typeof settings.googleReviewCount === "number" && (
+                <span className="text-sm text-muted-foreground">· {settings.googleReviewCount} {labels.reviews}</span>
+              )}
+              {settings.googleMapsUrl && (
                 <a
-                  href={data.googleMapsUri}
+                  href={settings.googleMapsUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer nofollow"
                   className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {labels.viewGoogle}<ExternalLink className="size-3.5" aria-hidden="true" />
@@ -246,26 +177,16 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
           )}
         </motion.div>
 
-        {!data ? (
+        {!settings ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((item) => <div key={item} className="h-64 animate-pulse rounded-[var(--radius-card)] border border-border/60 bg-card/60" />)}
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {reviews.map((review, index) => (
-              <ReviewCard
-                key={review.name || `${review.author?.displayName}-${index}`}
-                review={review}
-                index={index}
-                translatedLabel={labels.translated}
-                originalLabel={labels.original}
-              />
+              <ReviewCard key={review._key || `${review.author}-${index}`} review={review} index={index} />
             ))}
           </div>
-        )}
-
-        {data && reviews.length > 0 && (
-          <p className="mt-6 text-center text-xs text-muted-foreground">{labels.ordering}</p>
         )}
       </div>
     </section>
