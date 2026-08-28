@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -10,8 +9,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
-// Import Dynamic Icon
-// Import Dynamic Icon
 import { DynamicIcon } from "./ui/dynamic-icon"
 import { ThemeToggle } from "./theme-toggle"
 
@@ -35,7 +32,6 @@ interface DesktopNavigationProps {
   handleLangChange: (lang: string) => void
   handlePrefetchLang: (lang: string) => void
   menuItems: Array<{ name: string; href: string; hasMega?: boolean }>
-  // Cập nhật kiểu dữ liệu để nhận thêm trường 'language'
   serviceItems: Array<{ icon: any; slug: string; title?: string; desc?: string; language?: string }>
   currentLang: { code: string; name: string; flag: string }
 }
@@ -71,8 +67,7 @@ export function DesktopNavigation({
   }
 
   return (
-    <>
-      {/* --- PHẦN 1: TOP BAR DESKTOP (Đã gom nhóm 3 phần tử theo yêu cầu) --- */}
+    <div className="relative z-[10010] overflow-visible">
       <div className="hidden lg:block border-b border-border/50 bg-background/50">
         <div className="container mx-auto px-6 py-2 flex justify-between items-center text-sm">
           <div className="flex items-center gap-6 text-muted-foreground">
@@ -86,31 +81,31 @@ export function DesktopNavigation({
             </a>
           </div>
 
-          {/* Cụm chức năng (Slogan | Swipe Desktop | Theme Toggle) */}
           <div className="flex items-center gap-4">
             <p className="text-muted-foreground italic pr-4 border-r border-border/50">
               <span className="text-[#f97316]">{">"}</span> {dict.common.slogan_top}
             </p>
 
             <div className="flex items-center gap-4">
-              {/* Nút Swipe Desktop */}
               <div className="flex items-center gap-3">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold hover:text-foreground transition-colors cursor-pointer" onClick={() => {
-                  const newValue = !isSwipeEnabled;
-                  setIsSwipeEnabled(newValue);
-                  localStorage.setItem("desktop-swipe", String(newValue));
-                  window.dispatchEvent(new Event("storage"));
-                  router.refresh();
+                  const newValue = !isSwipeEnabled
+                  setIsSwipeEnabled(newValue)
+                  localStorage.setItem("desktop-swipe", String(newValue))
+                  window.dispatchEvent(new Event("storage"))
+                  router.refresh()
                 }}>
                   {dict.common.swipe_desktop || "Swipe Desktop"}
                 </span>
                 <button
+                  type="button"
+                  aria-pressed={mounted && isSwipeEnabled}
                   onClick={() => {
-                    const newValue = !isSwipeEnabled;
-                    setIsSwipeEnabled(newValue);
-                    localStorage.setItem("desktop-swipe", String(newValue));
-                    window.dispatchEvent(new Event("storage"));
-                    router.refresh();
+                    const newValue = !isSwipeEnabled
+                    setIsSwipeEnabled(newValue)
+                    localStorage.setItem("desktop-swipe", String(newValue))
+                    window.dispatchEvent(new Event("storage"))
+                    router.refresh()
                   }}
                   className={cn(
                     "relative w-9 h-5 rounded-full transition-all duration-300 shadow-inner",
@@ -124,20 +119,15 @@ export function DesktopNavigation({
                 </button>
               </div>
 
-              {/* Đường viền phân cách với Theme Toggle */}
-              <div className="w-px h-4 bg-border/50"></div>
-
-              {/* Theme Toggle */}
+              <div className="w-px h-4 bg-border/50" />
               <ThemeToggle />
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- PHẦN 2: CHÍNH NAVIGATION --- */}
-      <nav className="hidden lg:block container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo Section */}
+      <nav className="hidden lg:block container mx-auto px-6 py-4 overflow-visible relative z-[10020]">
+        <div className="flex items-center justify-between overflow-visible">
           <Link href={`/${lang}`} className="flex items-center gap-3 group relative z-[110]">
             <div className="relative">
               <motion.div
@@ -159,17 +149,29 @@ export function DesktopNavigation({
             </div>
           </Link>
 
-          {/* Menu chính */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-visible relative z-[10030]">
             {menuItems.map((item) => (
               <div
                 key={item.name}
-                className="relative h-full flex items-center"
+                className={cn(
+                  "relative h-full flex items-center overflow-visible",
+                  item.hasMega && "z-[10040]"
+                )}
                 onMouseEnter={() => item.hasMega && setIsMegaOpen(true)}
                 onMouseLeave={() => item.hasMega && setIsMegaOpen(false)}
+                onFocusCapture={() => item.hasMega && setIsMegaOpen(true)}
+                onBlurCapture={(event) => {
+                  if (!item.hasMega) return
+                  const nextTarget = event.relatedTarget as Node | null
+                  if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
+                    setIsMegaOpen(false)
+                  }
+                }}
               >
                 <Link
                   href={item.href}
+                  aria-haspopup={item.hasMega ? "menu" : undefined}
+                  aria-expanded={item.hasMega ? isMegaOpen : undefined}
                   className={cn(
                     "flex items-center gap-1 px-4 py-3 text-sm font-medium transition-colors relative group",
                     isActive(item.href) ? "text-[#f97316]" : "text-foreground hover:text-[#f97316]"
@@ -183,31 +185,31 @@ export function DesktopNavigation({
                   )} />
                 </Link>
 
-                {/* --- MEGA MENU: CẬP NHẬT HIỂN THỊ NHÃN PHIÊN BẢN --- */}
                 <AnimatePresence>
                   {item.hasMega && isMegaOpen && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-1 group">
-                      <div className="absolute -top-2 left-0 right-0 h-4 bg-transparent" />
-                      <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="relative w-[720px] p-6 bg-card/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl pointer-events-auto"
-                      >
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.985 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.99 }}
+                      transition={{ duration: 0.16, ease: "easeOut" }}
+                      className="absolute left-1/2 top-full z-[10060] -translate-x-1/2 pt-3"
+                      role="menu"
+                    >
+                      <div className="absolute left-0 right-0 top-0 h-4 bg-transparent" aria-hidden="true" />
+                      <div className="relative w-[720px] rounded-xl border border-border/60 bg-card/98 p-6 shadow-2xl backdrop-blur-xl">
                         <div className="grid grid-cols-2 gap-3">
-                          {serviceItems.map((service) => {
-                            const displayTitle = service.title || "(Chưa nhập tên dịch vụ)";
-                            const displayDesc = service.desc || "Mô tả đang cập nhật...";
+                          {serviceItems.map((service, index) => {
+                            const displayTitle = service.title || "(Chưa nhập tên dịch vụ)"
+                            const displayDesc = service.desc || "Mô tả đang cập nhật..."
 
                             return (
                               <Link
-                                key={service.slug || Math.random()}
+                                key={service.slug || `service-${index}`}
                                 href={`/${lang}/services/${service.slug}`}
-                                className="flex items-start gap-4 p-3 rounded-lg hover:bg-secondary group/item transition-all relative overflow-hidden"
+                                role="menuitem"
+                                className="flex items-start gap-4 p-3 rounded-lg hover:bg-secondary group/item transition-all relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                 onClick={() => setIsMegaOpen(false)}
                               >
-                                {/* NHÃN PHIÊN BẢN NGÔN NGỮ (NẾU KHÁC NGÔN NGỮ HIỆN TẠI) */}
                                 {service.language && service.language !== lang && (
                                   <span className="absolute top-2 right-2 text-[9px] font-black text-[#020617] bg-[#f97316] px-1.5 py-0.5 rounded uppercase tracking-tighter opacity-80">
                                     {service.language}
@@ -231,19 +233,25 @@ export function DesktopNavigation({
                               </Link>
                             )
                           })}
+
+                          {serviceItems.length === 0 && (
+                            <div className="col-span-2 py-8 text-center text-sm text-muted-foreground">
+                              {dict.navigation?.services || "Dịch vụ"}
+                            </div>
+                          )}
                         </div>
-                      </motion.div>
-                    </div>
+                      </div>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             ))}
           </div>
 
-          {/* Cụm công cụ bên phải */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 relative z-[10030]">
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground border border-border/50 rounded-lg bg-secondary/50 hover:border-[#f97316]/30 transition-all text-foreground",
@@ -261,11 +269,14 @@ export function DesktopNavigation({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full right-0 mt-2 w-44 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden z-[120]"
+                    className="absolute top-full right-0 mt-2 w-44 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden z-[10060]"
                   >
                     {languages.map((l) => (
                       <button
                         key={l.code}
+                        type="button"
+                        onMouseEnter={() => handlePrefetchLang(l.code)}
+                        onFocus={() => handlePrefetchLang(l.code)}
                         onClick={() => handleLangChange(l.code)}
                         className={cn(
                           "w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors",
@@ -289,6 +300,6 @@ export function DesktopNavigation({
           </div>
         </div>
       </nav>
-    </>
+    </div>
   )
 }
