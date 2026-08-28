@@ -7,17 +7,13 @@ export interface SiteSettings {
   phoneTel?: string
   zaloNumber?: string
   email?: string
+  addressDisplay?: string
+  googleMapsUrl?: string
 }
 
 const SiteSettingsContext = createContext<SiteSettings>({})
 
-export function SiteSettingsProvider({
-  value,
-  children,
-}: {
-  value: SiteSettings
-  children: React.ReactNode
-}) {
+export function SiteSettingsProvider({ value, children }: { value: SiteSettings; children: React.ReactNode }) {
   return <SiteSettingsContext.Provider value={value || {}}>{children}</SiteSettingsContext.Provider>
 }
 
