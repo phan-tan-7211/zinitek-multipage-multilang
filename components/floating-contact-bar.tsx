@@ -2,61 +2,53 @@
 
 import React, { useEffect, useState } from "react"
 import { Phone, MapPin, ArrowUp } from "lucide-react"
+import { useSiteSettings } from "@/components/site-settings-context"
 
 const baseItem = "group relative flex size-14 flex-col items-center justify-center gap-1 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:size-16"
 
 export function FloatingContactBar() {
+  const { phoneDisplay, phoneTel, zaloNumber } = useSiteSettings()
   const [showTop, setShowTop] = useState(false)
   const [nearFooter, setNearFooter] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 300)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+    let raf = 0
+    let previousFooter: HTMLElement | null = null
 
-  useEffect(() => {
-    const footer = document.querySelector("footer") as HTMLElement | null
-    if (!footer) return
+    const update = () => {
+      raf = 0
+      setShowTop(window.scrollY > 300)
 
-    const media = window.matchMedia("(max-width: 1279px)")
+      const footer = document.querySelector("footer") as HTMLElement | null
+      const isMobileLayout = window.innerWidth < 1280
+      const rect = footer?.getBoundingClientRect()
+      const active = Boolean(isMobileLayout && rect && rect.top <= window.innerHeight - 12)
 
-    const updateFooterSpace = (active: boolean) => {
-      if (media.matches && active) {
-        footer.style.paddingBottom = "calc(4.75rem + env(safe-area-inset-bottom))"
-      } else {
-        footer.style.paddingBottom = ""
+      if (previousFooter && previousFooter !== footer) previousFooter.style.paddingBottom = ""
+      previousFooter = footer
+
+      if (footer) {
+        footer.style.paddingBottom = active
+          ? "calc(4.75rem + env(safe-area-inset-bottom))"
+          : ""
       }
+
+      setNearFooter(active)
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const active = media.matches && entry.isIntersecting
-        setNearFooter(active)
-        updateFooterSpace(active)
-      },
-      {
-        root: null,
-        threshold: 0,
-        rootMargin: "0px 0px 80px 0px",
-      }
-    )
-
-    const onMediaChange = () => {
-      if (!media.matches) {
-        setNearFooter(false)
-        updateFooterSpace(false)
-      }
+    const schedule = () => {
+      if (!raf) raf = window.requestAnimationFrame(update)
     }
 
-    observer.observe(footer)
-    media.addEventListener?.("change", onMediaChange)
+    update()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule, { passive: true })
 
     return () => {
-      observer.disconnect()
-      media.removeEventListener?.("change", onMediaChange)
-      footer.style.paddingBottom = ""
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      if (raf) window.cancelAnimationFrame(raf)
+      if (previousFooter) previousFooter.style.paddingBottom = ""
     }
   }, [])
 
@@ -73,30 +65,36 @@ export function FloatingContactBar() {
     ? "border-l border-border/60 xl:border-l-0 xl:border-t"
     : "border-t border-border/60"
 
+  const zaloHref = zaloNumber ? `https://zalo.me/${zaloNumber.replace(/\D/g, "")}` : undefined
+
   return (
     <aside className={shellClass} aria-label="Quick contact">
-      <a
-        href="tel:+84776220031"
-        aria-label="Hotline +84 77 622 0031"
-        className={`${baseItem} ${nearFooter ? "rounded-tl-2xl xl:rounded-bl-none" : "rounded-tl-2xl"} hover:bg-primary/10`}
-      >
-        <Phone className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
-        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Hotline</span>
-        <span className="pointer-events-none absolute right-full top-1/2 mr-2 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground opacity-0 shadow-soft transition-all group-hover:opacity-100 group-focus-visible:opacity-100 xl:block">
-          +84 77 622 0031
-        </span>
-      </a>
+      {phoneDisplay && phoneTel && (
+        <a
+          href={`tel:${phoneTel}`}
+          aria-label={`Hotline ${phoneDisplay}`}
+          className={`${baseItem} ${nearFooter ? "rounded-tl-2xl xl:rounded-bl-none" : "rounded-tl-2xl"} hover:bg-primary/10`}
+        >
+          <Phone className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Hotline</span>
+          <span className="pointer-events-none absolute right-full top-1/2 mr-2 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground opacity-0 shadow-soft transition-all group-hover:opacity-100 group-focus-visible:opacity-100 xl:block">
+            {phoneDisplay}
+          </span>
+        </a>
+      )}
 
-      <a
-        href="https://zalo.me/0776220031"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat Zalo"
-        className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
-      >
-        <span className="flex size-6 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black text-white transition-transform group-hover:scale-110">Z</span>
-        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Zalo</span>
-      </a>
+      {zaloHref && (
+        <a
+          href={zaloHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat Zalo"
+          className={`${baseItem} ${separatorClass} hover:bg-secondary/70`}
+        >
+          <span className="flex size-6 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black text-white transition-transform group-hover:scale-110">Z</span>
+          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Zalo</span>
+        </a>
+      )}
 
       <a
         href="https://maps.google.com/?q=KCN+My+Phuoc+3+Ben+Cat+Binh+Duong"
