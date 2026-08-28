@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react"
 import { toast } from "sonner"
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion"
-import { Clock, Mail, MapPin, Phone, Send, Upload } from "lucide-react"
+import { Clock, ExternalLink, Mail, MapPin, Phone, Send, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,7 +12,7 @@ import { useSiteSettings } from "@/components/site-settings-context"
 
 export function ContactSection({ dict }: { dict: any; lang?: string }) {
   const t = dict?.contact_section || {}
-  const { phoneDisplay, phoneTel, email } = useSiteSettings()
+  const { phoneDisplay, phoneTel, email, addressDisplay, googleMapsUrl } = useSiteSettings()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-80px" })
   const reduceMotion = useReducedMotion()
@@ -21,6 +21,7 @@ export function ContactSection({ dict }: { dict: any; lang?: string }) {
   const [formData, setFormData] = useState({ name: "", company: "", email: "", phone: "", service: "", message: "", file: null as File | null })
 
   const update = (name: string, value: string) => setFormData((prev) => ({ ...prev, [name]: value }))
+  const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -72,12 +73,23 @@ export function ContactSection({ dict }: { dict: any; lang?: string }) {
 
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
           <motion.aside {...reveal(-36, 0.1)} className="space-y-5 lg:col-span-2">
-            {(t?.offices || []).map((office: any, index: number) => (
-              <div key={`${office.name}-${index}`} className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-soft transition-all lg:hover:-translate-y-1 lg:hover:border-primary/35 lg:hover:shadow-card">
-                <h3 className="flex items-center gap-2 font-semibold text-foreground"><MapPin className="size-5 text-primary" aria-hidden="true" />{office.name}</h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{office.address}</p>
-              </div>
-            ))}
+            {addressDisplay && mapHref && (
+              <a
+                href={mapHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block rounded-2xl border border-border/70 bg-card/80 p-5 shadow-soft transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:-translate-y-1 lg:hover:border-primary/35 lg:hover:shadow-card"
+              >
+                <h3 className="flex items-center gap-2 font-semibold text-foreground">
+                  <MapPin className="size-5 text-primary" aria-hidden="true" />
+                  {t?.offices?.[0]?.name || t?.location || "ZINITEK"}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{addressDisplay}</p>
+                <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+                  Google Maps <ExternalLink className="size-3.5" aria-hidden="true" />
+                </span>
+              </a>
+            )}
 
             <div className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-soft">
               <h3 className="flex items-center gap-2 font-semibold text-foreground"><Clock className="size-5 text-primary" aria-hidden="true" />{t?.working_hours?.title || "Working hours"}</h3>
