@@ -137,7 +137,7 @@ export default async function LanguageLayout({
       <Navigation lang={lang} dict={dict} initialServices={services} />
 
       <SmartSwipeWrapper lang={lang} services={servicesSlugs}>
-        <main className="min-h-screen">
+        <main className="mx-auto min-h-dvh w-full overflow-hidden xl:w-[calc(100%-10rem)] xl:max-w-[1440px] xl:border-x xl:border-border/50 xl:shadow-[0_0_50px_rgba(15,23,42,0.08)] dark:xl:shadow-[0_0_50px_rgba(0,0,0,0.28)]">
           {children}
         </main>
       </SmartSwipeWrapper>
