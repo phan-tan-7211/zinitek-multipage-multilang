@@ -3,106 +3,73 @@
 import React, { useState, useEffect } from "react"
 import { Phone, MapPin, ArrowUp } from "lucide-react"
 
+const baseItem = "group relative flex size-14 flex-col items-center justify-center gap-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:size-16"
+
 export function FloatingContactBar() {
-  const [hienThiNutTop, setHienThiNutTop] = useState(false)
+  const [showTop, setShowTop] = useState(false)
 
-  // Theo dõi sự kiện cuộn trang để hiện/ẩn nút "Lên Top"
   useEffect(() => {
-    const kiemTraCuonTrang = () => {
-      if (window.scrollY > 300) {
-        setHienThiNutTop(true)
-      } else {
-        setHienThiNutTop(false)
-      }
-    }
-
-    window.addEventListener("scroll", kiemTraCuonTrang)
-    return () => window.removeEventListener("scroll", kiemTraCuonTrang)
+    const onScroll = () => setShowTop(window.scrollY > 300)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  // Hàm cuộn lên đầu trang mượt mà
-  const cuonLenTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    })
+  const scrollTop = () => {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" })
   }
 
   return (
-    // Bỏ overflow-hidden để các tooltip (absolute) có thể tràn ra ngoài
-    <div className="fixed left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col bg-background border border-l-0 border-border rounded-r-xl shadow-lg transition-all duration-300">
-      {/* 1. Nút Hotline */}
+    <aside
+      className="fixed bottom-4 left-3 z-50 flex overflow-visible rounded-2xl border border-border/70 bg-background/92 shadow-card backdrop-blur-xl lg:bottom-auto lg:left-0 lg:top-1/2 lg:-translate-y-1/2 lg:flex-col lg:rounded-l-none lg:rounded-r-2xl"
+      aria-label="Quick contact"
+    >
       <a
         href="tel:+84776220031"
-        className="relative flex flex-col items-center justify-center p-3 w-16 h-16 sm:w-20 sm:h-20 border-b border-border hover:bg-orange-50 dark:hover:bg-orange-950/20 group transition-colors text-center rounded-tr-xl"
+        aria-label="Hotline +84 77 622 0031"
+        className={`${baseItem} rounded-l-2xl hover:bg-primary/10 lg:rounded-bl-none lg:rounded-tr-2xl`}
       >
-        <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-[#f97316] mb-1 group-hover:scale-110 transition-transform relative z-10" />
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-[#f97316] transition-colors relative z-10">
-          Hotline
-        </span>
-
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-[#f97316] text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-[#f97316] -z-10">
+        <Phone className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Hotline</span>
+        <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground opacity-0 shadow-soft transition-all group-hover:opacity-100 group-focus-visible:opacity-100 lg:bottom-auto lg:left-full lg:top-1/2 lg:mb-0 lg:ml-2 lg:block lg:-translate-x-0 lg:-translate-y-1/2">
           +84 77 622 0031
-        </div>
+        </span>
       </a>
 
-      {/* 2. Nút Zalo */}
       <a
         href="https://zalo.me/0776220031"
         target="_blank"
         rel="noopener noreferrer"
-        className="relative flex flex-col items-center justify-center p-3 w-16 h-16 sm:w-20 sm:h-20 border-b border-border hover:bg-blue-50 dark:hover:bg-blue-900/20 group transition-colors text-center"
+        aria-label="Chat Zalo"
+        className={`${baseItem} border-l border-border/60 hover:bg-secondary/70 lg:border-l-0 lg:border-t`}
       >
-        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#0068ff] rounded-full flex items-center justify-center text-white mb-1 group-hover:scale-110 transition-transform shadow-sm relative z-10">
-          <span className="text-[10px] sm:text-xs font-bold leading-none">Zalo</span>
-        </div>
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-[#0068ff] transition-colors relative z-10">
-          Zalo
-        </span>
-
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-[#0068ff] text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-[#0068ff] -z-10">
-          Chat Zalo ngay
-        </div>
+        <span className="flex size-6 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black text-white transition-transform group-hover:scale-110">Z</span>
+        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Zalo</span>
       </a>
 
-      {/* 3. Nút Bản đồ (Map) */}
       <a
         href="https://maps.google.com/?q=KCN+My+Phuoc+3+Ben+Cat+Binh+Duong"
         target="_blank"
         rel="noopener noreferrer"
-        className={`relative flex flex-col items-center justify-center p-3 w-16 h-16 sm:w-20 sm:h-20 hover:bg-red-50 dark:hover:bg-red-950/20 group transition-colors text-center ${!hienThiNutTop ? 'border-none rounded-br-xl' : 'border-b border-border'}`}
+        aria-label="Open Google Maps"
+        className={`${baseItem} border-l border-border/60 hover:bg-secondary/70 lg:border-l-0 lg:border-t`}
       >
-        <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 mb-1 group-hover:scale-110 transition-transform relative z-10" />
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-red-500 transition-colors relative z-10">
-          Map
-        </span>
-
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-red-500 text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-red-500 -z-10">
-          Chỉ đường Google Maps
-        </div>
+        <MapPin className="size-5 text-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Map</span>
       </a>
 
-      {/* 4. Nút Lên Top (Chỉ hiện khi cuộn xuống) */}
-      <button
-        onClick={cuonLenTop}
-        className={`relative flex flex-col items-center justify-center p-3 w-16 sm:w-20 hover:bg-secondary/50 group transition-all duration-300 text-center rounded-br-xl ${
-          hienThiNutTop ? "opacity-100 h-16 sm:h-20 border-t border-border" : "opacity-0 h-0 py-0 border-0 overflow-hidden"
-        }`}
-        aria-hidden={!hienThiNutTop}
-      >
-        <ArrowUp className="w-5 h-5 sm:w-6 sm:h-6 text-[#f97316] mb-1 group-hover:-translate-y-1 transition-transform relative z-10" />
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-[#f97316] transition-colors relative z-10">
-          Lên Top
-        </span>
-
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-[#f97316] text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-[#f97316] -z-10">
-          Lên đầu trang
-        </div>
-      </button>
-    </div>
+      {showTop && (
+        <button
+          type="button"
+          onClick={scrollTop}
+          aria-label="Back to top"
+          className={`${baseItem} border-l border-border/60 rounded-r-2xl hover:bg-primary/10 lg:border-l-0 lg:border-t lg:rounded-bl-none lg:rounded-br-2xl lg:rounded-tr-none`}
+        >
+          <ArrowUp className="size-5 text-primary transition-transform group-hover:-translate-y-0.5" aria-hidden="true" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground sm:text-[10px]">Top</span>
+        </button>
+      )}
+    </aside>
   )
 }
