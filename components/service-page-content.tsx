@@ -3,32 +3,14 @@
 import { useEffect, useRef } from "react"
 import { motion, useInView, useReducedMotion } from "framer-motion"
 import Link from "next/link"
-import {
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  Home,
-  Phone,
-} from "lucide-react"
+import { ArrowRight, CheckCircle2, ChevronRight, Home, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DynamicIcon } from "./ui/dynamic-icon"
+import { useSiteSettings } from "@/components/site-settings-context"
 
-interface ThongSoKyThuat {
-  label: string
-  value: string
-}
-
-interface BuocQuyTrinh {
-  step: number | string
-  title: string
-  description: string
-}
-
-interface BanDichTuongUng {
-  language: string
-  slug: string
-}
-
+interface ThongSoKyThuat { label: string; value: string }
+interface BuocQuyTrinh { step: number | string; title: string; description: string }
+interface BanDichTuongUng { language: string; slug: string }
 interface Service {
   _id: string
   title: string
@@ -41,23 +23,13 @@ interface Service {
   features: string[]
   specs: ThongSoKyThuat[]
   process: BuocQuyTrinh[]
-  labels?: {
-    featuresTitle?: string
-    specsTitle?: string
-    processTitle?: string
-    relatedTitle?: string
-  }
+  labels?: { featuresTitle?: string; specsTitle?: string; processTitle?: string; relatedTitle?: string }
   banDichTuongUng?: BanDichTuongUng[]
 }
-
-interface ServicePageContentProps {
-  service: Service
-  relatedServices: Service[]
-  lang: string
-  dict: any
-}
+interface ServicePageContentProps { service: Service; relatedServices: Service[]; lang: string; dict: any }
 
 export function ServicePageContent({ service, relatedServices, lang, dict }: ServicePageContentProps) {
+  const { phoneTel } = useSiteSettings()
   const sectionRef = useRef(null)
   const inView = useInView(sectionRef, { once: true, margin: "-80px" })
   const shouldReduceMotion = useReducedMotion()
@@ -65,15 +37,10 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
   useEffect(() => {
     if (service.banDichTuongUng?.length) {
       const map: Record<string, string> = {}
-      service.banDichTuongUng.forEach((translation) => {
-        map[translation.language] = translation.slug
-      })
+      service.banDichTuongUng.forEach((translation) => { map[translation.language] = translation.slug })
       ;(window as any).zinitekTranslations = map
     }
-
-    return () => {
-      delete (window as any).zinitekTranslations
-    }
+    return () => { delete (window as any).zinitekTranslations }
   }, [service.banDichTuongUng])
 
   const reveal = (delay = 0, distance = 20) => ({
@@ -81,7 +48,6 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
     animate: { opacity: 1, y: 0 },
     transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.55, delay },
   })
-
   const inViewMotion = (delay = 0, x = 0, y = 24) => ({
     initial: shouldReduceMotion ? false : { opacity: 0, x, y },
     animate: inView ? { opacity: 1, x: 0, y: 0 } : {},
@@ -94,21 +60,14 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-transparent to-transparent" aria-hidden="true" />
         <div className="pointer-events-none absolute right-[-8rem] top-8 size-[24rem] rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-30 dark:opacity-45" aria-hidden="true" />
-
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
           <motion.nav {...reveal(0, 12)} className="mb-8 flex min-w-0 flex-wrap items-center gap-2 text-sm" aria-label="Breadcrumb">
             <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <Link href={`/${lang}`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {dict?.common?.home || "Trang chủ"}
-            </Link>
+            <Link href={`/${lang}`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict?.common?.home || "Trang chủ"}</Link>
             <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-            <Link href={`/${lang}/services`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {dict?.navigation?.services || "Dịch vụ"}
-            </Link>
+            <Link href={`/${lang}/services`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict?.navigation?.services || "Dịch vụ"}</Link>
             <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-            <span className="max-w-[70vw] truncate font-medium text-primary" aria-current="page">
-              {service.shortTitle || service.title}
-            </span>
+            <span className="max-w-[70vw] truncate font-medium text-primary" aria-current="page">{service.shortTitle || service.title}</span>
           </motion.nav>
 
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
@@ -117,47 +76,26 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                 <DynamicIcon iconData={service.icon} className="size-4" />
                 {dict?.services?.badge || dict?.navigation?.services || "Dịch vụ"}
               </motion.div>
-
-              <motion.h1 {...reveal(0.12, 22)} className="text-balance font-serif text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                {service.title}
-              </motion.h1>
-
-              <motion.p {...reveal(0.18, 22)} className="mt-5 max-w-[62ch] text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-                {service.description}
-              </motion.p>
-
+              <motion.h1 {...reveal(0.12, 22)} className="text-balance font-serif text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">{service.title}</motion.h1>
+              <motion.p {...reveal(0.18, 22)} className="mt-5 max-w-[62ch] text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">{service.description}</motion.p>
               {service.tags.length > 0 && (
                 <motion.div {...reveal(0.24, 18)} className="mt-7 flex flex-wrap gap-2">
-                  {service.tags.map((tag, index) => (
-                    <span key={`${tag}-${index}`} className="rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-sm text-muted-foreground shadow-soft">
-                      {tag}
-                    </span>
-                  ))}
+                  {service.tags.map((tag, index) => <span key={`${tag}-${index}`} className="rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-sm text-muted-foreground shadow-soft">{tag}</span>)}
                 </motion.div>
               )}
-
               <motion.div {...reveal(0.3, 18)} className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild size="lg" className="min-h-12 bg-primary font-semibold text-primary-foreground shadow-brand transition-transform lg:hover:scale-[1.04]">
-                  <Link href={`/${lang}/contact`}>
-                    {dict?.services?.request_quote || "Yêu cầu báo giá"}
-                    <ArrowRight className="ml-2 size-5" aria-hidden="true" />
-                  </Link>
+                  <Link href={`/${lang}/contact`}>{dict?.services?.request_quote || "Yêu cầu báo giá"}<ArrowRight className="ml-2 size-5" aria-hidden="true" /></Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="min-h-12 bg-background/70 transition-all hover:border-primary/40 hover:text-primary">
-                  <a href={`tel:${dict?.common?.phone_label || "+84274123456"}`}>
-                    <Phone className="mr-2 size-5" aria-hidden="true" />
-                    {dict?.services?.call_now || "Gọi ngay"}
-                  </a>
-                </Button>
+                {phoneTel && (
+                  <Button asChild variant="outline" size="lg" className="min-h-12 bg-background/70 transition-all hover:border-primary/40 hover:text-primary">
+                    <a href={`tel:${phoneTel}`}><Phone className="mr-2 size-5" aria-hidden="true" />{dict?.services?.call_now || "Gọi ngay"}</a>
+                  </Button>
+                )}
               </motion.div>
             </div>
 
-            <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.7, delay: 0.18 }}
-              className="relative"
-            >
+            <motion.div initial={shouldReduceMotion ? false : { opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.7, delay: 0.18 }} className="relative">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card shadow-card">
                 <img src={service.image || "/placeholder.svg"} alt={service.title} className="h-full w-full object-cover transition-transform duration-700 lg:hover:scale-[1.035]" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" aria-hidden="true" />
@@ -172,45 +110,25 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
             <motion.div {...inViewMotion(0, -24, 0)}>
-              <h2 className="mb-7 font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                {service.labels?.featuresTitle || "Tính năng nổi bật"}
-              </h2>
+              <h2 className="mb-7 font-serif text-2xl font-bold text-foreground sm:text-3xl">{service.labels?.featuresTitle || "Tính năng nổi bật"}</h2>
               {service.features.length > 0 ? (
                 <ul className="space-y-3">
                   {service.features.map((feature, index) => (
-                    <motion.li
-                      key={`feature-${index}`}
-                      initial={shouldReduceMotion ? false : { opacity: 0, x: -14 }}
-                      animate={inView ? { opacity: 1, x: 0 } : {}}
-                      transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, delay: index * 0.07 }}
-                      className="flex items-start gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-soft transition-all lg:hover:-translate-y-0.5 lg:hover:border-primary/30 lg:hover:shadow-card"
-                    >
-                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-                      <span className="leading-7 text-foreground">{feature}</span>
+                    <motion.li key={`feature-${index}`} initial={shouldReduceMotion ? false : { opacity: 0, x: -14 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, delay: index * 0.07 }} className="flex items-start gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-soft transition-all lg:hover:-translate-y-0.5 lg:hover:border-primary/30 lg:hover:shadow-card">
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" /><span className="leading-7 text-foreground">{feature}</span>
                     </motion.li>
                   ))}
                 </ul>
-              ) : (
-                <p className="text-muted-foreground">—</p>
-              )}
+              ) : <p className="text-muted-foreground">—</p>}
             </motion.div>
 
             <motion.div {...inViewMotion(0.08, 24, 0)}>
-              <h2 className="mb-7 font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                {service.labels?.specsTitle || "Thông số kỹ thuật"}
-              </h2>
+              <h2 className="mb-7 font-serif text-2xl font-bold text-foreground sm:text-3xl">{service.labels?.specsTitle || "Thông số kỹ thuật"}</h2>
               {service.specs.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {service.specs.map((spec, index) => (
-                    <div key={`spec-${index}`} className="rounded-xl border border-border/60 bg-card p-5 shadow-soft transition-all lg:hover:-translate-y-0.5 lg:hover:border-primary/30 lg:hover:shadow-card">
-                      <div className="font-serif text-2xl font-bold text-primary">{spec.value}</div>
-                      <div className="mt-1 text-sm leading-6 text-muted-foreground">{spec.label}</div>
-                    </div>
-                  ))}
+                  {service.specs.map((spec, index) => <div key={`spec-${index}`} className="rounded-xl border border-border/60 bg-card p-5 shadow-soft transition-all lg:hover:-translate-y-0.5 lg:hover:border-primary/30 lg:hover:shadow-card"><div className="font-serif text-2xl font-bold text-primary">{spec.value}</div><div className="mt-1 text-sm leading-6 text-muted-foreground">{spec.label}</div></div>)}
                 </div>
-              ) : (
-                <p className="text-muted-foreground">—</p>
-              )}
+              ) : <p className="text-muted-foreground">—</p>}
             </motion.div>
           </div>
         </div>
@@ -221,32 +139,20 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <h2 className="font-serif text-3xl font-bold text-foreground sm:text-4xl">{service.labels?.processTitle || "Quy trình làm việc"}</h2>
-              <p className="mt-4 leading-7 text-muted-foreground">
-                {dict?.services?.process_description || "Quy trình chuyên nghiệp đảm bảo chất lượng và tiến độ cho mọi dự án."}
-              </p>
+              <p className="mt-4 leading-7 text-muted-foreground">{dict?.services?.process_description || "Quy trình chuyên nghiệp đảm bảo chất lượng và tiến độ cho mọi dự án."}</p>
             </div>
-
             <div className="relative mx-auto max-w-5xl">
               <div className="pointer-events-none absolute bottom-0 left-1/2 top-0 hidden w-px -translate-x-1/2 bg-gradient-to-b from-primary via-primary/40 to-transparent lg:block" aria-hidden="true" />
               <div className="space-y-6 lg:space-y-0">
                 {service.process.map((step, index) => (
-                  <motion.div
-                    key={`step-${index}`}
-                    initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.5, delay: index * 0.08 }}
-                    className={`relative lg:flex lg:items-center lg:gap-12 ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"}`}
-                  >
+                  <motion.div key={`step-${index}`} initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.5, delay: index * 0.08 }} className={`relative lg:flex lg:items-center lg:gap-12 ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"}`}>
                     <div className={`lg:w-1/2 ${index % 2 === 0 ? "lg:pr-12" : "lg:pl-12"}`}>
                       <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft transition-all lg:hover:-translate-y-1 lg:hover:border-primary/30 lg:hover:shadow-card">
                         <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-primary/10 font-bold text-primary lg:hidden">{step.step}</div>
-                        <h3 className="font-serif text-xl font-bold text-foreground">{step.title}</h3>
-                        <p className="mt-2 leading-7 text-muted-foreground">{step.description}</p>
+                        <h3 className="font-serif text-xl font-bold text-foreground">{step.title}</h3><p className="mt-2 leading-7 text-muted-foreground">{step.description}</p>
                       </div>
                     </div>
-                    <div className="absolute left-1/2 hidden size-11 -translate-x-1/2 items-center justify-center rounded-full border-2 border-primary bg-background font-bold text-primary shadow-soft lg:flex">{step.step}</div>
-                    <div className="hidden lg:block lg:w-1/2" />
+                    <div className="absolute left-1/2 hidden size-11 -translate-x-1/2 items-center justify-center rounded-full border-2 border-primary bg-background font-bold text-primary shadow-soft lg:flex">{step.step}</div><div className="hidden lg:block lg:w-1/2" />
                   </motion.div>
                 ))}
               </div>
@@ -259,35 +165,16 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
         <section className="section-space bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{dict?.navigation?.services || "Dịch vụ"}</p>
-                <h2 className="mt-2 font-serif text-3xl font-bold text-foreground sm:text-4xl">{service.labels?.relatedTitle || "Dịch vụ liên quan"}</h2>
-              </div>
-              <Link href={`/${lang}/services`} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                {dict?.navigation?.view_all_services || "Xem tất cả"}
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
+              <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{dict?.navigation?.services || "Dịch vụ"}</p><h2 className="mt-2 font-serif text-3xl font-bold text-foreground sm:text-4xl">{service.labels?.relatedTitle || "Dịch vụ liên quan"}</h2></div>
+              <Link href={`/${lang}/services`} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict?.navigation?.view_all_services || "Xem tất cả"}<ArrowRight className="size-4" aria-hidden="true" /></Link>
             </div>
-
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {relatedServices.map((related, index) => (
-                <motion.div
-                  key={`related-${related.slug}-${index}`}
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.45, delay: index * 0.07 }}
-                >
+                <motion.div key={`related-${related.slug}-${index}`} initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.45, delay: index * 0.07 }}>
                   <Link href={`/${lang}/services/${related.slug}`} className="group flex h-full min-h-44 flex-col rounded-2xl border border-border/60 bg-card p-6 shadow-soft transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:-translate-y-2 lg:hover:scale-[1.015] lg:hover:border-primary/35 lg:hover:shadow-card">
-                    <div className="mb-5 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all lg:group-hover:rotate-6 lg:group-hover:scale-110 lg:group-hover:bg-primary lg:group-hover:text-primary-foreground">
-                      <DynamicIcon iconData={related.icon} className="size-6" />
-                    </div>
-                    <h3 className="font-serif text-lg font-bold text-foreground transition-colors lg:group-hover:text-primary">{related.title}</h3>
-                    <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-muted-foreground">{related.description}</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-                      {dict?.services?.read_more || "Tìm hiểu thêm"}
-                      <ArrowRight className="size-4 transition-transform lg:group-hover:translate-x-1.5" aria-hidden="true" />
-                    </span>
+                    <div className="mb-5 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all lg:group-hover:rotate-6 lg:group-hover:scale-110 lg:group-hover:bg-primary lg:group-hover:text-primary-foreground"><DynamicIcon iconData={related.icon} className="size-6" /></div>
+                    <h3 className="font-serif text-lg font-bold text-foreground transition-colors lg:group-hover:text-primary">{related.title}</h3><p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-muted-foreground">{related.description}</p>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">{dict?.services?.read_more || "Tìm hiểu thêm"}<ArrowRight className="size-4 transition-transform lg:group-hover:translate-x-1.5" aria-hidden="true" /></span>
                   </Link>
                 </motion.div>
               ))}
@@ -301,18 +188,8 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
           <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card p-7 shadow-card sm:p-10">
             <div className="pointer-events-none absolute right-0 top-0 size-56 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="max-w-2xl">
-                <h2 className="text-balance font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                  {dict?.services?.request_consult || "Bạn cần tư vấn cho dịch vụ này?"}
-                </h2>
-                <p className="mt-3 leading-7 text-muted-foreground">{service.shortTitle || service.title}</p>
-              </div>
-              <Button asChild size="lg" className="min-h-12 shrink-0 bg-primary font-semibold text-primary-foreground shadow-brand transition-transform lg:hover:scale-105">
-                <Link href={`/${lang}/contact`}>
-                  {dict?.common?.contact_btn || "Liên hệ tư vấn"}
-                  <ArrowRight className="ml-2 size-5" aria-hidden="true" />
-                </Link>
-              </Button>
+              <div className="max-w-2xl"><h2 className="text-balance font-serif text-2xl font-bold text-foreground sm:text-3xl">{dict?.services?.request_consult || "Bạn cần tư vấn cho dịch vụ này?"}</h2><p className="mt-3 leading-7 text-muted-foreground">{service.shortTitle || service.title}</p></div>
+              <Button asChild size="lg" className="min-h-12 shrink-0 bg-primary font-semibold text-primary-foreground shadow-brand transition-transform lg:hover:scale-105"><Link href={`/${lang}/contact`}>{dict?.common?.contact_btn || "Liên hệ tư vấn"}<ArrowRight className="ml-2 size-5" aria-hidden="true" /></Link></Button>
             </div>
           </div>
         </div>
