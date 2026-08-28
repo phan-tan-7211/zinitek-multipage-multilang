@@ -14,6 +14,14 @@ export function FloatingContactBar() {
   useEffect(() => {
     let raf = 0
     let previousFooter: HTMLElement | null = null
+    let previousDockState: boolean | null = null
+
+    const publishDockState = (active: boolean) => {
+      if (previousDockState === active) return
+      previousDockState = active
+      window.dispatchEvent(new CustomEvent("zinitek-contact-dock", { detail: { active } }))
+      document.documentElement.dataset.contactDocked = active ? "true" : "false"
+    }
 
     const update = () => {
       raf = 0
@@ -34,6 +42,7 @@ export function FloatingContactBar() {
       }
 
       setNearFooter(active)
+      publishDockState(active)
     }
 
     const schedule = () => {
@@ -49,6 +58,8 @@ export function FloatingContactBar() {
       window.removeEventListener("resize", schedule)
       if (raf) window.cancelAnimationFrame(raf)
       if (previousFooter) previousFooter.style.paddingBottom = ""
+      delete document.documentElement.dataset.contactDocked
+      window.dispatchEvent(new CustomEvent("zinitek-contact-dock", { detail: { active: false } }))
     }
   }, [])
 
