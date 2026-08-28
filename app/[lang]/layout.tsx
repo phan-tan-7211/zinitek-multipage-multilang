@@ -1,4 +1,3 @@
-
 import React from "react";
 import type { Metadata } from 'next';
 import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper";
@@ -8,7 +7,6 @@ import { FloatingContactBar } from "@/components/floating-contact-bar";
 import { getDictionary } from "@/lib/get-dictionary";
 import { createClient } from "next-sanity";
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
 const trinhKetNoiSanity = createClient({
   projectId: 'g4o3uumy',
   dataset: 'production',
@@ -16,39 +14,48 @@ const trinhKetNoiSanity = createClient({
   useCdn: false,
 })
 
-// --- 2. HÀM LẤY DANH SÁCH DỊCH VỤ TỪ SANITY ---
 async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
   const cauTruyVan = `
-    *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] {
+    *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc) {
       _id,
       _translationKey,
       "slug": slug.current,
-      "icon": icon.metadata.iconName,
-      language
+      icon,
+      language,
+      title,
+      "desc": description,
+      orderRank
     }
   `;
 
-  const danhSachTho = await trinhKetNoiSanity.fetch(cauTruyVan);
-
-  // Lọc bản dịch tốt nhất
+  const danhSachTho: any[] = await trinhKetNoiSanity.fetch(cauTruyVan);
   const cacNhom: Record<string, any[]> = {};
+
   danhSachTho.forEach((item: any) => {
     const khoa = item._translationKey || item._id;
     if (!cacNhom[khoa]) cacNhom[khoa] = [];
     cacNhom[khoa].push(item);
   });
 
-  const danhSachCuoiCung = Object.values(cacNhom).map((nhom: any[]) => {
-    const banDungNgonNgu = nhom.find((p) => p.language === ngonNguHienTai);
-    const banTiengAnh = nhom.find((p) => p.language === 'en');
-    const banTiengViet = nhom.find((p) => p.language === 'vi');
-    return banDungNgonNgu || banTiengAnh || banTiengViet || nhom[0];
-  });
-
-  return danhSachCuoiCung.map(s => ({ slug: s.slug, icon: s.icon || 'star' }));
+  return Object.values(cacNhom)
+    .map((nhom: any[]) => {
+      return (
+        nhom.find((p) => p.language === ngonNguHienTai) ||
+        nhom.find((p) => p.language === 'en') ||
+        nhom.find((p) => p.language === 'vi') ||
+        nhom[0]
+      );
+    })
+    .sort((a, b) => (a.orderRank || 0) - (b.orderRank || 0))
+    .map((service) => ({
+      slug: service.slug,
+      icon: service.icon,
+      language: service.language,
+      title: service.title,
+      desc: service.desc,
+    }));
 }
 
-// --- TỐI ƯU SEO QUỐC TẾ (DYNAMIC METADATA) ---
 export async function generateMetadata({
   params
 }: {
@@ -58,15 +65,11 @@ export async function generateMetadata({
   const { lang } = resolvedParams;
   const dict = await getDictionary(lang);
 
-  // Xử lý loại bỏ thẻ HTML khỏi mô tả để SEO sạch sẽ
   const cleanDescription = dict.hero.description.replace(/<[^>]*>?/gm, '');
   const siteTitle = `ZINITEK - ${dict.hero.title_line1} ${dict.hero.title_highlight}`;
 
   return {
-    metadataBase: new URL(
-      // FIX #6: Hardcode domain production — tránh VERCEL_URL preview ngẫu nhiên
-      process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'
-    ),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'),
     title: {
       default: siteTitle,
       template: `%s | ZINITEK`
@@ -76,7 +79,6 @@ export async function generateMetadata({
       'CNC Machining', 'Precision Engineering', 'Zinitek',
       'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'
     ],
-    // FIX #9: Sync đủ 5 ngôn ngữ với generateStaticParams
     alternates: {
       canonical: `/${lang}`,
       languages: {
@@ -87,7 +89,6 @@ export async function generateMetadata({
         'zh-CN': '/cn',
       },
     },
-    // FIX #8: Thêm type, locale, siteName cho OG chuẩn i18n
     openGraph: {
       type: 'website',
       locale: lang === 'vi' ? 'vi_VN'
@@ -101,7 +102,6 @@ export async function generateMetadata({
       siteName: 'ZINITEK',
       images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ZINITEK — Gia công CNC & Khuôn mẫu' }],
     },
-    // FIX #7: Thêm Twitter Card — trước đó hoàn toàn thiếu
     twitter: {
       card: 'summary_large_image',
       title: siteTitle,
@@ -122,32 +122,27 @@ export default async function LanguageLayout({
   children: React.ReactNode;
   params: Promise<{ lang: string }>;
 }) {
-  // BẮT BUỘC: Phải dùng await params trong Next.js 16
   const resolvedParams = await params;
   const { lang } = resolvedParams;
 
-  // Lấy dữ liệu ngôn ngữ và danh sách dịch vụ động từ Sanity
-  const [dict, servicesSlugs] = await Promise.all([
+  const [dict, services] = await Promise.all([
     getDictionary(lang),
     layDanhSachDichVuTuSanity(lang)
   ]);
 
+  const servicesSlugs = services.map(({ slug, icon }) => ({ slug, icon }));
+
   return (
     <>
-      {/* 1. THANH ĐIỀU HƯỚNG CỐ ĐỊNH Ở TRÊN CÙNG */}
-      <Navigation lang={lang} dict={dict} />
+      <Navigation lang={lang} dict={dict} initialServices={services} />
 
-      {/* 2. KHUNG BAO QUẢN LÝ VUỐT CHUYỂN TRANG */}
       <SmartSwipeWrapper lang={lang} services={servicesSlugs}>
         <main className="min-h-screen">
           {children}
         </main>
       </SmartSwipeWrapper>
 
-      {/* 3. THANH CHỈ BÁO VỊ TRÍ TRANG TRÊN DI ĐỘNG KÈM DỮ LIỆU ĐỘNG */}
       <MobileWidgetIndicator lang={lang} dict={dict} services={servicesSlugs} />
-
-      {/* 4. THANH LIÊN HỆ NỔI BÊN TRÁI (HOTLINE, ZALO, MAP, LÊN TOP) */}
       <FloatingContactBar />
     </>
   );
