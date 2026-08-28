@@ -28,6 +28,20 @@ export default {
       title: 'Email liên hệ',
       type: 'string',
     },
+    {
+      name: 'addressDisplay',
+      title: 'Địa chỉ hiển thị',
+      type: 'string',
+      description: 'Địa chỉ công ty hiển thị ở Footer, Contact và dữ liệu SEO.',
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: 'googleMapsUrl',
+      title: 'Liên kết Google Maps',
+      type: 'url',
+      description: 'Dán link Share từ Google Maps. Người dùng bấm địa chỉ hoặc nút MAP sẽ mở link này.',
+      validation: (Rule: any) => Rule.uri({ scheme: ['http', 'https'] }),
+    },
   ],
   preview: {
     prepare() {
