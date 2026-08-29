@@ -1,5 +1,3 @@
-
-
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
@@ -7,6 +5,7 @@ import { ProductDetailPageContent } from "@/components/product-detail-page-conte
 import { Footer } from "@/components/footer"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import detailNavigation from "@/dictionaries/detail-navigation.json"
 
 // --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
 const trinhKetNoiSanity = createClient({
@@ -81,6 +80,8 @@ export default async function ProductDetailPage({
     notFound();
   }
 
+  const nhanTatCaSanPham = detailNavigation[lang as keyof typeof detailNavigation]?.all_products || detailNavigation.vi.all_products;
+
   return (
     // SỬA LỖI: Giảm padding top để tránh khoảng trống thừa dưới header cố định
     <main className="min-h-screen bg-background text-foreground relative pt-24 pb-20">
@@ -96,7 +97,7 @@ export default async function ProductDetailPage({
               <ArrowLeft className="w-4 h-4 text-foreground group-hover:text-[#f97316]" />
             </div>
             <span className="text-sm font-bold uppercase tracking-widest text-foreground group-hover:text-[#f97316]">
-              {tuDien.navigation?.products || "Danh mục sản phẩm"}
+              {nhanTatCaSanPham}
             </span>
           </Link>
         </div>
