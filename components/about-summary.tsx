@@ -1,15 +1,30 @@
 "use client"
 
-import { motion, useInView, useReducedMotion } from "framer-motion"
-import { useMemo, useRef } from "react"
+import { motion, useInView } from "framer-motion"
+import { useRef, useEffect, useState } from "react"
 import { ArrowRight, CheckCircle2, Award, Target, Zap, Cog } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export function AboutSummary({ lang, dict }: { lang: string; dict: any }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px", amount: 0.2 })
-  const shouldReduceMotion = useReducedMotion()
+  const isInView = useInView(ref, { once: true, margin: "0px", amount: 0.2 })
+  const [mounted, setMounted] = useState(false)
+  const [particles, setParticles] = useState<any[]>([])
+  const [isHovered, setIsHovered] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const newParticles = [...Array(380)].map(() => ({
+      size: Math.random() * 2 + 0.5,
+      color: Math.random() > 0.5 ? "#f97316" : "#00f2ff",
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
+  }, [])
 
   const aboutData = dict?.about_page || {}
   const serviceData = dict?.services?.cnc || {}
@@ -17,196 +32,132 @@ export function AboutSummary({ lang, dict }: { lang: string; dict: any }) {
   const common = dict?.common || {}
   const nav = dict?.navigation || {}
 
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 180 }, (_, index) => {
-        const palette = ["#f97316", "#00f2ff", "#fb923c", "#67e8f9"]
-
-        return {
-          id: index,
-          color: palette[index % palette.length],
-          size: 0.8 + ((index * 7) % 18) / 10,
-          left: 4 + ((index * 37) % 92),
-          top: 4 + ((index * 53) % 92),
-          duration: 2.8 + ((index * 11) % 36) / 10,
-          delay: ((index * 13) % 50) / 10,
-          driftX: ((index % 7) - 3) * 3,
-          driftY: (((index * 3) % 7) - 3) * 3,
-        }
-      }),
-    [],
-  )
-
   const features = [
-    {
-      icon: Target,
-      title: serviceData.title || (lang === "vi" ? "Gia công CNC" : "CNC Machining"),
-      desc: lang === "vi" ? "Dung sai dưới 0.005mm" : "Tolerance under 0.005mm",
-    },
-    {
-      icon: Award,
-      title: lang === "vi" ? "Chứng chỉ ISO" : "ISO Certification",
-      desc: lang === "vi" ? "ISO 9001:2015" : "Quality Management",
-    },
-    {
-      icon: Zap,
-      title: lang === "vi" ? "Công nghệ cao" : "High-Tech",
-      desc: lang === "vi" ? "Vận hành chuyên nghiệp" : "Professional Operation",
-    },
-    {
-      icon: CheckCircle2,
-      title: lang === "vi" ? "Đảm bảo tiến độ" : "On-time Delivery",
-      desc: lang === "vi" ? "Giao hàng đúng hẹn" : "Commitment to schedule",
-    },
+    { icon: Target, title: serviceData.title || (lang === 'vi' ? "Gia công CNC" : "CNC Machining"), desc: lang === 'vi' ? "Dung sai dưới 0.005mm" : "Tolerance under 0.005mm" },
+    { icon: Award, title: lang === 'vi' ? "Chứng chỉ ISO" : "ISO Certification", desc: lang === 'vi' ? "ISO 9001:2015" : "Quality Management" },
+    { icon: Zap, title: lang === 'vi' ? "Công nghệ cao" : "High-Tech", desc: lang === 'vi' ? "Vận hành chuyên nghiệp" : "Professional Operation" },
+    { icon: CheckCircle2, title: lang === 'vi' ? "Đảm bảo tiến độ" : "On-time Delivery", desc: lang === 'vi' ? "Giao hàng đúng hẹn" : "Commitment to schedule" },
   ]
 
-  const tags = [
-    { icon: Award, label: "ISO 9001:2015", position: "right-0 top-[10%]", axis: "y" as const, distance: -9, duration: 4.4 },
-    { icon: CheckCircle2, label: "JIS Standard", position: "-left-2 bottom-[28%]", axis: "y" as const, distance: 10, duration: 5.2 },
-    { icon: Cog, label: "CNC 5-Axis", position: "right-[8%] bottom-[8%]", axis: "x" as const, distance: 8, duration: 5.8 },
-  ]
+  if (!mounted) return null
 
   return (
-    <section
-      aria-labelledby="about-summary-title"
-      className="relative overflow-hidden border-t border-border/60 bg-card/35 py-20 sm:py-24 lg:py-28"
-    >
-      <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-30" aria-hidden="true" />
+    <section className="relative py-24 lg:py-32 overflow-hidden bg-background">
+      <style jsx global>{`
+        @keyframes twinkle-galaxy {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+      `}</style>
 
-      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-        <div ref={ref} className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
+      {/* Mạng lưới chìm */}
+      <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-[0.02] dark:opacity-5 pointer-events-none" />
+
+      <div className="container mx-auto px-4 lg:px-6 relative z-10">
+        <div ref={ref} className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          {/* CỘT TRÁI: NỘI DUNG */}
           <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, x: -24 }}
-            animate={shouldReduceMotion || isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -24 }}
-            transition={{ duration: 0.45 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="relative z-20"
           >
-            <div className="mb-5 inline-flex min-h-10 items-center rounded-full border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-              {nav.about || (lang === "vi" ? "Giới thiệu" : "About Us")}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f97316]/10 border border-[#f97316]/30 text-[#f97316] text-xs font-bold mb-6 uppercase tracking-widest">
+              {nav.about || (lang === 'vi' ? "Giới thiệu" : "About Us")}
             </div>
-
-            <h2 id="about-summary-title" className="max-w-2xl text-balance text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-              <span className="text-primary">ZINITEK</span> —{" "}
-              {aboutData.header_subtitle || (lang === "vi" ? "Kỹ thuật thực chiến" : "Practical Engineering")}
+            <h2 className="text-3xl md:text-5xl font-bold mb-8 text-foreground leading-tight text-balance">
+              <span className="text-[#f97316]">ZINITEK</span> — {aboutData.header_subtitle || (lang === 'vi' ? "Kỹ thuật thực chiến" : "Practical Engineering")}
             </h2>
-
-            <p className="mt-5 max-w-[62ch] text-base leading-7 text-muted-foreground sm:text-lg">
-              {aboutData.header_desc ||
-                (lang === "vi"
-                  ? "Chúng tôi tập trung vào việc hiện thực hóa bản vẽ kỹ thuật với độ hoàn thiện cao."
-                  : "We focus on realizing technical drawings with high precision.")}
+            <p className="text-muted-foreground text-lg mb-10 max-w-xl">
+              {aboutData.header_desc || (lang === 'vi' ? "Chúng tôi tập trung vào việc hiện thực hóa bản vẽ kỹ thuật với độ hoàn thiện cao." : "We focus on realizing technical drawings with high precision.")}
             </p>
-
-            <ul className="mt-9 grid gap-4 sm:grid-cols-2" role="list">
-              {features.map((feature) => (
-                <li
-                  key={feature.title}
-                  className="group flex min-h-24 gap-3 rounded-2xl border border-border/80 bg-background/75 p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-300 lg:hover:-translate-y-1 lg:hover:border-primary/40 lg:hover:shadow-card"
-                >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 lg:group-hover:scale-110">
-                    <feature.icon className="size-5" aria-hidden="true" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+              {features.map((feature, index) => (
+                <div key={index} className="flex gap-4 p-4 rounded-xl bg-card/50 border border-border hover:border-[#f97316]/30 transition-all group shadow-sm">
+                  <feature.icon className="w-6 h-6 text-[#f97316] shrink-0 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <h3 className="font-bold text-foreground text-sm">{feature.title}</h3>
+                    <p className="text-xs text-muted-foreground">{feature.desc}</p>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold leading-6 text-foreground">{feature.title}</h3>
-                    <p className="mt-1 text-sm leading-5 text-muted-foreground">{feature.desc}</p>
-                  </div>
-                </li>
+                </div>
               ))}
-            </ul>
-
-            <Button
-              asChild
-              className="mt-9 min-h-12 rounded-full bg-primary px-7 font-semibold text-primary-foreground shadow-soft transition-[background-color,box-shadow,transform] duration-300 lg:hover:-translate-y-1 lg:hover:scale-[1.03] hover:bg-primary/90 hover:shadow-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <Link href={`/${lang}/about`} className="flex items-center gap-2">
-                {common.read_more || (lang === "vi" ? "Xem chi tiết" : "Read More")}
-                <ArrowRight className="size-4 transition-transform duration-300 lg:group-hover:translate-x-1" aria-hidden="true" />
+            </div>
+            <Button asChild className="bg-[#f97316] hover:bg-[#ea580c] text-white rounded-full px-8 py-6 h-auto transition-transform hover:scale-105">
+              <Link href={`/${lang}/about`} className="flex items-center gap-2 font-bold uppercase text-sm">
+                {common.read_more || (lang === 'vi' ? "Xem chi tiết" : "Read More")} <ArrowRight size={18} />
               </Link>
             </Button>
           </motion.div>
 
+          {/* CỘT PHẢI: GALAXY DECOR */}
           <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
-            animate={shouldReduceMotion || isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.55, delay: 0.08 }}
-            className="relative mx-auto flex w-full max-w-[520px] items-center justify-center py-8"
-            aria-label={lang === "vi" ? "Các tiêu chuẩn và năng lực chính của ZINITEK" : "ZINITEK standards and capabilities"}
+            className="relative flex justify-center items-center py-10 z-10"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
-            <div className="relative aspect-square w-full max-w-[480px]">
-              <div className="absolute inset-0 rounded-full border border-primary/15 bg-primary/[0.03]" aria-hidden="true" />
-              <div className="absolute inset-[12%] rounded-full border border-border/80" aria-hidden="true" />
-              <div className="absolute inset-[24%] rounded-full border border-dashed border-primary/25" aria-hidden="true" />
+            <div className="relative w-full max-w-[480px] aspect-square flex items-center justify-center">
 
-              {!shouldReduceMotion && (
-                <>
-                  <motion.div
-                    className="pointer-events-none absolute inset-[2%] rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
-                    aria-hidden="true"
-                  >
-                    {particles.map((particle) => (
-                      <motion.span
-                        key={particle.id}
-                        className="absolute rounded-full"
+              {/* LỚP 1: XOAY NỀN CỐ ĐỊNH (40S) */}
+              <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none animate-[spin_40s_linear_infinite_reverse]">
+                {/* LỚP 2: GIA TỐC KHI HOVER (DURATION: 12) */}
+                <motion.div
+                  className="absolute inset-0"
+                  animate={{
+                    rotate: isHovered ? -360 : 0,
+                    scale: isHovered ? 1.05 : 1
+                  }}
+                  transition={{
+                    rotate: { duration: 12, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 0.6 }
+                  }}
+                >
+                  <div className="absolute inset-0">
+                    {particles.map((p, i) => (
+                      <div key={i} className="absolute rounded-full"
                         style={{
-                          width: particle.size,
-                          height: particle.size,
-                          left: `${particle.left}%`,
-                          top: `${particle.top}%`,
-                          backgroundColor: particle.color,
-                          boxShadow: `0 0 8px ${particle.color}, 0 0 14px ${particle.color}66`,
-                        }}
-                        animate={{
-                          opacity: [0.16, 1, 0.22],
-                          x: [0, particle.driftX, 0],
-                          y: [0, particle.driftY, 0],
-                          scale: [0.72, 1.3, 0.78],
-                        }}
-                        transition={{
-                          duration: particle.duration,
-                          delay: particle.delay,
-                          repeat: Infinity,
-                          ease: "easeInOut",
+                          width: `${p.size}px`, height: `${p.size}px`,
+                          left: `${p.left}%`, top: `${p.top}%`,
+                          backgroundColor: p.color,
+                          boxShadow: `0 0 8px ${p.color}`,
+                          animation: `twinkle-galaxy ${p.duration}s ease-in-out infinite alternate`,
+                          animationDelay: `${p.delay}s`,
                         }}
                       />
                     ))}
-                  </motion.div>
+                  </div>
+                </motion.div>
+              </div>
 
-                  <motion.div
-                    className="absolute inset-[7%] rounded-full border border-cyan-300/20"
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                    aria-hidden="true"
-                  />
-                </>
-              )}
+              {/* Decor Rings */}
+              <div className="absolute inset-0 border border-[#f97316]/10 rounded-full" />
+              <div className="absolute inset-12 border border-border/50 rounded-full" />
 
-              <motion.div
-                className="absolute inset-[30%] z-10 flex flex-col items-center justify-center rounded-full border border-border bg-background/95 px-6 text-center shadow-card"
-                animate={shouldReduceMotion ? undefined : { scale: [1, 1.025, 1] }}
-                transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <div className="font-serif text-5xl font-bold leading-none tracking-tight text-primary sm:text-6xl lg:text-7xl">10+</div>
-                <div className="mt-3 max-w-32 text-xs font-semibold uppercase leading-5 tracking-[0.14em] text-muted-foreground sm:text-sm">
-                  {heroStats.experience || (lang === "vi" ? "Năm kinh nghiệm" : "Years Experience")}
+              {/* Central Stats */}
+              <div className="absolute inset-28 bg-gradient-to-br from-card to-background rounded-full border border-border flex flex-col items-center justify-center shadow-[0_0_60px_rgba(249,115,22,0.2)] z-10 text-center px-6">
+                <div className="text-[#f97316] font-bold text-6xl lg:text-8xl tracking-tighter leading-none">10+</div>
+                <div className="text-muted-foreground text-xs lg:text-sm uppercase tracking-[0.3em] font-semibold mt-2">
+                  {heroStats.experience || (lang === 'vi' ? "Năm kinh nghiệm" : "Years Experience")}
                 </div>
+              </div>
+
+              {/* --- ĐÃ KHÔI PHỤC ĐỦ 3 TAGS Ở ĐÂY --- */}
+
+              {/* Tag 1: ISO */}
+              <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-[8%] right-[8%] z-20 bg-card/95 backdrop-blur-md border border-[#f97316]/40 px-4 py-2 rounded-full shadow-xl">
+                <div className="flex items-center gap-2 text-foreground text-[10px] font-bold"><Award size={14} className="text-[#f97316]" /> ISO 9001:2015</div>
               </motion.div>
 
-              {tags.map((tag, index) => {
-                const animation = tag.axis === "x" ? { x: [0, tag.distance, 0] } : { y: [0, tag.distance, 0] }
+              {/* Tag 2: JIS Standard */}
+              <motion.div animate={{ y: [0, 12, 0] }} transition={{ duration: 5, repeat: Infinity, delay: 0.5 }} className="absolute bottom-[25%] -left-4 z-20 bg-card/95 backdrop-blur-md border border-border px-4 py-2 rounded-full shadow-xl">
+                <div className="flex items-center gap-2 text-foreground text-[10px] font-bold"><CheckCircle2 size={14} className="text-[#f97316]" /> JIS Standard</div>
+              </motion.div>
 
-                return (
-                  <motion.div
-                    key={tag.label}
-                    className={`absolute ${tag.position} z-20 flex min-h-11 items-center gap-2 rounded-full border border-border bg-background/95 px-4 py-2 text-xs font-semibold text-foreground shadow-soft backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-300 sm:text-sm lg:hover:scale-105 lg:hover:border-primary/40 lg:hover:shadow-card`}
-                    animate={shouldReduceMotion ? undefined : animation}
-                    transition={{ duration: tag.duration, repeat: Infinity, ease: "easeInOut", delay: index * 0.35 }}
-                  >
-                    <tag.icon className="size-4 text-primary" aria-hidden="true" />
-                    <span>{tag.label}</span>
-                  </motion.div>
-                )
-              })}
+              {/* Tag 3: CNC 5-Axis (Đã khôi phục) */}
+              <motion.div animate={{ x: [0, 10, 0] }} transition={{ duration: 6, repeat: Infinity, delay: 1 }} className="absolute bottom-[8%] right-[12%] z-20 bg-card/95 backdrop-blur-md border border-border px-4 py-2 rounded-full shadow-xl">
+                <div className="flex items-center gap-2 text-foreground text-[10px] font-bold"><Cog size={14} className="text-[#f97316]" /> CNC 5-Axis</div>
+              </motion.div>
+
             </div>
           </motion.div>
         </div>

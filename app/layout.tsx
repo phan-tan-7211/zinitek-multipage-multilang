@@ -7,30 +7,24 @@ import TrackingProvider from "@/components/analytics";
 import './globals.css';
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-import { getSiteName, replaceLegacySiteName } from "@/lib/site-settings";
 
 // FIX #5: Root fallback metadata — tránh empty <title> khi crawler hit URL gốc
-export async function generateMetadata(): Promise<Metadata> {
-  const siteName = await getSiteName()
-
-  return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'),
-    title: {
-      default: `${siteName} - Gia công CNC & Khuôn mẫu Chính xác`,
-      template: `%s | ${siteName}`,
-    },
-    description: replaceLegacySiteName('ZINITEK chuyên gia công CNC chính xác, thiết kế khuôn mẫu và tự động hóa theo tiêu chuẩn Nhật Bản.', siteName),
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-    },
-    openGraph: {
-      type: 'website',
-      siteName,
-    },
-  }
-}
+export const metadata: Metadata = {
+  metadataBase: new URL('https://zinitek.vn'),
+  title: {
+    default: 'ZINITEK - Gia công CNC & Khuôn mẫu Chính xác',
+    template: '%s | ZINITEK',
+  },
+  description: 'ZINITEK chuyên gia công CNC chính xác, thiết kế khuôn mẫu và tự động hóa theo tiêu chuẩn Nhật Bản.',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+  },
+  openGraph: {
+    type: 'website',
+  },
+};
 
 const montserrat = Montserrat({
   subsets: ["latin"],

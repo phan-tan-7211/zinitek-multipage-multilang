@@ -24,9 +24,7 @@
     "projects": "프로젝트",
     "blog": "블로그",
     "contact": "문의하기",
-    "view_all_services": "모든 기술 서비스 보기",
-    "view_all_products": "모든 제품 보기",
-    "view_all_projects": "모든 프로젝트 보기"
+    "view_all_services": "모든 기술 서비스 보기"
   },
   "hero": {
     "badge": "일본 품질 표준 운영",
@@ -57,8 +55,7 @@
     "title_highlight": "테크놀로지",
     "hub_description": "ZINITEK의 CNC 가공 제품, 기계, 솔루션 카탈로그를 둥러보세요.",
     "meta_title": "제품 및 장비 - ZINITEK",
-    "meta_desc": "ZINITEK의 기계, 장비, 정밀 가공품 목록.",
-    "related_title": "관련 제품"
+    "meta_desc": "ZINITEK의 기계, 장비, 정밀 가공품 목록."
   },
   "about_summary": {
     "badge": "ZINITEK 소개",
@@ -121,8 +118,7 @@
     "client_label": "고객사",
     "year_label": "수행 연도",
     "service_label": "서비스",
-    "gallery_title": "실제 이미지",
-    "related_title": "관련 프로젝트"
+    "gallery_title": "실제 이미지"
   },
   "blog": {
     "title": "뉴스",

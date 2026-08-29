@@ -1,90 +1,133 @@
+
 "use client"
 
-import { motion, useReducedMotion } from "framer-motion"
-import { ArrowRight, Calendar, Clock, User } from "lucide-react"
+import { useRef } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Calendar, Clock, ArrowRight, User, ChevronRight } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 import { FallbackBadge } from "./fallback-badge"
 
-interface BlogPost {
-  _id: string
-  title: string
-  slug: string
-  excerpt?: string
-  mainImage?: { url?: string }
-  publishedAt?: string
-  category?: string
-  author?: string
-  readTime?: string
-  language?: string
+interface BaiVietBlog {
+    _id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    mainImage: { url: string };
+    publishedAt: string;
+    category: string;
+    author?: string;
+    readTime?: string;
+    language: string;
 }
 
-export function BlogListContent({ posts, lang, dict }: { posts: BlogPost[]; lang: string; dict: any }) {
-  const reduceMotion = useReducedMotion()
-  const locale = lang === "vi" ? "vi-VN" : lang === "jp" ? "ja-JP" : lang === "kr" ? "ko-KR" : lang === "cn" ? "zh-CN" : "en-US"
+interface BlogListContentProps {
+    posts: BaiVietBlog[];
+    lang: string;
+    dict: any;
+}
 
-  return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-2 gap-3 landscape:grid-cols-3 md:grid-cols-3 md:gap-5">
-        {posts.map((post, index) => {
-          const publishDate = post.publishedAt
-            ? new Date(post.publishedAt).toLocaleDateString(locale, { day: "2-digit", month: "short", year: "numeric" })
-            : ""
-
-          return (
-            <motion.article
-              key={post._id}
-              initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={reduceMotion ? { duration: 0 } : { duration: 0.45, delay: Math.min(index * 0.05, 0.3) }}
-              className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft transition-all md:rounded-3xl lg:hover:-translate-y-2 lg:hover:scale-[1.015] lg:hover:border-primary/45 lg:hover:shadow-card"
+export function BlogListContent({ posts, lang, dict }: BlogListContentProps) {
+    return (
+        <div className="container mx-auto px-4">
+            {/* Blog Grid - Social News Feed Style */}
+            <motion.div
+                layout
+                className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6"
             >
-              <FallbackBadge ngonNguThucTe={post.language || lang} ngonNguNguoiDung={lang} />
-              <Link href={`/${lang}/blog/${post.slug}`} className="relative block aspect-[4/3] overflow-hidden bg-secondary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring md:aspect-[16/10]">
-                <Image
-                  src={post.mainImage?.url || "/placeholder.svg"}
-                  alt={post.title}
-                  fill
-                  sizes="(max-width: 767px) and (orientation: landscape) 33vw, (max-width: 767px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-700 lg:group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" aria-hidden="true" />
-                <span
-                  title={post.category || "TECH"}
-                  className="absolute left-2 top-2 max-w-[calc(100%_-_1rem)] truncate rounded-full bg-primary px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-primary-foreground shadow-soft md:left-4 md:top-4 md:px-3 md:py-1.5 md:text-[10px] md:tracking-[0.14em]"
-                >
-                  {post.category || "TECH"}
-                </span>
-              </Link>
+                <AnimatePresence mode="popLayout">
+                    {posts.map((post, index) => {
+                        const publishDate = new Date(post.publishedAt).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
 
-              <div className="flex flex-1 flex-col p-3 md:p-5 xl:p-6">
-                <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] text-muted-foreground sm:text-[10px] md:mb-4 md:gap-x-4 md:gap-y-2 md:text-xs">
-                  {publishDate && <span className="flex items-center gap-1"><Calendar className="size-3 text-primary md:size-3.5" aria-hidden="true" />{publishDate}</span>}
-                  <span className="flex items-center gap-1"><Clock className="size-3 text-primary md:size-3.5" aria-hidden="true" />{post.readTime || "5 min"}</span>
+                        return (
+                            <motion.article
+                                key={post._id}
+                                layout
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.4, delay: index * 0.05 }}
+                                className="group bg-card rounded-xl md:rounded-3xl overflow-hidden border border-border/50 hover:border-[#f97316]/50 transition-all duration-500 relative shadow-sm hover:shadow-md flex flex-col h-full"
+                            >
+                                {/* Fallback Badge */}
+                                <FallbackBadge ngonNguThucTe={post.language} ngonNguNguoiDung={lang} />
+
+                                {/* Cover Image */}
+                                <div className="relative aspect-video overflow-hidden bg-secondary/20">
+                                    <img
+                                        src={post.mainImage?.url || "/placeholder.svg"}
+                                        alt={post.title}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+
+                                    {/* Category Tag */}
+                                    <div className="absolute top-2.5 left-2.5">
+                                        <span className="px-2 py-0.5 text-[9px] font-bold bg-[#f97316] text-white rounded-full shadow-lg uppercase tracking-wider">
+                                            {post.category || "TECH"}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Content - Micro Typography */}
+                                <div className="p-2.5 md:p-5 flex flex-col flex-grow">
+                                    {/* Meta info */}
+                                    <div className="flex items-center gap-3 text-[9px] md:text-[11px] text-muted-foreground mb-2 opacity-70">
+                                        <span className="flex items-center gap-1">
+                                            <Calendar className="w-2.5 h-2.5 text-[#f97316]" />
+                                            {publishDate}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Clock className="w-2.5 h-2.5 text-[#f97316]" />
+                                            {post.readTime || "5m"}
+                                        </span>
+                                    </div>
+
+                                    <Link href={`/${lang}/blog/${post.slug}`} className="flex-grow">
+                                        <h3 className="text-[13px] md:text-lg font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-[#f97316] transition-colors leading-tight">
+                                            {post.title}
+                                        </h3>
+                                    </Link>
+
+                                    <p className="text-[11px] md:text-sm text-muted-foreground line-clamp-2 mb-4 leading-normal opacity-85">
+                                        {post.excerpt}
+                                    </p>
+
+                                    {/* Footer - High Density */}
+                                    <div className="flex items-center justify-between pt-2 border-t border-border/30 mt-auto">
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center border border-border/30">
+                                                <User className="w-2.5 h-2.5 text-muted-foreground" />
+                                            </div>
+                                            <span className="text-[10px] md:text-sm text-muted-foreground font-medium truncate max-w-[80px]">
+                                                {post.author || "ZINITEK"}
+                                            </span>
+                                        </div>
+
+                                        <Link
+                                            href={`/${lang}/blog/${post.slug}`}
+                                            className="flex items-center gap-1 text-[11px] md:text-sm text-[#f97316] font-bold group-hover:gap-1.5 transition-all"
+                                        >
+                                            <span className="hidden md:inline">Đọc thêm</span>
+                                            <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                                        </Link>
+                                    </div>
+                                </div>
+                            </motion.article>
+                        );
+                    })}
+                </AnimatePresence>
+            </motion.div>
+
+            {/* Empty State */}
+            {posts.length === 0 && (
+                <div className="text-center py-20 border border-dashed border-border/30 rounded-3xl bg-secondary/10">
+                    <p className="text-muted-foreground italic text-sm">Hiện chưa có bài viết nào.</p>
                 </div>
-
-                <Link href={`/${lang}/blog/${post.slug}`} className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <h2 className="line-clamp-2 text-balance font-serif text-[13px] font-bold leading-[1.35] text-foreground transition-colors sm:text-sm md:text-lg md:leading-snug xl:text-xl lg:group-hover:text-primary">{post.title}</h2>
-                </Link>
-                <p className="mt-2 line-clamp-2 flex-1 text-[11px] leading-5 text-muted-foreground md:mt-3 md:line-clamp-3 md:text-sm md:leading-6">{post.excerpt || ""}</p>
-
-                <div className="mt-4 flex items-center justify-between gap-1 border-t border-border/60 pt-3 md:mt-6 md:gap-3 md:pt-4">
-                  <div className="flex min-w-0 flex-1 items-center gap-1 text-[10px] text-muted-foreground md:gap-2 md:text-sm"><span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary md:size-8"><User className="size-3 md:size-4" aria-hidden="true" /></span><span className="truncate">{post.author || "ZINITEK"}</span></div>
-                  <Link href={`/${lang}/blog/${post.slug}`} className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-xl px-1 text-[10px] font-semibold text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-11 md:gap-2 md:px-2 md:text-sm lg:group-hover:gap-3">
-                    {dict.blog?.read_more || dict.common?.read_more || "Read more"}<ArrowRight className="size-3.5 md:size-4" aria-hidden="true" />
-                  </Link>
-                </div>
-              </div>
-            </motion.article>
-          )
-        })}
-      </div>
-
-      {posts.length === 0 && (
-        <div className="rounded-3xl border border-dashed border-border bg-secondary/20 px-6 py-16 text-center">
-          <p className="text-sm text-muted-foreground">{dict.blog?.empty || "No articles are available yet."}</p>
+            )}
         </div>
-      )}
-    </div>
-  )
+    )
 }

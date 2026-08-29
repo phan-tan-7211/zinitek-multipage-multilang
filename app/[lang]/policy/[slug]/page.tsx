@@ -1,38 +1,25 @@
+
+
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
 import { Clock, ShieldCheck } from "lucide-react"
+// Import Client Component nút quay lại (dùng router.back())
 import { NutQuayLai } from "@/components/nut-quay-lai"
-import { Footer } from "@/components/footer"
-import { getSiteName, withSiteName } from "@/lib/site-settings"
 
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
+// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
+const trinhKetNoiSanity = createClient({
+    projectId: 'g4o3uumy',
+    dataset: 'production',
+    apiVersion: '2024-01-01',
+    useCdn: false,
 })
 
-type LegalDoc = {
-  _id: string
-  title?: string
-  content?: unknown[]
-  lastUpdated?: string
-  language?: string
-  slug?: string
-}
-
-function cleanLegalSlug(value: unknown) {
-  if (typeof value !== "string") return ""
-  return value.split("/").filter(Boolean).pop() || ""
-}
-
-async function getLegalDoc(slug: string, lang: string): Promise<LegalDoc | null> {
-  const requestedSlug = cleanLegalSlug(slug)
-
-  const docs: LegalDoc[] = await sanityClient.fetch(`
-    *[_type == "legalDoc" && defined(slug.current) && !(_id in path("drafts.**"))] {
+// --- 2. HÀM TRUY VẤN VĂN BẢN PHÁP LÝ ---
+async function layVanBanPhapLy(duongDanSlug: string, ngonNguHienTai: string) {
+    const cauTruyVan = `
+    *[_type == "legalDoc" && (slug.current == $duongDanSlug || slug.current == ($ngonNguHienTai + "/" + $duongDanSlug)) && language == $ngonNguHienTai][0] {
       _id,
       title,
       content,
@@ -40,100 +27,101 @@ async function getLegalDoc(slug: string, lang: string): Promise<LegalDoc | null>
       language,
       "slug": slug.current
     }
-  `)
+  `;
 
-  const matchingDocs = docs.filter((doc) => cleanLegalSlug(doc.slug) === requestedSlug)
-  if (matchingDocs.length === 0) return null
-
-  return (
-    matchingDocs.find((doc) => doc.language === lang) ||
-    matchingDocs.find((doc) => doc.language === "en") ||
-    matchingDocs.find((doc) => doc.language === "vi") ||
-    matchingDocs[0]
-  )
+    return await trinhKetNoiSanity.fetch(cauTruyVan, { duongDanSlug, ngonNguHienTai });
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const { lang, slug } = await params
-  const [doc, siteName] = await Promise.all([getLegalDoc(slug, lang), getSiteName()])
-  if (!doc) return { title: { absolute: withSiteName("Policy", siteName) } }
-
-  const cleanSlug = cleanLegalSlug(doc.slug) || cleanLegalSlug(slug)
-  const canonicalLang = doc.language || lang
-
-  return {
-    title: { absolute: withSiteName(doc.title || "Policy", siteName) },
-    alternates: { canonical: `/${canonicalLang}/policy/${cleanSlug}` },
-    openGraph: {
-      title: withSiteName(doc.title || "Policy", siteName),
-      url: `/${canonicalLang}/policy/${cleanSlug}`,
-      siteName,
-      type: "article",
-    },
-  }
+    const thamSoTrang = await params;
+    const vanBan = await layVanBanPhapLy(thamSoTrang.slug, thamSoTrang.lang);
+    if (!vanBan) return { title: "Policy | ZINITEK" };
+    return { title: `${vanBan.title} - ZINITEK` };
 }
 
-export default async function PolicyPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const { lang, slug } = await params
-  const [dict, doc] = await Promise.all([getDictionary(lang), getLegalDoc(slug, lang)])
+export default async function PolicyPage({
+    params
+}: {
+    params: Promise<{ lang: string; slug: string }>
+}) {
+    const thamSoTrang = await params;
+    const { lang, slug } = thamSoTrang;
 
-  if (!doc) notFound()
+    const [tuDienNgonNgu, duLieuVanBan] = await Promise.all([
+        getDictionary(lang),
+        layVanBanPhapLy(slug, lang)
+    ]);
 
-  const locale =
-    lang === "vi"
-      ? "vi-VN"
-      : lang === "jp"
-        ? "ja-JP"
-        : lang === "kr"
-          ? "ko-KR"
-          : lang === "cn"
-            ? "zh-CN"
-            : "en-US"
+    if (!duLieuVanBan) {
+        notFound();
+    }
 
-  const updated = doc.lastUpdated
-    ? new Date(doc.lastUpdated).toLocaleDateString(locale, {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })
-    : null
+    const ngayCapNhat = duLieuVanBan.lastUpdated
+        ? new Date(duLieuVanBan.lastUpdated).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        })
+        : null;
 
-  return (
-    <main className="min-h-dvh bg-background text-foreground">
-      <div className="container mx-auto px-4 pb-24 pt-32 sm:px-6 lg:px-8 lg:pt-36">
-        <NutQuayLai
-          nhanHienThi={dict.common?.back || (lang === "vi" ? "Quay lại" : "Back")}
-          ngonNgu={lang}
-        />
+    return (
+        <main className="min-h-screen bg-background text-foreground pt-24 md:pt-32 pb-20">
+            <div className="container mx-auto px-4 lg:px-6">
 
-        <article className="mx-auto mt-10 max-w-4xl">
-          <header className="mb-8 sm:mb-10">
-            <div className="inline-flex min-h-10 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              <ShieldCheck className="size-4" aria-hidden="true" />
-              {dict.footer?.legal_document || "Legal document"}
+                {/* Sửa: Dùng Client Component NutQuayLai thay vì Link cứng href=lang
+                    Mục đích: Khi nhấn, sẽ dùng router.back() quay về trang link tới trang lúc trước
+                    (ví dụ: Footer → Trang pháp lý → nhấn nút → quay về Footer),
+                    thay vì luôn về Trang chủ.
+                    Label vẫn lấy từ Dictionary đúng ngôn ngữ hiện tại. */}
+                <NutQuayLai
+                    nhanHienThi={lang === 'vi' ? 'Quay lại' : 'Back'}
+                    ngonNgu={lang}
+                />
+
+                <div className="max-w-4xl mx-auto">
+                    <header className="mb-12">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#f97316]/10 border border-[#f97316]/20 rounded-full text-[#f97316] text-xs font-black uppercase tracking-widest mb-6">
+                            <ShieldCheck className="w-4 h-4" />
+                            Legal Document
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-foreground">
+                            {duLieuVanBan.title}
+                        </h1>
+                        {ngayCapNhat && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Clock className="w-4 h-4 text-[#f97316]" />
+                                <span>Last updated: {ngayCapNhat}</span>
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Nội dung chính với Custom Scrollbar */}
+                    <div className="bg-card rounded-3xl border border-border/50 p-8 md:p-12 shadow-xl shadow-black/5 dark:shadow-none relative overflow-hidden group/content">
+                        <div className="max-h-[70vh] overflow-y-auto pr-6 
+              scrollbar-thin scrollbar-thumb-transparent group-hover/content:scrollbar-thumb-[#f97316] scrollbar-track-transparent
+              [&::-webkit-scrollbar]:w-1
+              [&::-webkit-scrollbar-track]:bg-transparent
+              [&::-webkit-scrollbar-thumb]:bg-transparent
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              group-hover/content:[&::-webkit-scrollbar-thumb]:bg-[#f97316]
+              transition-all duration-300"
+                        >
+                            <article className="prose prose-invert prose-orange max-w-none prose-headings:font-serif prose-p:text-slate-300 prose-p:leading-relaxed prose-a:text-[#f97316]">
+                                <PortableText value={duLieuVanBan.content} />
+                            </article>
+                        </div>
+
+                        {/* Hiệu ứng mờ ở đáy để báo hiệu còn nội dung */}
+                        <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-card to-transparent pointer-events-none opacity-60 dark:opacity-100" />
+                    </div>
+
+                    {duLieuVanBan.language !== lang && (
+                        <div className="mt-8 text-center text-xs text-slate-500 italic">
+                            * This document is currently displayed in the <strong>{duLieuVanBan.language.toUpperCase()}</strong> version.
+                        </div>
+                    )}
+                </div>
             </div>
-
-            <h1 className="mt-5 text-balance font-serif text-4xl font-bold leading-tight sm:text-5xl">
-              {doc.title || "Policy"}
-            </h1>
-
-            {updated && (
-              <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="size-4 text-primary" aria-hidden="true" />
-                {dict.footer?.last_updated || "Last updated"}: {updated}
-              </div>
-            )}
-          </header>
-
-          <div className="rounded-3xl border border-border/70 bg-card p-5 shadow-card sm:p-8 lg:p-10">
-            <div className="prose prose-slate max-w-none dark:prose-invert prose-headings:font-serif prose-a:text-primary prose-p:leading-8">
-              <PortableText value={Array.isArray(doc.content) ? doc.content : []} />
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <Footer lang={lang} dict={dict} />
-    </main>
-  )
+        </main>
+    );
 }

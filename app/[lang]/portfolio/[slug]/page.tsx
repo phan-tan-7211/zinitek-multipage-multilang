@@ -1,369 +1,211 @@
+
+
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
-import { cache } from "react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
-import { Calendar, ChevronRight, Home, Tag, User } from "lucide-react"
+import { Calendar, User, Tag, ArrowLeft, ChevronRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { DetailRelatedSection } from "@/components/detail-related-section"
 import { SanityImage } from "@/components/sanity-image"
-import { Footer } from "@/components/footer"
-import { getSiteName, withSiteName } from "@/lib/site-settings"
 
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
+// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
+const trinhKetNoiSanity = createClient({
+  projectId: 'g4o3uumy',
+  dataset: 'production',
+  apiVersion: '2024-01-01',
   useCdn: false,
 })
 
-const layChiTietDuAn = cache(async (slug: string, lang: string) => {
-  const source = await sanityClient.fetch(
-    `*[_type == "project" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
+// --- 2. HÀM TRUY VẤN CHI TIẾT DỰ ÁN VỚI DỰ PHÒNG THÔNG MINH ---
+async function layChiTietDuAn(duongDanSlug: string, ngonNguHienTai: string) {
+  const cauTruyVanGroq = `
+    *[_type == "project" && slug.current == $duongDanSlug][0] {
+      "duLieuTotNhat": coalesce(
+        *[_type == "project" && _translationKey == ^._translationKey && language == $ngonNguHienTai][0],
+        *[_type == "project" && _translationKey == ^._translationKey && language == "en"][0],
+        *[_type == "project" && _translationKey == ^._translationKey && language == "vi"][0],
+        ^
+      )
+    }.duLieuTotNhat {
       _id,
-      _translationKey
-    }`,
-    { slug }
-  )
-
-  if (!source) return null
-
-  const query = source._translationKey
-    ? `coalesce(
-        *[_type == "project" && _translationKey == $translationKey && language == $lang && !(_id in path("drafts.**"))][0],
-        *[_type == "project" && _translationKey == $translationKey && language == "en" && !(_id in path("drafts.**"))][0],
-        *[_type == "project" && _translationKey == $translationKey && language == "vi" && !(_id in path("drafts.**"))][0],
-        *[_type == "project" && slug.current == $slug && !(_id in path("drafts.**"))][0]
-      ) {
-        _id,
-        _translationKey,
-        "_metadataGroupId": *[_type == "translation.metadata" && "project" in schemaTypes && references(^._id)][0]._id,
-        title,
-        client,
-        projectYear,
-        description,
-        content,
-        language,
-        "slug": slug.current,
-        "image": mainImage.asset->{ _id, url },
-        "gallery": coalesce(gallery[].asset->{ _id, url }, []),
-        "categoryIdentifier": coalesce(serviceCategory->_translationKey, serviceCategory->_id),
-        "serviceCategory": serviceCategory->{
-          _id,
-          _translationKey,
-          title,
-          "slug": slug.current
-        },
-        "translations": *[_type == "project" && _translationKey == ^._translationKey && defined(slug.current) && !(_id in path("drafts.**"))] {
-          language,
-          "slug": slug.current
-        }
-      }`
-    : `*[_type == "project" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
-        _id,
-        _translationKey,
-        "_metadataGroupId": *[_type == "translation.metadata" && "project" in schemaTypes && references(^._id)][0]._id,
-        title,
-        client,
-        projectYear,
-        description,
-        content,
-        language,
-        "slug": slug.current,
-        "image": mainImage.asset->{ _id, url },
-        "gallery": coalesce(gallery[].asset->{ _id, url }, []),
-        "categoryIdentifier": coalesce(serviceCategory->_translationKey, serviceCategory->_id),
-        "serviceCategory": serviceCategory->{
-          _id,
-          _translationKey,
-          title,
-          "slug": slug.current
-        },
-        "translations": []
-      }`
-
-  const project = await sanityClient.fetch(query, {
-    slug,
-    lang,
-    translationKey: source._translationKey || "",
-  })
-
-  if (!project) return null
-
-  if (project.serviceCategory?._translationKey) {
-    const localizedCategory = await sanityClient.fetch(
-      `coalesce(
-        *[_type == "service" && _translationKey == $key && language == $lang && !(_id in path("drafts.**"))][0],
-        *[_type == "service" && _translationKey == $key && language == "en" && !(_id in path("drafts.**"))][0],
-        *[_type == "service" && _translationKey == $key && language == "vi" && !(_id in path("drafts.**"))][0]
-      ) { title, "slug": slug.current }`,
-      { key: project.serviceCategory._translationKey, lang }
-    )
-    if (localizedCategory) project.serviceCategory = localizedCategory
-  }
-
-  return {
-    ...project,
-    title: typeof project.title === "string" ? project.title : "ZINITEK Project",
-    description: typeof project.description === "string" ? project.description : "",
-    gallery: Array.isArray(project.gallery) ? project.gallery.filter(Boolean) : [],
-    translations: Array.isArray(project.translations) ? project.translations : [],
-  }
-})
-
-async function layDuAnLienQuan(project: any, lang: string) {
-  if (!project?.categoryIdentifier) return []
-
-  const rawProjects: any[] = await sanityClient.fetch(
-    `*[
-      _type == "project" &&
-      defined(slug.current) &&
-      coalesce(serviceCategory->_translationKey, serviceCategory->_id) == $categoryIdentifier &&
-      !(_id in path("drafts.**"))
-    ] | order(_createdAt desc) {
-      _id,
-      _translationKey,
-      "_metadataGroupId": *[_type == "translation.metadata" && "project" in schemaTypes && references(^._id)][0]._id,
       title,
+      client,
       projectYear,
       description,
-      "slug": slug.current,
+      content,
       language,
-      "image": mainImage.asset->{ _id, url }
-    }`,
-    { categoryIdentifier: project.categoryIdentifier },
-  )
+      "slug": slug.current,
+      "image": mainImage.asset->{ _id, url },
+      "gallery": gallery[].asset->{ _id, url },
+      "serviceCategory": coalesce(
+        *[_type == "service" && _translationKey == ^.serviceCategory->_translationKey && language == $ngonNguHienTai][0],
+        *[_type == "service" && _translationKey == ^.serviceCategory->_translationKey && language == "en"][0],
+        serviceCategory->
+      ) { title, "slug": slug.current }
+    }
+  `;
 
-  const groups: Record<string, any[]> = {}
-  rawProjects.forEach((item) => {
-    const key = item._metadataGroupId || item._translationKey || item._id
-    if (!groups[key]) groups[key] = []
-    groups[key].push(item)
-  })
-
-  const currentGroupKey = project._metadataGroupId || project._translationKey || project._id
-
-  return Object.entries(groups)
-    .filter(([key]) => key !== currentGroupKey)
-    .map(([, group]) =>
-      group.find((item) => item.language === lang) ||
-      group.find((item) => item.language === "en") ||
-      group.find((item) => item.language === "vi") ||
-      group[0]
-    )
-    .filter(Boolean)
-    .slice(0, 3)
+  return await trinhKetNoiSanity.fetch(cauTruyVanGroq, { duongDanSlug, ngonNguHienTai });
 }
 
+// --- 3. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const { lang, slug } = await params
-  const [project, siteName] = await Promise.all([layChiTietDuAn(slug, lang), getSiteName()])
-  if (!project) return { title: { absolute: withSiteName("Dự án không tồn tại", siteName) } }
+  const thamSoTrang = await params;
+  const duAn = await layChiTietDuAn(thamSoTrang.slug, thamSoTrang.lang);
 
-  const translations = Object.fromEntries(
-    project.translations.map((item: any) => [item.language, `/${item.language}/portfolio/${item.slug}`])
-  )
+  if (!duAn) return { title: "Dự án không tồn tại | ZINITEK" };
 
   return {
-    title: { absolute: withSiteName(project.title, siteName) },
-    description: project.description,
-    alternates: {
-      canonical: `/${lang}/portfolio/${project.slug || slug}`,
-      languages: {
-        ...(translations.vi ? { "vi-VN": translations.vi } : {}),
-        ...(translations.en ? { "en-US": translations.en } : {}),
-        ...(translations.jp ? { "ja-JP": translations.jp } : {}),
-        ...(translations.kr ? { "ko-KR": translations.kr } : {}),
-        ...(translations.cn ? { "zh-CN": translations.cn } : {}),
-      },
-    },
-    openGraph: {
-      title: project.title,
-      description: project.description,
-      url: `/${lang}/portfolio/${project.slug || slug}`,
-      siteName,
-      images: project.image?.url ? [{ url: project.image.url }] : [],
-    },
-  }
+    title: `${duAn.title} - Dự án tiêu biểu ZINITEK`,
+    description: duAn.description
+  };
 }
 
-export default async function ProjectDetailPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const { lang, slug } = await params
-  const [dict, project] = await Promise.all([
+// --- 4. THÀNH PHẦN TRANG CHÍNH ---
+export default async function ProjectDetailPage({
+  params
+}: {
+  params: Promise<{ lang: string; slug: string }>
+}) {
+  const thamSoTrang = await params;
+  const { lang, slug } = thamSoTrang;
+
+  const [tuDien, duLieuDuAn] = await Promise.all([
     getDictionary(lang),
-    layChiTietDuAn(slug, lang),
-  ])
+    layChiTietDuAn(slug, lang)
+  ]);
 
-  if (!project) notFound()
-
-  const relatedProjects = await layDuAnLienQuan(project, lang)
-  const relatedItems = relatedProjects.map((item: any) => ({
-    id: item._metadataGroupId || item._translationKey || item._id,
-    href: `/${lang}/portfolio/${item.slug}`,
-    title: item.title,
-    description: item.description,
-    imageUrl: item.image?.url,
-    eyebrow: item.projectYear || project.serviceCategory?.title,
-  }))
+  if (!duLieuDuAn) notFound();
 
   return (
-    <main className="min-h-dvh bg-background text-foreground">
-      <section className="relative isolate overflow-hidden border-b border-border/60 bg-background pt-28 pb-14 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/[0.025] via-transparent to-transparent" aria-hidden="true" />
-        <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-primary/8 blur-3xl sm:h-96 sm:w-96" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-35 dark:opacity-55" aria-hidden="true" />
-        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-          <nav
-            className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
-            aria-label="Breadcrumb"
+    <main className="min-h-screen bg-background text-foreground pt-32 pb-20">
+      <div className="container mx-auto px-4 lg:px-6">
+
+        {/* Nút quay lại và Breadcrumb */}
+        <div className="flex items-center gap-4 mb-12">
+          <Link
+            href={`/${lang}/portfolio`}
+            className="group flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
           >
-            <div className="flex min-w-0 items-center gap-2">
-              <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <Link
-                href={`/${lang}`}
-                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                {dict.common?.home || "Trang chủ"}
-              </Link>
+            <div className="w-8 h-8 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 bg-card">
+              <ArrowLeft className="w-4 h-4 text-foreground group-hover:text-[#f97316]" />
             </div>
-            <div className="flex min-w-0 items-center gap-2">
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-              <Link
-                href={`/${lang}/portfolio`}
-                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                {dict.navigation?.projects || dict.portfolio?.title || "Dự án"}
-              </Link>
-            </div>
-            <div className="flex min-w-0 items-center gap-2">
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-              <span
-                className="max-w-[70vw] truncate font-medium text-primary"
-                aria-current="page"
-                title={project.title}
-              >
-                {project.title}
-              </span>
-            </div>
-          </nav>
-
-          <div className="max-w-4xl">
-            {project.serviceCategory?.title && (
-              <div className="mb-5 inline-flex min-h-10 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                <Tag className="size-4" aria-hidden="true" />
-                {project.serviceCategory.title}
-              </div>
-            )}
-            <h1 className="text-balance font-serif text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              {project.title}
-            </h1>
-            {project.description && (
-              <p className="mt-6 max-w-[68ch] border-l-2 border-primary pl-5 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-                {project.description}
-              </p>
-            )}
-          </div>
+            <span className="text-sm font-bold uppercase tracking-widest">
+              {tuDien.portfolio?.back_to_list || "Quay lại danh sách"}
+            </span>
+          </Link>
         </div>
-        <div
-          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block"
-          aria-hidden="true"
-        />
-      </section>
 
-      <section className="section-space">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
-            <article className="lg:col-span-8">
-              <div className="relative aspect-video overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card shadow-card">
-                <SanityImage imageData={project.image} alt={project.title} width={1200} height={800} className="h-full w-full object-cover" />
+        <div className="grid lg:grid-cols-12 gap-16">
+
+          {/* CỘT TRÁI: NỘI DUNG CHI TIẾT (8/12) */}
+          <div className="lg:col-span-8">
+            <div className="mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#f97316]/10 border border-[#f97316]/20 rounded-lg text-[#f97316] text-[10px] font-black uppercase tracking-[0.2em] mb-6">
+                <Tag className="w-3 h-3" />
+                {duLieuDuAn.serviceCategory?.title}
               </div>
+              <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight mb-8 text-foreground">
+                {duLieuDuAn.title}
+              </h1>
+              <p className="text-xl text-muted-foreground leading-relaxed italic border-l-4 border-[#f97316] pl-6">
+                {duLieuDuAn.description}
+              </p>
+            </div>
 
-              {project.content && (
-                <div className="prose prose-slate mt-10 max-w-none dark:prose-invert prose-headings:font-serif prose-a:text-primary prose-strong:text-foreground">
-                  <PortableText value={project.content} />
+            {/* Ảnh chính dự án */}
+            <div className="relative aspect-video rounded-3xl overflow-hidden border border-[#334155]/50 mb-12 shadow-2xl">
+              <SanityImage
+                imageData={duLieuDuAn.image}
+                alt={duLieuDuAn.title}
+                width={1200}
+                height={800}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Nội dung bài viết từ Sanity */}
+            <div className="prose prose-invert prose-orange max-w-none mb-16">
+              <PortableText value={duLieuDuAn.content} />
+            </div>
+
+            {/* Thư viện ảnh thực tế */}
+            {duLieuDuAn.gallery && duLieuDuAn.gallery.length > 0 && (
+              <div className="mt-16 mb-16">
+                <h3 className="text-2xl font-serif font-bold mb-8 flex items-center gap-3">
+                  <span className="w-10 h-px bg-[#f97316]"></span>
+                  {tuDien.portfolio?.gallery_title || "Hình ảnh thực tế"}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {duLieuDuAn.gallery.map((anh: any) => (
+                    <div key={anh._id} className="relative aspect-square rounded-2xl overflow-hidden border border-border/50 hover:border-[#f97316]/50 transition-all group shadow-sm dark:shadow-none">
+                      <SanityImage imageData={anh} alt="Project Gallery" width={400} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {project.gallery.length > 0 && (
-                <div className="mt-14 border-t border-border/50 pt-10">
-                  <h2 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                    {dict.portfolio?.gallery_title || "Hình ảnh thực tế"}
-                  </h2>
-                  <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">
-                    {project.gallery.map((image: any, index: number) => (
-                      <div key={image._id || index} className="group relative aspect-square overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition-all lg:hover:-translate-y-1 lg:hover:border-primary/35 lg:hover:shadow-card">
-                        <SanityImage imageData={image} alt={`${project.title} ${index + 1}`} width={500} height={500} className="h-full w-full object-cover transition-transform duration-700 lg:group-hover:scale-110" />
-                      </div>
-                    ))}
+            {/* --- BƯỚC 1: CHÈN NÚT XEM TẤT CẢ VÀO CUỐI NỘI DUNG --- */}
+            <div className="pt-12 border-t border-white/5">
+              <Link href={`/${lang}/portfolio`}>
+                <button className="inline-flex items-center gap-2 px-8 py-4 border border-[#f97316]/50 text-[#f97316] rounded-xl hover:bg-[#f97316] hover:text-[#020617] transition-all duration-500 font-bold uppercase tracking-widest text-sm shadow-lg shadow-[#f97316]/10">
+                  {tuDien.featured_projects?.view_all || "Xem tất cả dự án"}
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* CỘT PHẢI: THÔNG TIN TÓM TẮT (4/12) */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-32 space-y-8">
+              <div className="bg-card border border-border/50 rounded-3xl p-8 shadow-xl relative overflow-hidden shadow-black/5 dark:shadow-none">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#f97316]/5 blur-3xl rounded-full" />
+
+                <h3 className="text-lg font-black uppercase tracking-[0.2em] text-[#f97316] mb-8 border-b border-border/50 pb-4">
+                  {tuDien.portfolio?.project_info || "Thông tin dự án"}
+                </h3>
+
+                <div className="space-y-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-2">
+                      <User className="w-3 h-3" /> {tuDien.portfolio?.client_label || "Khách hàng"}
+                    </span>
+                    <span className="text-lg font-bold text-foreground">{duLieuDuAn.client || "Zinitek Partner"}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-2">
+                      <Calendar className="w-3 h-3" /> {tuDien.portfolio?.year_label || "Năm thực hiện"}
+                    </span>
+                    <span className="text-lg font-bold text-foreground">{duLieuDuAn.projectYear || "2024"}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-2">
+                      <Tag className="w-3 h-3" /> {tuDien.portfolio?.service_label || "Dịch vụ"}
+                    </span>
+                    <Link
+                      href={`/${lang}/services/${duLieuDuAn.serviceCategory?.slug}`}
+                      className="text-lg font-bold text-[#f97316] hover:underline flex items-center gap-1 group"
+                    >
+                      {duLieuDuAn.serviceCategory?.title}
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
-              )}
 
-            </article>
-
-            <aside className="lg:col-span-4">
-              <div className="space-y-6 lg:sticky lg:top-32">
-                <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card p-6 shadow-card sm:p-7">
-                  <div className="pointer-events-none absolute right-0 top-0 size-40 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-                  <h2 className="relative border-b border-border/50 pb-4 font-serif text-xl font-bold text-foreground">
-                    {dict.portfolio?.project_info || "Thông tin dự án"}
-                  </h2>
-
-                  <dl className="relative mt-6 space-y-6">
-                    <div>
-                      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                        <User className="size-4" aria-hidden="true" />
-                        {dict.portfolio?.client_label || "Khách hàng"}
-                      </dt>
-                      <dd className="mt-2 text-lg font-bold text-foreground">{project.client || "—"}</dd>
-                    </div>
-                    <div>
-                      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                        <Calendar className="size-4" aria-hidden="true" />
-                        {dict.portfolio?.year_label || "Năm thực hiện"}
-                      </dt>
-                      <dd className="mt-2 text-lg font-bold text-foreground">{project.projectYear || "—"}</dd>
-                    </div>
-                    {project.serviceCategory?.title && project.serviceCategory?.slug && (
-                      <div>
-                        <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                          <Tag className="size-4" aria-hidden="true" />
-                          {dict.portfolio?.service_label || "Dịch vụ"}
-                        </dt>
-                        <dd className="mt-2">
-                          <Link href={`/${lang}/services/${project.serviceCategory.slug}`} className="inline-flex min-h-11 items-center gap-1 text-lg font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                            {project.serviceCategory.title}
-                            <ChevronRight className="size-4 transition-transform lg:group-hover:translate-x-1" aria-hidden="true" />
-                          </Link>
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
-
-                  <Link href={`/${lang}/contact`} className="relative mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-brand transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:scale-[1.03]">
-                    {dict.common?.contact_btn || "Liên hệ tư vấn"}
-                  </Link>
-                </div>
+                <Link href={`/${lang}/contact`}>
+                  <button className="w-full mt-10 py-4 bg-muted border border-border/50 rounded-xl font-bold text-sm text-foreground uppercase tracking-widest hover:bg-[#f97316] hover:text-[#020617] hover:border-[#f97316] transition-all duration-500 shadow-sm dark:shadow-none hover:shadow-md">
+                    {tuDien.common?.contact_btn || "Liên hệ tư vấn"}
+                  </button>
+                </Link>
               </div>
-            </aside>
+            </div>
           </div>
         </div>
-      </section>
-
-      <DetailRelatedSection
-        eyebrow={dict.navigation?.projects || dict.portfolio?.title || "Dự án"}
-        title={dict.portfolio?.related_title || "Dự án liên quan"}
-        items={relatedItems}
-        viewAllHref={`/${lang}/portfolio`}
-        viewAllLabel={dict.navigation?.view_all_projects || "Xem tất cả dự án"}
-        readMoreLabel={dict.common?.read_more || "Xem chi tiết"}
-      />
-
-      <Footer lang={lang} dict={dict} />
+      </div>
     </main>
-  )
+  );
 }
