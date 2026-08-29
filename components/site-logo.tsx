@@ -2,6 +2,7 @@
 
 import { useSiteSettings } from "@/components/site-settings-context"
 import { ZLogoIcon } from "@/components/z-logo-icon"
+import { resolveLogoMark } from "@/lib/logo-settings"
 
 type SiteLocale = "vi" | "en" | "jp" | "kr" | "cn"
 
@@ -17,49 +18,14 @@ function cleanText(value: string | undefined, fallback: string) {
   return value?.trim() || fallback
 }
 
-function cleanHexColor(value: string | undefined, fallback: string) {
-  const color = value?.trim()
-  return color && /^#[0-9a-fA-F]{6}$/.test(color) ? color : fallback
-}
-
-const LOGO_COLOR_PRESETS = {
-  zinitekOrange: { primary: "#ea580c", text: "#ffffff", fill: "#1e0f0a", glow: "#f97316" },
-  cyberCyan: { primary: "#06b6d4", text: "#22d3ee", fill: "#0f172a", glow: "#22d3ee" },
-  neonPurple: { primary: "#9333ea", text: "#c084fc", fill: "#190a23", glow: "#c084fc" },
-  emerald: { primary: "#059669", text: "#10b981", fill: "#061e14", glow: "#10b981" },
-  titaniumGold: { primary: "#ca8a04", text: "#facc15", fill: "#1e190a", glow: "#facc15" },
-  crimson: { primary: "#dc2626", text: "#ffffff", fill: "#240909", glow: "#ef4444" },
-} as const
-
 export function SiteLogoMark({ className, size = "md" }: { className?: string; size?: "sm" | "md" | "lg" }) {
-  const { logoMark } = useSiteSettings()
-  const preset = logoMark?.colorPreset && logoMark.colorPreset !== "custom"
-    ? LOGO_COLOR_PRESETS[logoMark.colorPreset]
-    : undefined
-  const primaryColor = preset?.primary || cleanHexColor(logoMark?.primaryColor, "#ea580c")
+  const settings = useSiteSettings()
+  const logoMark = resolveLogoMark(settings)
 
   return (
     <ZLogoIcon
       size={size}
-      template={logoMark?.template === "zHexagon" ? "zHexagon" : "zRhombus"}
-      letter={logoMark?.letter?.trim() || "Z"}
-      letterStyle={logoMark?.letterStyle || "system"}
-      primaryColor={primaryColor}
-      textColor={preset?.text || cleanHexColor(logoMark?.textColor, "#ffffff")}
-      fillColor={preset?.fill || cleanHexColor(logoMark?.fillColor, "#0f172a")}
-      fillOpacity={logoMark?.fillOpacity}
-      strokeWidth={logoMark?.strokeWidth}
-      scalePercent={logoMark?.scalePercent}
-      glowEnabled={logoMark?.glowEnabled !== false}
-      glowColor={preset?.glow || cleanHexColor(logoMark?.glowColor, primaryColor)}
-      glowOpacity={logoMark?.glowOpacity}
-      glowBlur={logoMark?.glowBlur || "medium"}
-      shineEnabled={logoMark?.shineEnabled === true}
-      animationEnabled={logoMark?.animationEnabled !== false}
-      shapeHoverRotate={logoMark?.shapeHoverRotate}
-      letterHoverRotate={logoMark?.letterHoverRotate}
-      springStiffness={logoMark?.springStiffness}
-      springDamping={logoMark?.springDamping}
+      {...logoMark}
       className={className}
     />
   )

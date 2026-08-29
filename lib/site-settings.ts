@@ -2,6 +2,7 @@ import { cache } from "react"
 import { createClient } from "next-sanity"
 
 export interface GlobalSiteSettings {
+  _updatedAt?: string
   logoMark?: {
     template?: "zRhombus" | "zHexagon"
     letter?: string
@@ -54,6 +55,7 @@ const sanityClient = createClient({
 export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
   const settings = await sanityClient.fetch<GlobalSiteSettings | null>(
     `*[_type == "siteSettings" && _id == "siteSettings"][0]{
+      _updatedAt,
       logoMark{
         template, letter, letterStyle, colorPreset,
         primaryColor, textColor, fillColor, fillOpacity, strokeWidth, scalePercent,

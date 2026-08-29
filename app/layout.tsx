@@ -7,11 +7,13 @@ import TrackingProvider from "@/components/analytics";
 import './globals.css';
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-import { getSiteName, replaceLegacySiteName } from "@/lib/site-settings";
+import { getSiteSettings, replaceLegacySiteName, resolveSiteName } from "@/lib/site-settings";
 
 // FIX #5: Root fallback metadata — tránh empty <title> khi crawler hit URL gốc
 export async function generateMetadata(): Promise<Metadata> {
-  const siteName = await getSiteName()
+  const settings = await getSiteSettings()
+  const siteName = resolveSiteName(settings)
+  const faviconUrl = `/api/favicon?v=${encodeURIComponent(settings._updatedAt || "default")}`
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'),
@@ -28,6 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: 'website',
       siteName,
+    },
+    icons: {
+      icon: [{ url: faviconUrl, type: 'image/svg+xml' }],
+      shortcut: [{ url: faviconUrl, type: 'image/svg+xml' }],
     },
   }
 }
@@ -54,7 +60,6 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${montserrat.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/icon-light.svg?v=1" type="image/svg+xml" />
         <script
   dangerouslySetInnerHTML={{
     __html: `

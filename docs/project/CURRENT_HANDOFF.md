@@ -252,6 +252,8 @@ Do not store, compile or execute arbitrary React/HTML/SVG from Sanity for this l
 
 Browser-tab titles, the Next.js title template, Open Graph `siteName` and organization/publisher names in current JSON-LD resolve the same `logoWordmark.primaryText + logoWordmark.accentText` value through `lib/site-settings.ts`. Existing dictionary/SEO titles containing the legacy `ZINITEK` token are replaced safely, and titles without the token receive the current site name once. These settings share the 60-second `site-settings` revalidation behavior.
 
+The browser-tab favicon is also generated from the same Sanity `logoMark` configuration through `app/api/favicon/route.ts`. It shares the approved template, center character, character style, preset/custom colors, scale, fill/stroke and static glow with the Header/Footer mark. Hover rotation and shine animation do not apply inside a browser favicon. `lib/logo-settings.ts` is the shared resolver for both the on-page React mark and the generated SVG, so do not duplicate color presets or logo fallback rules elsewhere. Root metadata adds the Sanity `_updatedAt` value to the favicon URL to invalidate the browser cache after a published branding edit; allow the normal 60-second `site-settings` revalidation window.
+
 ## Multilingual rules
 
 Supported route locales are exactly:
