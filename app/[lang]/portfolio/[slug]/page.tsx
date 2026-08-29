@@ -1,11 +1,12 @@
+
+
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
-import { Calendar, User, Tag, ArrowLeft, ChevronRight } from "lucide-react"
+import { Calendar, User, Tag, ArrowLeft, ChevronRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { SanityImage } from "@/components/sanity-image"
-import detailNavigation from "@/dictionaries/detail-navigation.json"
 
 // --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
 const trinhKetNoiSanity = createClient({
@@ -76,29 +77,23 @@ export default async function ProjectDetailPage({
 
   if (!duLieuDuAn) notFound();
 
-  const nhanTatCaDuAn = detailNavigation[lang as keyof typeof detailNavigation]?.all_projects || detailNavigation.vi.all_projects;
-
-  const nutTatCaDuAn = (
-    <Link
-      href={`/${lang}/portfolio`}
-      className="group inline-flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
-    >
-      <div className="w-8 h-8 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 bg-card">
-        <ArrowLeft className="w-4 h-4 text-foreground group-hover:text-[#f97316]" />
-      </div>
-      <span className="text-sm font-bold uppercase tracking-widest text-foreground group-hover:text-[#f97316]">
-        {nhanTatCaDuAn}
-      </span>
-    </Link>
-  );
-
   return (
     <main className="min-h-screen bg-background text-foreground pt-32 pb-20">
       <div className="container mx-auto px-4 lg:px-6">
 
-        {/* Nút quay lại danh sách — đồng bộ style với trang chi tiết sản phẩm */}
-        <div className="mb-10">
-          {nutTatCaDuAn}
+        {/* Nút quay lại và Breadcrumb */}
+        <div className="flex items-center gap-4 mb-12">
+          <Link
+            href={`/${lang}/portfolio`}
+            className="group flex items-center gap-2 text-muted-foreground hover:text-[#f97316] transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full border border-border/50 flex items-center justify-center group-hover:border-[#f97316]/50 bg-card">
+              <ArrowLeft className="w-4 h-4 text-foreground group-hover:text-[#f97316]" />
+            </div>
+            <span className="text-sm font-bold uppercase tracking-widest">
+              {tuDien.portfolio?.back_to_list || "Quay lại danh sách"}
+            </span>
+          </Link>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-16">
@@ -151,9 +146,14 @@ export default async function ProjectDetailPage({
               </div>
             )}
 
-            {/* Nút cuối nội dung dùng cùng style với product detail */}
+            {/* --- BƯỚC 1: CHÈN NÚT XEM TẤT CẢ VÀO CUỐI NỘI DUNG --- */}
             <div className="pt-12 border-t border-white/5">
-              {nutTatCaDuAn}
+              <Link href={`/${lang}/portfolio`}>
+                <button className="inline-flex items-center gap-2 px-8 py-4 border border-[#f97316]/50 text-[#f97316] rounded-xl hover:bg-[#f97316] hover:text-[#020617] transition-all duration-500 font-bold uppercase tracking-widest text-sm shadow-lg shadow-[#f97316]/10">
+                  {tuDien.featured_projects?.view_all || "Xem tất cả dự án"}
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </Link>
             </div>
           </div>
 
