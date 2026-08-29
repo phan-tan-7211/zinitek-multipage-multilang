@@ -121,6 +121,33 @@ Relevant files:
 
 This behavior was aligned in commit `5501b72` (`feat: align related detail navigation`).
 
+## Mobile product and blog listing grids
+
+The main product and blog listing pages use denser responsive grids so mobile users can scan more entries without excessive vertical scrolling.
+
+Current column behavior:
+
+| Viewport | Products | Blog posts |
+| --- | --- | --- |
+| Mobile portrait | 2 columns | 2 columns |
+| Mobile landscape | 3 columns | 3 columns |
+| Tablet | 3 columns | 3 columns |
+| Desktop | 4 columns | 3 columns |
+
+Implementation rules:
+
+- use Tailwind responsive/orientation variants; do not add JavaScript resize or orientation listeners
+- keep compact mobile typography, spacing, badges and metadata while restoring larger type and spacing at desktop breakpoints
+- keep titles and descriptions line-clamped so cards remain visually balanced across five languages
+- keep the whole product card link and the existing blog image/title/read-more links keyboard accessible
+- keep the product search, category drag-scroll, `data-swipe-zone="horizontal"`, filtering and animations unchanged
+- keep `next/image` `sizes` synchronized with the mobile portrait and landscape column counts to avoid downloading unnecessarily large images
+
+Relevant files:
+
+- `components/product-list-content.tsx`
+- `components/blog-list-content.tsx`
+
 ## Site settings: never hard-code business contact data
 
 Sanity `siteSettings` is the source of truth for global contact/business settings.
