@@ -224,6 +224,10 @@ Never restore the previously hard-coded fake testimonials for Toyota Boshoku, Sa
 
 Global address and social settings were moved toward Sanity-managed values. Preserve this direction.
 
+The global `siteSettings` query in `app/[lang]/layout.tsx` targets the singleton document ID `siteSettings` and uses a 60-second Next.js revalidation window with the `site-settings` cache tag. This prevents a production build from keeping old social/contact values indefinitely while avoiding an uncached Sanity request on every page view.
+
+After publishing changes in Studio, allow up to 60 seconds and request/refresh a website route. A code rebuild should not be required for later `siteSettings` content edits once a deployment containing this revalidation behavior is running.
+
 The Footer should not render fake `#` social links. Only configured social URLs should be shown.
 
 The map/contact controls should use `googleMapsUrl`, with address-search fallback only where already implemented.
