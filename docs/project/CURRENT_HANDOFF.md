@@ -236,12 +236,19 @@ The shared header and Footer logo are managed from the singleton Sanity `siteSet
 
 Studio exposes exactly two branding groups:
 
-- `logoMark`: the approved React `zRhombus` logo template with configurable center letter, primary color, text color, glow and hover animation
+- `logoMark`: safe React logo templates and their appearance/motion settings
 - `logoWordmark`: `primaryText`, orange `accentText`, and localized `tagline` values for `vi`, `en`, `jp`, `kr`, `cn`
 
-The actual animated diamond/Z design lives in `components/z-logo-icon.tsx`; Sanity values are applied through `components/site-logo.tsx`. The shared result is used by the desktop header, compact mobile header, mobile navigation drawer and Footer. Do not reintroduce separate hard-coded logo markup in those components.
+`logoMark.template` currently supports two approved designs derived from the owner-provided references:
 
-Do not store, compile or execute arbitrary React/HTML/SVG from Sanity for this logo. The CMS owns the safe template configuration; React/Tailwind/Framer Motion own the approved implementation. Empty fields intentionally fall back to the orange diamond, white `Z`, enabled glow/animation, current `ZINI` + `TEK` and dictionary/localized tagline so an incomplete Studio edit cannot remove the site identity. `prefers-reduced-motion` disables the hover rotation only as an accessibility fallback.
+- `zRhombus`: solid diamond with the center character
+- `zHexagon`: outlined technical hexagon with an optional translucent fill
+
+Studio also exposes a safe set of controls for letter style, six color presets or custom HEX colors, scale, hexagon fill/stroke, glow strength/blur, shine sweep, hover rotation and spring stiffness/damping. Scale and motion values are bounded in both Sanity validation and the frontend component so a bad CMS value cannot break the shared navigation layout. The two reference files named `(1)` and `(2)` supplied on 2026-08-29 were byte-identical; they map to the same `zHexagon` template rather than duplicate options.
+
+The actual animated designs live in `components/z-logo-icon.tsx`; Sanity values and color presets are applied through `components/site-logo.tsx`. The shared result is used by the desktop header, compact mobile header, mobile navigation drawer and Footer. Do not reintroduce separate hard-coded logo markup in those components.
+
+Do not store, compile or execute arbitrary React/HTML/SVG from Sanity for this logo. The CMS owns the safe template configuration; React/Tailwind/Framer Motion own the approved implementations. Do not dynamically inject Google Fonts from a logo setting; the selectable styles use the fonts already loaded by the application plus the bundled geometric Z vector. Empty fields intentionally fall back to the orange diamond, white `Z`, enabled glow/animation, current `ZINI` + `TEK` and dictionary/localized tagline so an incomplete Studio edit cannot remove the site identity. `prefers-reduced-motion` disables the hover rotation only as an accessibility fallback.
 
 Browser-tab titles, the Next.js title template, Open Graph `siteName` and organization/publisher names in current JSON-LD resolve the same `logoWordmark.primaryText + logoWordmark.accentText` value through `lib/site-settings.ts`. Existing dictionary/SEO titles containing the legacy `ZINITEK` token are replaced safely, and titles without the token receive the current site name once. These settings share the 60-second `site-settings` revalidation behavior.
 

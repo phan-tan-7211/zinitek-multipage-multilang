@@ -3,12 +3,26 @@ import { createClient } from "next-sanity"
 
 export interface GlobalSiteSettings {
   logoMark?: {
-    template?: "zRhombus"
+    template?: "zRhombus" | "zHexagon"
     letter?: string
+    letterStyle?: "system" | "vectorZ" | "serif" | "mono"
+    colorPreset?: "zinitekOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom"
     primaryColor?: string
     textColor?: string
+    fillColor?: string
+    fillOpacity?: number
+    strokeWidth?: number
+    scalePercent?: number
     glowEnabled?: boolean
+    glowColor?: string
+    glowOpacity?: number
+    glowBlur?: "soft" | "medium" | "strong"
+    shineEnabled?: boolean
     animationEnabled?: boolean
+    shapeHoverRotate?: number
+    letterHoverRotate?: number
+    springStiffness?: number
+    springDamping?: number
   }
   logoWordmark?: {
     primaryText?: string
@@ -40,7 +54,12 @@ const sanityClient = createClient({
 export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
   const settings = await sanityClient.fetch<GlobalSiteSettings | null>(
     `*[_type == "siteSettings" && _id == "siteSettings"][0]{
-      logoMark{template, letter, primaryColor, textColor, glowEnabled, animationEnabled},
+      logoMark{
+        template, letter, letterStyle, colorPreset,
+        primaryColor, textColor, fillColor, fillOpacity, strokeWidth, scalePercent,
+        glowEnabled, glowColor, glowOpacity, glowBlur, shineEnabled,
+        animationEnabled, shapeHoverRotate, letterHoverRotate, springStiffness, springDamping
+      },
       logoWordmark{primaryText, accentText, tagline{vi, en, jp, kr, cn}},
       phoneDisplay, phoneTel, email, zaloNumber,
       wechatId, wechatUrl, lineUrl,
