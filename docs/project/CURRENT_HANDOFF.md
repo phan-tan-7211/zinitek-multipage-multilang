@@ -1,6 +1,6 @@
 # ZINITEK Current Handoff
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 
 This file is the practical handoff for the next developer or AI agent. Read this together with the root `AGENTS.md` before modifying code.
 
@@ -79,6 +79,47 @@ Do not modify either component independently without checking this coordination.
 ### Existing swipe/drag patterns
 
 Read `docs/ux/INTERACTION_PATTERNS.md` before changing horizontal filters, Embla carousels or smart swipe navigation.
+
+## Detail-page collection navigation and related content
+
+Service, product and project detail pages intentionally use the same information architecture near the end of the page:
+
+| Detail route | Related-content heading | Collection link |
+| --- | --- | --- |
+| `/[lang]/services/[slug]` | `Dịch vụ liên quan` | `Xem tất cả dịch vụ kỹ thuật` -> `/[lang]/services` |
+| `/[lang]/products/[slug]` | `Sản phẩm liên quan` | `Xem tất cả sản phẩm` -> `/[lang]/products` |
+| `/[lang]/portfolio/[slug]` | `Dự án liên quan` | `Xem tất cả dự án` -> `/[lang]/portfolio` |
+
+Current behavior:
+
+- show at most three related entries and exclude the current translated content group
+- preserve the dynamic-content fallback order `requested language -> en -> vi`
+- product and project recommendations are restricted to the same service category
+- service recommendations use the ordered service collection because services are already the top-level technical categories
+- when no related entry exists, hide the empty related-card grid and keep only the corresponding collection link
+- static headings and collection-link labels come from `dictionaries/*.json`
+- do not assume translated entries have the same slug; preserve `_translationKey` / translation metadata grouping
+
+The structure and navigation are shared, but card presentation remains content-appropriate:
+
+- services use icon-led technical cards
+- products and projects use image-led cards through `components/detail-related-section.tsx`
+- all three collection links use `components/detail-collection-link.tsx`
+
+The service detail page also keeps its consultation CTA after the related-services block. Product and project pages already expose their quote/contact action inside the main detail content or sidebar, so do not add a duplicate CTA merely to make the markup identical.
+
+Relevant files:
+
+- `app/[lang]/services/[slug]/page.tsx`
+- `components/service-page-content.tsx`
+- `app/[lang]/products/[slug]/page.tsx`
+- `components/product-detail-page-content.tsx`
+- `app/[lang]/portfolio/[slug]/page.tsx`
+- `components/detail-related-section.tsx`
+- `components/detail-collection-link.tsx`
+- `dictionaries/{vi,en,jp,kr,cn}.json`
+
+This behavior was aligned in commit `5501b72` (`feat: align related detail navigation`).
 
 ## Site settings: never hard-code business contact data
 
@@ -197,6 +238,12 @@ Do not casually replace global overflow behavior across the site as a cleanup.
 9. **Google reviews via API after owner rejects billing/tax.** Current decision is manual Sanity reviews. Do not silently bring API billing back.
 
 ## Verification expectations
+
+### ESLint status
+
+`localhost:3000` is the running Next.js application; ESLint is a source-code checker and does not run "inside" that URL or change the rendered interface.
+
+The repository currently declares `"lint": "eslint ."` in `package.json`, but ESLint is not yet listed as an installed dependency and there is no active ESLint configuration file. Therefore, do not report `npm run lint` as working until the dependency and project-compatible configuration are deliberately added and the command is actually run successfully.
 
 After meaningful code changes, run when possible:
 
