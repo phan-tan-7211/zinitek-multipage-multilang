@@ -9,6 +9,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { fetchSeoData } from "@/lib/fetch-seo-data"
+import { getSiteSettings, replaceLegacySiteName, resolveSiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
 
 const sanityClient = createClient({
@@ -70,17 +71,20 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  const seo = await fetchSeoData(lang, "home")
+  const [seo, siteSettings] = await Promise.all([fetchSeoData(lang, "home"), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
 
   const fallbackTitle =
     "ZINITEK - Kỹ thuật Nhật Bản, Chi phí Việt Nam | Gia công CNC & Khuôn mẫu"
   const fallbackDescription =
     "ZINITEK cung cấp giải pháp gia công CNC chính xác, thiết kế khuôn mẫu và tự động hóa nhà máy theo tiêu chuẩn chất lượng Nhật Bản."
+  const title = withSiteName(seo?.metaTitle || fallbackTitle, siteName)
+  const description = replaceLegacySiteName(seo?.metaDescription || fallbackDescription, siteName)
   const ogImage = seo?.openGraphImage?.asset?.url
 
   return {
-    title: seo?.metaTitle || fallbackTitle,
-    description: seo?.metaDescription || fallbackDescription,
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: `/${lang}`,
       languages: {
@@ -93,16 +97,16 @@ export async function generateMetadata({
     },
     openGraph: {
       type: "website",
-      title: seo?.metaTitle || fallbackTitle,
-      description: seo?.metaDescription || fallbackDescription,
+      title,
+      description,
       url: `/${lang}`,
-      siteName: "ZINITEK",
+      siteName,
       images: ogImage ? [{ url: ogImage }] : [],
     },
     twitter: {
       card: "summary_large_image",
-      title: seo?.metaTitle || fallbackTitle,
-      description: seo?.metaDescription || fallbackDescription,
+      title,
+      description,
       images: ogImage ? [ogImage] : [],
     },
   }
@@ -114,7 +118,8 @@ export default async function Home({
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  const dictionary = await getDictionary(lang)
+  const [dictionary, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
   const blogDictionary = (dictionary.blog as Record<string, string>) || {}
   const newsDictionary =
     (dictionary.news_section as Record<string, string>) || {}
@@ -151,40 +156,38 @@ export default async function Home({
   const latestPosts = selectLocalizedItems(allPosts, lang, 5)
   const latestProjects = selectLocalizedItems(allProjects, lang, 6)
 
+  const sameAs = [
+    siteSettings.facebookUrl,
+    siteSettings.youtubeUrl,
+    siteSettings.tiktokUrl,
+    siteSettings.twitterUrl,
+    siteSettings.lineUrl,
+    siteSettings.wechatUrl,
+    siteSettings.zaloNumber ? `https://zalo.me/${encodeURIComponent(siteSettings.zaloNumber.replace(/\s+/g, ""))}` : undefined,
+  ].filter((url): url is string => Boolean(url))
+  const contactPoint = siteSettings.phoneTel || siteSettings.email
+    ? {
+        "@type": "ContactPoint",
+        ...(siteSettings.phoneTel ? { telephone: siteSettings.phoneTel } : {}),
+        ...(siteSettings.email ? { email: siteSettings.email } : {}),
+        contactType: "customer service",
+        availableLanguage: ["Vietnamese", "English", "Japanese", "Korean", "Chinese"],
+      }
+    : undefined
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": ["Organization", "LocalBusiness"],
-    name: "ZINITEK",
+    name: siteName,
     url: `https://zinitek.vn/${lang}`,
-    logo: {
-      "@type": "ImageObject",
-      url: "https://zinitek.vn/logo.png",
-      width: 200,
-      height: 60,
-    },
     image: "https://zinitek.vn/og-image.jpg",
-    description:
-      "Chuyên gia công CNC, thiết kế khuôn mẫu và tự động hóa theo tiêu chuẩn Nhật Bản.",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Khu Công Nghệ Cao",
-      addressLocality: "TP. Hồ Chí Minh",
-      addressCountry: "VN",
-    },
-    contactPoint: {
-      "@type": "ContactPoint",
-      telephone: "+84-77-622-0031",
-      contactType: "customer service",
-      availableLanguage: [
-        "Vietnamese",
-        "English",
-        "Japanese",
-        "Korean",
-        "Chinese",
-      ],
-    },
-    sameAs: ["https://www.facebook.com/zinitek", "https://zalo.me/zinitek"],
-    priceRange: "$$",
+    description: typeof dictionary.hero?.description === "string"
+      ? dictionary.hero.description.replace(/<[^>]*>?/gm, "")
+      : undefined,
+    ...(siteSettings.addressDisplay
+      ? { address: { "@type": "PostalAddress", streetAddress: siteSettings.addressDisplay, addressCountry: "VN" } }
+      : {}),
+    ...(contactPoint ? { contactPoint } : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   }
 
   return (

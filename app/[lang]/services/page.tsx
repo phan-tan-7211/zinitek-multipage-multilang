@@ -3,6 +3,7 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { PageHeader } from "@/components/page-header"
 import { ServiceListContent } from "@/components/service-list-content"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
 
 const sanityClient = createClient({
@@ -50,14 +51,16 @@ async function layDanhSachDichVu(lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
-  const title = dict.services?.meta_title || "Dịch vụ - ZINITEK"
+  const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
+  const title = withSiteName(dict.services?.meta_title || "Dịch vụ - ZINITEK", siteName)
   const description =
-    dict.services?.meta_desc ||
-    "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK."
+    replaceLegacySiteName(
+      dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
+      siteName,
+    )
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/services`,
@@ -73,7 +76,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       title,
       description,
       url: `/${lang}/services`,
-      siteName: "ZINITEK",
+      siteName,
     },
     twitter: {
       card: "summary",
@@ -85,7 +88,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function ServicesHubPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const [dict, services] = await Promise.all([getDictionary(lang), layDanhSachDichVu(lang)])
+  const [dict, services, siteName] = await Promise.all([getDictionary(lang), layDanhSachDichVu(lang), getSiteName()])
 
   const titleMain = dict.services?.title_main || "Dịch vụ"
   const titleHighlight = dict.services?.title_highlight || "Kỹ thuật"
@@ -97,7 +100,7 @@ export default async function ServicesHubPage({ params }: { params: Promise<{ la
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: dict.services?.meta_title || "Dịch vụ ZINITEK",
+    name: withSiteName(dict.services?.meta_title || "Dịch vụ ZINITEK", siteName),
     description: dict.services?.meta_desc || description,
     itemListElement: services.map((service: any, index: number) => ({
       "@type": "ListItem",

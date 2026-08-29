@@ -3,6 +3,7 @@ import { createClient } from "next-sanity"
 import { cache } from "react"
 import { ServicePageContent } from "@/components/service-page-content"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 import { Footer } from "@/components/footer"
 
 const sanityClient = createClient({
@@ -180,11 +181,11 @@ async function layDichVuLienQuan(slugHienTai: string, lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
-  const service = await layChiTietDichVu(slug, lang)
+  const [service, siteName] = await Promise.all([layChiTietDichVu(slug, lang), getSiteName()])
 
-  if (!service) return { title: "Dịch vụ không tồn tại | ZINITEK" }
+  if (!service) return { title: { absolute: withSiteName("Dịch vụ không tồn tại", siteName) } }
 
-  const title = `${service.title} | ZINITEK`
+  const title = withSiteName(service.title, siteName)
   const description = service.description
   const translations = Object.fromEntries(
     (service.banDichTuongUng || []).map((item: any) => [
@@ -194,7 +195,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   )
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/services/${service.slug || slug}`,
@@ -210,7 +211,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       title,
       description,
       url: `/${lang}/services/${service.slug || slug}`,
-      siteName: "ZINITEK",
+      siteName,
       images: service.image ? [{ url: service.image }] : [],
     },
     twitter: {
@@ -229,10 +230,11 @@ export default async function ServiceDetailPage({
 }) {
   const { lang, slug } = await params
 
-  const [service, relatedCandidates, dict] = await Promise.all([
+  const [service, relatedCandidates, dict, siteName] = await Promise.all([
     layChiTietDichVu(slug, lang),
     layDichVuLienQuan(slug, lang),
     getDictionary(lang),
+    getSiteName(),
   ])
 
   if (!service) notFound()
@@ -249,7 +251,7 @@ export default async function ServiceDetailPage({
     description: service.description,
     provider: {
       "@type": "Organization",
-      name: "ZINITEK",
+      name: siteName,
       url: `https://zinitek.vn/${lang}`,
     },
     url: `https://zinitek.vn/${lang}/services/${service.slug || slug}`,

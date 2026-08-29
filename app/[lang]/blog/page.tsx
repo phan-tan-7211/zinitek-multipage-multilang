@@ -3,6 +3,7 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { BlogListContent } from "@/components/blog-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
 
 const sanityClient = createClient({ projectId: "g4o3uumy", dataset: "production", apiVersion: "2024-01-01", useCdn: false })
@@ -26,11 +27,11 @@ async function getBlogPosts(lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
-  const title = dict.blog?.meta_title || "Blog Kỹ Thuật - ZINITEK"
-  const description = dict.blog?.meta_desc || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK."
+  const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
+  const title = withSiteName(dict.blog?.meta_title || "Blog Kỹ Thuật - ZINITEK", siteName)
+  const description = replaceLegacySiteName(dict.blog?.meta_desc || "Cập nhật xu hướng công nghệ và chia sẻ kinh nghiệm từ đội ngũ kỹ sư ZINITEK.", siteName)
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/blog`,
@@ -43,18 +44,18 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         "x-default": "/vi/blog",
       },
     },
-    openGraph: { title, description, url: `/${lang}/blog`, siteName: "ZINITEK", type: "website" },
+    openGraph: { title, description, url: `/${lang}/blog`, siteName, type: "website" },
     twitter: { card: "summary_large_image", title, description },
   }
 }
 
 export default async function BlogPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const [dict, posts] = await Promise.all([getDictionary(lang), getBlogPosts(lang)])
+  const [dict, posts, siteName] = await Promise.all([getDictionary(lang), getBlogPosts(lang), getSiteName()])
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: dict.blog?.meta_title || "Blog Kỹ Thuật ZINITEK",
+    name: replaceLegacySiteName(dict.blog?.meta_title || "Blog Kỹ Thuật ZINITEK", siteName),
     description: dict.blog?.meta_desc,
     url: `https://zinitek.vn/${lang}/blog`,
     blogPost: posts.map((post: any) => ({ "@type": "BlogPosting", headline: post.title, url: `https://zinitek.vn/${lang}/blog/${post.slug}`, datePublished: post.publishedAt, image: post.mainImage?.url })),

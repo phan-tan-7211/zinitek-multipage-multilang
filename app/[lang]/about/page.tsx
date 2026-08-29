@@ -4,15 +4,16 @@ import { AboutSection } from "@/components/about-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
-  const title = dict.about_page?.meta_title || "Giới thiệu - ZINITEK"
-  const description = dict.about_page?.header_desc || "Câu chuyện về hành trình ZINITEK"
+  const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
+  const title = withSiteName(dict.about_page?.meta_title || "Giới thiệu - ZINITEK", siteName)
+  const description = replaceLegacySiteName(dict.about_page?.header_desc || "Câu chuyện về hành trình ZINITEK", siteName)
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/about`,
@@ -25,14 +26,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         "x-default": "/vi/about",
       },
     },
-    openGraph: { title, description, url: `/${lang}/about`, siteName: "ZINITEK", type: "website" },
+    openGraph: { title, description, url: `/${lang}/about`, siteName, type: "website" },
     twitter: { card: "summary_large_image", title, description },
   }
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
+  const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -40,13 +41,13 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
         "@type": "AboutPage",
         "@id": `https://zinitek.vn/${lang}/about/#webpage`,
         url: `https://zinitek.vn/${lang}/about`,
-        name: dict.about_page?.meta_title || "Giới thiệu - ZINITEK",
+        name: withSiteName(dict.about_page?.meta_title || "Giới thiệu - ZINITEK", siteName),
         description: dict.about_page?.header_desc,
       },
       {
         "@type": "Organization",
         "@id": "https://zinitek.vn/#organization",
-        name: "ZINITEK",
+        name: siteName,
         url: "https://zinitek.vn",
         logo: "https://zinitek.vn/logo.png",
       },

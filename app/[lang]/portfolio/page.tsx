@@ -3,6 +3,7 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { PortfolioListContent } from "@/components/portfolio-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
 
 const sanityClient = createClient({
@@ -87,12 +88,12 @@ async function layDuLieuPortfolio(lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
-  const title = dict.portfolio?.meta_title || dict.portfolio?.title || "Dự án tiêu biểu - ZINITEK"
-  const description = dict.portfolio?.meta_desc || dict.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."
+  const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
+  const title = withSiteName(dict.portfolio?.meta_title || dict.portfolio?.title || "Dự án tiêu biểu - ZINITEK", siteName)
+  const description = replaceLegacySiteName(dict.portfolio?.meta_desc || dict.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK.", siteName)
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/portfolio`,
@@ -108,7 +109,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       title,
       description,
       url: `/${lang}/portfolio`,
-      siteName: "ZINITEK",
+      siteName,
     },
     twitter: {
       card: "summary_large_image",
@@ -120,15 +121,16 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function PortfolioPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const [dict, data] = await Promise.all([
+  const [dict, data, siteName] = await Promise.all([
     getDictionary(lang),
     layDuLieuPortfolio(lang),
+    getSiteName(),
   ])
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: dict.portfolio?.title || "Dự án tiêu biểu ZINITEK",
+    name: replaceLegacySiteName(dict.portfolio?.title || "Dự án tiêu biểu ZINITEK", siteName),
     description: dict.portfolio?.description,
     itemListElement: data.projects.map((project: any, index: number) => ({
       "@type": "ListItem",

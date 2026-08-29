@@ -6,6 +6,7 @@ import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator";
 import { FloatingContactBar } from "@/components/floating-contact-bar";
 import { SiteSettingsProvider } from "@/components/site-settings-context";
 import { getDictionary } from "@/lib/get-dictionary";
+import { getSiteSettings, resolveSiteName } from "@/lib/site-settings";
 import { createClient } from "next-sanity";
 
 const trinhKetNoiSanity = createClient({ projectId: 'g4o3uumy', dataset: 'production', apiVersion: '2024-01-01', useCdn: false })
@@ -28,37 +29,23 @@ async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
     .map((service) => ({ slug: service.slug, icon: service.icon, language: service.language, title: service.title, desc: service.desc }))
 }
 
-async function layCauHinhWebsite() {
-  return await trinhKetNoiSanity.fetch(
-    `*[_type == "siteSettings" && _id == "siteSettings"][0]{
-      logoMark,
-      logoWordmark{primaryText, accentText, tagline{vi, en, jp, kr, cn}},
-      phoneDisplay, phoneTel, email, zaloNumber,
-      wechatId, wechatUrl, lineUrl,
-      facebookUrl, youtubeUrl, tiktokUrl, twitterUrl,
-      addressDisplay, googleMapsUrl
-    }`,
-    {},
-    { next: { revalidate: 60, tags: ['site-settings'] } },
-  )
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params
-  const dict = await getDictionary(lang)
+  const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
   const cleanDescription = dict.hero.description.replace(/<[^>]*>?/gm, '')
-  const siteTitle = `ZINITEK - ${dict.hero.title_line1} ${dict.hero.title_highlight}`
+  const siteTitle = `${siteName} - ${dict.hero.title_line1} ${dict.hero.title_highlight}`
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'),
-    title: { default: siteTitle, template: `%s | ZINITEK` },
+    title: { default: siteTitle, template: `%s | ${siteName}` },
     description: cleanDescription,
-    keywords: ['CNC Machining', 'Precision Engineering', 'Zinitek', 'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'],
+    keywords: ['CNC Machining', 'Precision Engineering', siteName, 'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'],
     alternates: { canonical: `/${lang}`, languages: { 'vi-VN': '/vi', 'en-US': '/en', 'ja-JP': '/jp', 'ko-KR': '/kr', 'zh-CN': '/cn' } },
     openGraph: {
       type: 'website',
       locale: lang === 'vi' ? 'vi_VN' : lang === 'en' ? 'en_US' : lang === 'jp' ? 'ja_JP' : lang === 'kr' ? 'ko_KR' : 'zh_CN',
-      title: siteTitle, description: cleanDescription, url: `/${lang}`, siteName: 'ZINITEK',
-      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ZINITEK — Gia công CNC & Khuôn mẫu' }],
+      title: siteTitle, description: cleanDescription, url: `/${lang}`, siteName,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: `${siteName} — Gia công CNC & Khuôn mẫu` }],
     },
     twitter: { card: 'summary_large_image', title: siteTitle, description: cleanDescription, images: ['/og-image.jpg'] },
   }
@@ -70,7 +57,7 @@ export async function generateStaticParams() {
 
 export default async function LanguageLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const [dict, services, siteSettings] = await Promise.all([getDictionary(lang), layDanhSachDichVuTuSanity(lang), layCauHinhWebsite()])
+  const [dict, services, siteSettings] = await Promise.all([getDictionary(lang), layDanhSachDichVuTuSanity(lang), getSiteSettings()])
   const settings = siteSettings || {}
   const effectiveDict = {
     ...dict,

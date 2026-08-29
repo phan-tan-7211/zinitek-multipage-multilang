@@ -6,6 +6,7 @@ import { ArrowRight, Calendar, ChevronRight, Clock, Home, Tag, User } from "luci
 import Link from "next/link"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 
 const sanityClient = createClient({ projectId: "g4o3uumy", dataset: "production", apiVersion: "2024-01-01", useCdn: false })
 
@@ -40,15 +41,15 @@ async function getRelated(currentId: string, lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
-  const post = await getPost(slug, lang)
-  if (!post) return { title: "Bài viết không tồn tại | ZINITEK" }
+  const [post, siteName] = await Promise.all([getPost(slug, lang), getSiteName()])
+  if (!post) return { title: { absolute: withSiteName("Bài viết không tồn tại", siteName) } }
 
-  const title = `${post.title} | ZINITEK`
+  const title = withSiteName(post.title, siteName)
   const description = post.excerpt || ""
   const translationMap = Object.fromEntries((post.translations || []).map((item: any) => [item.language, `/${item.language}/blog/${item.slug}`]))
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/blog/${post.slug || slug}`,
@@ -60,19 +61,19 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         ...(translationMap.cn ? { "zh-CN": translationMap.cn } : {}),
       },
     },
-    openGraph: { title, description, url: `/${lang}/blog/${post.slug || slug}`, siteName: "ZINITEK", type: "article", publishedTime: post.publishedAt, authors: [post.author || "ZINITEK Team"], images: post.mainImage?.url ? [{ url: post.mainImage.url }] : [] },
+    openGraph: { title, description, url: `/${lang}/blog/${post.slug || slug}`, siteName, type: "article", publishedTime: post.publishedAt, authors: [post.author || `${siteName} Team`], images: post.mainImage?.url ? [{ url: post.mainImage.url }] : [] },
     twitter: { card: "summary_large_image", title, description, images: post.mainImage?.url ? [post.mainImage.url] : [] },
   }
 }
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
-  const [dict, post] = await Promise.all([getDictionary(lang), getPost(slug, lang)])
+  const [dict, post, siteName] = await Promise.all([getDictionary(lang), getPost(slug, lang), getSiteName()])
   if (!post) notFound()
   const related = await getRelated(post._id, post.language || lang)
   const locale = lang === "vi" ? "vi-VN" : lang === "jp" ? "ja-JP" : lang === "kr" ? "ko-KR" : lang === "cn" ? "zh-CN" : "en-US"
   const date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" }) : ""
-  const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description: post.excerpt, image: post.mainImage?.url, author: { "@type": "Organization", name: post.author || "ZINITEK Team" }, publisher: { "@type": "Organization", name: "ZINITEK" }, datePublished: post.publishedAt, mainEntityOfPage: `https://zinitek.vn/${lang}/blog/${post.slug || slug}` }
+  const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description: post.excerpt, image: post.mainImage?.url, author: { "@type": "Organization", name: post.author || `${siteName} Team` }, publisher: { "@type": "Organization", name: siteName }, datePublished: post.publishedAt, mainEntityOfPage: `https://zinitek.vn/${lang}/blog/${post.slug || slug}` }
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
@@ -125,7 +126,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ lan
           <h1 className="mt-6 text-balance font-serif text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">{post.title}</h1>
           <p className="mx-auto mt-6 max-w-[68ch] text-lg leading-8 text-muted-foreground">{post.excerpt}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-y border-border/60 py-5 text-sm text-muted-foreground">
-            <span className="flex items-center gap-2"><User className="size-4 text-primary" aria-hidden="true" />{post.author || "ZINITEK Team"}</span>
+            <span className="flex items-center gap-2"><User className="size-4 text-primary" aria-hidden="true" />{post.author || `${siteName} Team`}</span>
             {date && <span className="flex items-center gap-2"><Calendar className="size-4 text-primary" aria-hidden="true" />{date}</span>}
             <span className="flex items-center gap-2"><Clock className="size-4 text-primary" aria-hidden="true" />{post.readTime || "5 min"}</span>
           </div>

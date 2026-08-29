@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { ArrowRight, HardHat } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
 import { FallbackBadge } from "@/components/fallback-badge"
 import { ProductListContent } from "@/components/product-list-content"
@@ -117,13 +118,13 @@ async function layDanhSachDanhMuc(ngonNguHienTai: string) {
 // --- 3. TẠO THÔNG TIN SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dictionary = await getDictionary(lang)
+  const [dictionary, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
   
-  const title = dictionary.products?.meta_title || "Sản phẩm & Thiết bị - ZINITEK"
-  const description = dictionary.products?.meta_desc || "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK."
+  const title = withSiteName(dictionary.products?.meta_title || "Sản phẩm & Thiết bị - ZINITEK", siteName)
+  const description = replaceLegacySiteName(dictionary.products?.meta_desc || "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK.", siteName)
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/products`,
@@ -137,7 +138,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       title,
       description,
       url: `/${lang}/products`,
-      siteName: 'ZINITEK',
+      siteName,
     },
     twitter: {
       card: 'summary_large_image',
@@ -154,17 +155,18 @@ export default async function ProductsListPage({
   params: Promise<{ lang: string }>
 }) {
   const { lang } = await params
-  const [dictionary, danhSachSanPham, danhSachDanhMuc] = await Promise.all([
+  const [dictionary, danhSachSanPham, danhSachDanhMuc, siteName] = await Promise.all([
     getDictionary(lang),
     layDanhSachSanPham(lang),
-    layDanhSachDanhMuc(lang)
+    layDanhSachDanhMuc(lang),
+    getSiteName(),
   ])
 
   // Khởi tạo Schema.org (JSON-LD) cho danh sách sản phẩm
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": dictionary.products?.title_main || "Danh mục Sản phẩm ZINITEK",
+    "name": replaceLegacySiteName(dictionary.products?.title_main || "Danh mục Sản phẩm ZINITEK", siteName),
     "description": dictionary.products?.hub_description,
     "itemListElement": danhSachSanPham.map((sp: any, index: number) => ({
       "@type": "ListItem",

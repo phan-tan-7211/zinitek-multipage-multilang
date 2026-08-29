@@ -8,6 +8,7 @@ import Link from "next/link"
 import { DetailRelatedSection } from "@/components/detail-related-section"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 
 const sanityClient = createClient({
   projectId: "g4o3uumy",
@@ -156,15 +157,15 @@ async function layDuAnLienQuan(project: any, lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
-  const project = await layChiTietDuAn(slug, lang)
-  if (!project) return { title: "Dự án không tồn tại | ZINITEK" }
+  const [project, siteName] = await Promise.all([layChiTietDuAn(slug, lang), getSiteName()])
+  if (!project) return { title: { absolute: withSiteName("Dự án không tồn tại", siteName) } }
 
   const translations = Object.fromEntries(
     project.translations.map((item: any) => [item.language, `/${item.language}/portfolio/${item.slug}`])
   )
 
   return {
-    title: `${project.title} | ZINITEK`,
+    title: { absolute: withSiteName(project.title, siteName) },
     description: project.description,
     alternates: {
       canonical: `/${lang}/portfolio/${project.slug || slug}`,
@@ -180,7 +181,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       title: project.title,
       description: project.description,
       url: `/${lang}/portfolio/${project.slug || slug}`,
-      siteName: "ZINITEK",
+      siteName,
       images: project.image?.url ? [{ url: project.image.url }] : [],
     },
   }

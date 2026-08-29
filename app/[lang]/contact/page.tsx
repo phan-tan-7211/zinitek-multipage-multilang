@@ -3,27 +3,17 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { ContactSection } from "@/components/contact-section"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
-import { createClient } from "next-sanity"
-
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
-
-async function getSiteSettings() {
-  return sanityClient.fetch(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{phoneTel,addressDisplay,googleMapsUrl}`)
-}
+import { getSiteSettings, replaceLegacySiteName, resolveSiteName, withSiteName } from "@/lib/site-settings"
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
-  const title = dict.contact?.title || "Liên hệ - ZINITEK"
-  const description = dict.contact?.description || "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn."
+  const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
+  const title = withSiteName(dict.contact?.title || "Liên hệ - ZINITEK", siteName)
+  const description = replaceLegacySiteName(dict.contact?.description || "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn.", siteName)
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/contact`,
@@ -36,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         "x-default": "/vi/contact",
       },
     },
-    openGraph: { title, description, url: `/${lang}/contact`, siteName: "ZINITEK", type: "website" },
+    openGraph: { title, description, url: `/${lang}/contact`, siteName, type: "website" },
     twitter: { card: "summary_large_image", title, description },
   }
 }
@@ -44,11 +34,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
   const localBusiness: Record<string, any> = {
     "@type": "LocalBusiness",
     "@id": "https://zinitek.vn/#localbusiness",
-    name: "ZINITEK",
-    image: "https://zinitek.vn/logo.png",
+    name: siteName,
     url: "https://zinitek.vn",
   }
   if (siteSettings?.phoneTel) localBusiness.telephone = siteSettings.phoneTel
@@ -68,7 +58,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
         "@type": "ContactPage",
         "@id": `https://zinitek.vn/${lang}/contact/#webpage`,
         url: `https://zinitek.vn/${lang}/contact`,
-        name: dict.contact?.title || "Liên hệ - ZINITEK",
+        name: withSiteName(dict.contact?.title || "Liên hệ - ZINITEK", siteName),
         description: dict.contact?.description,
       },
       localBusiness,

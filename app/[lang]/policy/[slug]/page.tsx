@@ -5,6 +5,7 @@ import { PortableText } from "@portabletext/react"
 import { Clock, ShieldCheck } from "lucide-react"
 import { NutQuayLai } from "@/components/nut-quay-lai"
 import { Footer } from "@/components/footer"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 
 const sanityClient = createClient({
   projectId: "g4o3uumy",
@@ -54,19 +55,19 @@ async function getLegalDoc(slug: string, lang: string): Promise<LegalDoc | null>
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
-  const doc = await getLegalDoc(slug, lang)
-  if (!doc) return { title: "Policy | ZINITEK" }
+  const [doc, siteName] = await Promise.all([getLegalDoc(slug, lang), getSiteName()])
+  if (!doc) return { title: { absolute: withSiteName("Policy", siteName) } }
 
   const cleanSlug = cleanLegalSlug(doc.slug) || cleanLegalSlug(slug)
   const canonicalLang = doc.language || lang
 
   return {
-    title: `${doc.title || "Policy"} | ZINITEK`,
+    title: { absolute: withSiteName(doc.title || "Policy", siteName) },
     alternates: { canonical: `/${canonicalLang}/policy/${cleanSlug}` },
     openGraph: {
-      title: doc.title || "Policy | ZINITEK",
+      title: withSiteName(doc.title || "Policy", siteName),
       url: `/${canonicalLang}/policy/${cleanSlug}`,
-      siteName: "ZINITEK",
+      siteName,
       type: "article",
     },
   }

@@ -7,6 +7,7 @@ import { DetailRelatedSection } from "@/components/detail-related-section"
 import { Footer } from "@/components/footer"
 import { ChevronRight, Home } from "lucide-react"
 import Link from "next/link"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 
 const sanityClient = createClient({
   projectId: "g4o3uumy",
@@ -133,12 +134,12 @@ async function getRelatedProducts(product: any, lang: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
-  const product = await getProduct(slug, lang)
+  const [product, siteName] = await Promise.all([getProduct(slug, lang), getSiteName()])
 
-  if (!product) return { title: "Sản phẩm không tồn tại | ZINITEK" }
+  if (!product) return { title: { absolute: withSiteName("Sản phẩm không tồn tại", siteName) } }
 
   return {
-    title: `${product.title || "Sản phẩm Zinitek"} - ZINITEK`,
+    title: { absolute: withSiteName(product.title || "Sản phẩm", siteName) },
     description: product.description,
   }
 }

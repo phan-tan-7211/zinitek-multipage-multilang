@@ -171,11 +171,9 @@ Current managed fields include:
 
 Before adding a phone, address, email or social URL to JSX/JSON-LD, inspect whether that value is already available from `siteSettings`.
 
-### Known remaining hard-code to fix later
+### Home JSON-LD hard-code cleanup completed
 
-At the time of this handoff, `app/[lang]/page.tsx` still contains stale hard-coded contact details inside home-page JSON-LD, including address, telephone and social links. This should be migrated to dynamic Sanity settings when SEO/global-hardcode cleanup continues.
-
-Do not copy those stale values to other files.
+Home-page Organization/LocalBusiness JSON-LD now reads the available address, telephone, email and real social links from the singleton `siteSettings` document. Optional properties are omitted when Sanity has no value. The former hard-coded address, telephone, fake Facebook/Zalo URLs, unsupported price range and missing `/logo.png` reference were removed.
 
 ## Google reviews decision: NO Google Places API
 
@@ -244,6 +242,8 @@ Studio exposes exactly two branding groups:
 Rendering is centralized in `components/site-logo.tsx` and used by the desktop header, compact mobile header, mobile navigation drawer and Footer. Do not reintroduce separate hard-coded logo markup in those components.
 
 Do not store or render arbitrary HTML/SVG from Sanity for this logo. The CMS owns the safe content/icon selection; React/Tailwind owns the approved layout and visual style. Empty fields intentionally fall back to the current `ZINI` + `TEK`, Cog icon and dictionary/localized tagline so an incomplete Studio edit cannot remove the site identity.
+
+Browser-tab titles, the Next.js title template, Open Graph `siteName` and organization/publisher names in current JSON-LD resolve the same `logoWordmark.primaryText + logoWordmark.accentText` value through `lib/site-settings.ts`. Existing dictionary/SEO titles containing the legacy `ZINITEK` token are replaced safely, and titles without the token receive the current site name once. These settings share the 60-second `site-settings` revalidation behavior.
 
 ## Multilingual rules
 
