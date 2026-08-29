@@ -5,6 +5,7 @@ import { motion, useInView, useReducedMotion } from "framer-motion"
 import Link from "next/link"
 import { ArrowRight, CheckCircle2, ChevronRight, Home, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { DetailCollectionLink } from "@/components/detail-collection-link"
 import { DynamicIcon } from "./ui/dynamic-icon"
 import { useSiteSettings } from "@/components/site-settings-context"
 
@@ -26,7 +27,14 @@ interface Service {
   labels?: { featuresTitle?: string; specsTitle?: string; processTitle?: string; relatedTitle?: string }
   banDichTuongUng?: BanDichTuongUng[]
 }
-interface ServicePageContentProps { service: Service; relatedServices: Service[]; lang: string; dict: any }
+interface RelatedService {
+  _id: string
+  title: string
+  slug: string
+  description: string
+  icon: any
+}
+interface ServicePageContentProps { service: Service; relatedServices: RelatedService[]; lang: string; dict: any }
 
 export function ServicePageContent({ service, relatedServices, lang, dict }: ServicePageContentProps) {
   const { phoneTel } = useSiteSettings()
@@ -199,7 +207,10 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{dict?.navigation?.services || "Dịch vụ"}</p><h2 className="mt-2 font-serif text-3xl font-bold text-foreground sm:text-4xl">{service.labels?.relatedTitle || "Dịch vụ liên quan"}</h2></div>
-              <Link href={`/${lang}/services`} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict?.navigation?.view_all_services || "Xem tất cả"}<ArrowRight className="size-4" aria-hidden="true" /></Link>
+              <DetailCollectionLink
+                href={`/${lang}/services`}
+                label={dict?.navigation?.view_all_services || "Xem tất cả dịch vụ kỹ thuật"}
+              />
             </div>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {relatedServices.map((related, index) => (
@@ -212,6 +223,17 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
                 </motion.div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {relatedServices.length === 0 && (
+        <section className="border-t border-border/50 bg-background py-10 sm:py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <DetailCollectionLink
+              href={`/${lang}/services`}
+              label={dict?.navigation?.view_all_services || "Xem tất cả dịch vụ kỹ thuật"}
+            />
           </div>
         </section>
       )}

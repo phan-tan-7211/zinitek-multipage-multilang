@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
+import { cache } from "react"
 import { ServicePageContent } from "@/components/service-page-content"
 import { getDictionary } from "@/lib/get-dictionary"
 import { Footer } from "@/components/footer"
@@ -18,6 +19,9 @@ function normalizeService(service: RawService | null) {
 
   return {
     ...service,
+    _id: typeof service._id === "string" ? service._id : "",
+    _translationKey: typeof service._translationKey === "string" ? service._translationKey : undefined,
+    icon: service.icon,
     title: typeof service.title === "string" ? service.title : "Dịch vụ ZINITEK",
     shortTitle: typeof service.shortTitle === "string" ? service.shortTitle : undefined,
     slug: typeof service.slug === "string" ? service.slug : "",
@@ -49,7 +53,20 @@ function normalizeService(service: RawService | null) {
   }
 }
 
-async function layChiTietDichVu(slug: string, lang: string) {
+function normalizeRelatedService(service: RawService | null) {
+  if (!service) return null
+
+  return {
+    _id: typeof service._id === "string" ? service._id : "",
+    _translationKey: typeof service._translationKey === "string" ? service._translationKey : undefined,
+    title: typeof service.title === "string" ? service.title : "Dịch vụ ZINITEK",
+    slug: typeof service.slug === "string" ? service.slug : "",
+    description: typeof service.description === "string" ? service.description : "",
+    icon: service.icon,
+  }
+}
+
+const layChiTietDichVu = cache(async (slug: string, lang: string) => {
   const source = await sanityClient.fetch(
     `*[_type == "service" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
       _id,
@@ -122,7 +139,7 @@ async function layChiTietDichVu(slug: string, lang: string) {
   })
 
   return normalizeService(service)
-}
+})
 
 async function layDichVuLienQuan(slugHienTai: string, lang: string) {
   const rawServices: RawService[] = await sanityClient.fetch(
@@ -155,9 +172,10 @@ async function layDichVuLienQuan(slugHienTai: string, lang: string) {
         group[0]
     )
     .filter(Boolean)
-    .slice(0, 3)
-    .map(normalizeService)
-    .filter(Boolean)
+    .flatMap((item) => {
+      const normalized = normalizeRelatedService(item)
+      return normalized ? [normalized] : []
+    })
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
@@ -211,13 +229,18 @@ export default async function ServiceDetailPage({
 }) {
   const { lang, slug } = await params
 
-  const [service, relatedServices, dict] = await Promise.all([
+  const [service, relatedCandidates, dict] = await Promise.all([
     layChiTietDichVu(slug, lang),
     layDichVuLienQuan(slug, lang),
     getDictionary(lang),
   ])
 
   if (!service) notFound()
+
+  const currentGroupKey = service._translationKey || service._id
+  const relatedServices = relatedCandidates
+    .filter((item) => (item._translationKey || item._id) !== currentGroupKey)
+    .slice(0, 3)
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -241,7 +264,7 @@ export default async function ServiceDetailPage({
       />
       <ServicePageContent
         service={service}
-        relatedServices={relatedServices as any}
+        relatedServices={relatedServices}
         lang={lang}
         dict={dict}
       />

@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
+import { cache } from "react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
-import { ArrowRight, Calendar, ChevronRight, Home, Tag, User } from "lucide-react"
+import { Calendar, ChevronRight, Home, Tag, User } from "lucide-react"
 import Link from "next/link"
+import { DetailRelatedSection } from "@/components/detail-related-section"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
 
@@ -14,7 +16,7 @@ const sanityClient = createClient({
   useCdn: false,
 })
 
-async function layChiTietDuAn(slug: string, lang: string) {
+const layChiTietDuAn = cache(async (slug: string, lang: string) => {
   const source = await sanityClient.fetch(
     `*[_type == "project" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
       _id,
@@ -34,6 +36,7 @@ async function layChiTietDuAn(slug: string, lang: string) {
       ) {
         _id,
         _translationKey,
+        "_metadataGroupId": *[_type == "translation.metadata" && "project" in schemaTypes && references(^._id)][0]._id,
         title,
         client,
         projectYear,
@@ -43,6 +46,7 @@ async function layChiTietDuAn(slug: string, lang: string) {
         "slug": slug.current,
         "image": mainImage.asset->{ _id, url },
         "gallery": coalesce(gallery[].asset->{ _id, url }, []),
+        "categoryIdentifier": coalesce(serviceCategory->_translationKey, serviceCategory->_id),
         "serviceCategory": serviceCategory->{
           _id,
           _translationKey,
@@ -56,6 +60,8 @@ async function layChiTietDuAn(slug: string, lang: string) {
       }`
     : `*[_type == "project" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
         _id,
+        _translationKey,
+        "_metadataGroupId": *[_type == "translation.metadata" && "project" in schemaTypes && references(^._id)][0]._id,
         title,
         client,
         projectYear,
@@ -65,6 +71,7 @@ async function layChiTietDuAn(slug: string, lang: string) {
         "slug": slug.current,
         "image": mainImage.asset->{ _id, url },
         "gallery": coalesce(gallery[].asset->{ _id, url }, []),
+        "categoryIdentifier": coalesce(serviceCategory->_translationKey, serviceCategory->_id),
         "serviceCategory": serviceCategory->{
           _id,
           _translationKey,
@@ -101,6 +108,50 @@ async function layChiTietDuAn(slug: string, lang: string) {
     gallery: Array.isArray(project.gallery) ? project.gallery.filter(Boolean) : [],
     translations: Array.isArray(project.translations) ? project.translations : [],
   }
+})
+
+async function layDuAnLienQuan(project: any, lang: string) {
+  if (!project?.categoryIdentifier) return []
+
+  const rawProjects: any[] = await sanityClient.fetch(
+    `*[
+      _type == "project" &&
+      defined(slug.current) &&
+      coalesce(serviceCategory->_translationKey, serviceCategory->_id) == $categoryIdentifier &&
+      !(_id in path("drafts.**"))
+    ] | order(_createdAt desc) {
+      _id,
+      _translationKey,
+      "_metadataGroupId": *[_type == "translation.metadata" && "project" in schemaTypes && references(^._id)][0]._id,
+      title,
+      projectYear,
+      description,
+      "slug": slug.current,
+      language,
+      "image": mainImage.asset->{ _id, url }
+    }`,
+    { categoryIdentifier: project.categoryIdentifier },
+  )
+
+  const groups: Record<string, any[]> = {}
+  rawProjects.forEach((item) => {
+    const key = item._metadataGroupId || item._translationKey || item._id
+    if (!groups[key]) groups[key] = []
+    groups[key].push(item)
+  })
+
+  const currentGroupKey = project._metadataGroupId || project._translationKey || project._id
+
+  return Object.entries(groups)
+    .filter(([key]) => key !== currentGroupKey)
+    .map(([, group]) =>
+      group.find((item) => item.language === lang) ||
+      group.find((item) => item.language === "en") ||
+      group.find((item) => item.language === "vi") ||
+      group[0]
+    )
+    .filter(Boolean)
+    .slice(0, 3)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
@@ -143,6 +194,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   ])
 
   if (!project) notFound()
+
+  const relatedProjects = await layDuAnLienQuan(project, lang)
+  const relatedItems = relatedProjects.map((item: any) => ({
+    id: item._metadataGroupId || item._translationKey || item._id,
+    href: `/${lang}/portfolio/${item.slug}`,
+    title: item.title,
+    description: item.description,
+    imageUrl: item.image?.url,
+    eyebrow: item.projectYear || project.serviceCategory?.title,
+  }))
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
@@ -241,12 +302,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 </div>
               )}
 
-              <div className="mt-12 border-t border-border/50 pt-8">
-                <Link href={`/${lang}/portfolio`} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-primary/35 px-5 py-3 text-sm font-semibold text-primary transition-all hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:scale-[1.03]">
-                  {dict.featured_projects?.view_all || "Xem tất cả dự án"}
-                  <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </div>
             </article>
 
             <aside className="lg:col-span-4">
@@ -263,7 +318,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                         <User className="size-4" aria-hidden="true" />
                         {dict.portfolio?.client_label || "Khách hàng"}
                       </dt>
-                      <dd className="mt-2 text-lg font-bold text-foreground">{project.client || "ZINITEK Partner"}</dd>
+                      <dd className="mt-2 text-lg font-bold text-foreground">{project.client || "—"}</dd>
                     </div>
                     <div>
                       <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -297,6 +352,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </section>
+
+      <DetailRelatedSection
+        eyebrow={dict.navigation?.projects || dict.portfolio?.title || "Dự án"}
+        title={dict.portfolio?.related_title || "Dự án liên quan"}
+        items={relatedItems}
+        viewAllHref={`/${lang}/portfolio`}
+        viewAllLabel={dict.navigation?.view_all_projects || "Xem tất cả dự án"}
+        readMoreLabel={dict.common?.read_more || "Xem chi tiết"}
+      />
 
       <Footer lang={lang} dict={dict} />
     </main>

@@ -24,7 +24,9 @@
     "projects": "実績紹介",
     "blog": "ブログ",
     "contact": "お問い合わせ",
-    "view_all_services": "すべての技術サービスを見る"
+    "view_all_services": "すべての技術サービスを見る",
+    "view_all_products": "すべての製品を見る",
+    "view_all_projects": "すべてのプロジェクトを見る"
   },
   "hero": {
     "badge": "日本品質基準による運営",
@@ -55,7 +57,8 @@
     "title_highlight": "テクノロジー",
     "hub_description": "ZINITEKのCNC加工製品、機械、ソリューションのカタログをください。",
     "meta_title": "製品・設備 - ZINITEK",
-    "meta_desc": "ZINITEKの機械、設備、精密加工品の一覧。"
+    "meta_desc": "ZINITEKの機械、設備、精密加工品の一覧。",
+    "related_title": "関連製品"
   },
   "about_summary": {
     "badge": "ZINITEKについて",
@@ -117,7 +120,8 @@
     "client_label": "クライアント",
     "year_label": "実施年",
     "service_label": "サービス内容",
-    "gallery_title": "実績ギャラリー"
+    "gallery_title": "実績ギャラリー",
+    "related_title": "関連プロジェクト"
   },
   "blog": {
     "title": "ニュース",

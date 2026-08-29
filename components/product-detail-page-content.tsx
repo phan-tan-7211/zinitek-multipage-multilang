@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
-import { FileText, Download, HardHat, ArrowRight, ExternalLink } from "lucide-react"
+import { FileText, Download, HardHat, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -112,15 +112,6 @@ export function ProductDetailPageContent({ product, dictionary, lang }: { produc
           )}
         </Card>
 
-        <div className="mt-10 border-t border-border/60 pt-8">
-          <Link
-            href={`/${lang}/products`}
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-primary/40 px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-primary transition-all hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:scale-[1.02]"
-          >
-            {dictionary.navigation?.products || "Xem tất cả sản phẩm"}
-            <ExternalLink className="size-4" aria-hidden="true" />
-          </Link>
-        </div>
       </div>
 
       <aside className="space-y-6 lg:col-span-4 lg:sticky lg:top-32 lg:h-fit">

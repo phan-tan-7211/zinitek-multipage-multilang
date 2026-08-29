@@ -24,7 +24,9 @@
     "projects": "项目案例",
     "blog": "博客新闻",
     "contact": "联系我们",
-    "view_all_services": "查看所有技术服务"
+    "view_all_services": "查看所有技术服务",
+    "view_all_products": "查看所有产品",
+    "view_all_projects": "查看所有项目"
   },
   "hero": {
     "badge": "按日本质量标准运行",
@@ -56,7 +58,8 @@
     "title_highlight": "技术设备",
     "hub_description": "浏览 ZINITEK 的 CNC 加工产品、机械和解决方案目录。",
     "meta_title": "产品与设备 - ZINITEK",
-    "meta_desc": "列出 ZINITEK 的机器、设备及精密加工品清单。"
+    "meta_desc": "列出 ZINITEK 的机器、设备及精密加工品清单。",
+    "related_title": "相关产品"
   },
   "about_summary": {
     "badge": "关于 ZINITEK",
@@ -118,7 +121,8 @@
     "client_label": "客户",
     "year_label": "完成年份",
     "service_label": "服务类别",
-    "gallery_title": "实物图片"
+    "gallery_title": "实物图片",
+    "related_title": "相关项目"
   },
   "blog": {
     "title": "新闻",
