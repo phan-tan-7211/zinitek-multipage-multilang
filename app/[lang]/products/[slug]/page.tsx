@@ -3,7 +3,7 @@ import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { ProductDetailPageContent } from "@/components/product-detail-page-content"
 import { Footer } from "@/components/footer"
-import { ArrowLeft } from "lucide-react"
+import { ChevronRight, Home } from "lucide-react"
 import Link from "next/link"
 
 const sanityClient = createClient({
@@ -71,18 +71,38 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <main className="content-shell pb-24 pt-32 sm:pt-36 lg:pb-28 lg:pt-40">
-        <nav className="mb-8 sm:mb-10" aria-label="Breadcrumb">
-          <Link
-            href={`/${lang}/products`}
-            className="group inline-flex min-h-11 items-center gap-2 rounded-xl text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <span className="flex size-9 items-center justify-center rounded-full border border-border/70 bg-card transition-all group-hover:border-primary/50 group-hover:bg-primary/5">
-              <ArrowLeft className="size-4 text-foreground transition-colors group-hover:text-primary" aria-hidden="true" />
+        <nav
+          className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
+          aria-label="Breadcrumb"
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <Link
+              href={`/${lang}`}
+              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {dict.common?.home || "Trang chủ"}
+            </Link>
+          </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+            <Link
+              href={`/${lang}/products`}
+              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {dict.navigation?.products || "Sản phẩm"}
+            </Link>
+          </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+            <span
+              className="max-w-[70vw] truncate font-medium text-primary"
+              aria-current="page"
+              title={product.title || "Sản phẩm ZINITEK"}
+            >
+              {product.title || "Sản phẩm ZINITEK"}
             </span>
-            <span className="text-sm font-bold uppercase tracking-[0.12em] text-foreground transition-colors group-hover:text-primary">
-              {dict.navigation?.products || "Danh mục sản phẩm"}
-            </span>
-          </Link>
+          </div>
         </nav>
 
         <ProductDetailPageContent product={product} dictionary={dict} lang={lang} />

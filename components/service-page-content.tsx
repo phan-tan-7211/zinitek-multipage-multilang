@@ -61,13 +61,39 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
         <div className="pointer-events-none absolute right-[-8rem] top-8 size-[24rem] rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-30 dark:opacity-45" aria-hidden="true" />
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.nav {...reveal(0, 12)} className="mb-8 flex min-w-0 flex-wrap items-center gap-2 text-sm" aria-label="Breadcrumb">
-            <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <Link href={`/${lang}`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict?.common?.home || "Trang chủ"}</Link>
-            <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-            <Link href={`/${lang}/services`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{dict?.navigation?.services || "Dịch vụ"}</Link>
-            <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-            <span className="max-w-[70vw] truncate font-medium text-primary" aria-current="page">{service.shortTitle || service.title}</span>
+          <motion.nav
+            {...reveal(0, 12)}
+            className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
+            aria-label="Breadcrumb"
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <Link
+                href={`/${lang}`}
+                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {dict?.common?.home || "Trang chủ"}
+              </Link>
+            </div>
+            <div className="flex min-w-0 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+              <Link
+                href={`/${lang}/services`}
+                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {dict?.navigation?.services || "Dịch vụ"}
+              </Link>
+            </div>
+            <div className="flex min-w-0 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+              <span
+                className="max-w-[70vw] truncate font-medium text-primary"
+                aria-current="page"
+                title={service.shortTitle || service.title}
+              >
+                {service.shortTitle || service.title}
+              </span>
+            </div>
           </motion.nav>
 
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
