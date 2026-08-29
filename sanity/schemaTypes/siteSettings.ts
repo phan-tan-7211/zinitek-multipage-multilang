@@ -4,6 +4,61 @@ export default {
   type: 'document',
   fields: [
     {
+      name: 'logoMark',
+      title: '1. Biểu tượng logo',
+      type: 'icon.manager',
+      description: 'Chọn biểu tượng dùng trong logo toàn website. Chọn Cog để giữ bánh răng hiện tại; nền cam, kích thước và hiệu ứng glow vẫn do giao diện kiểm soát.',
+    },
+    {
+      name: 'logoWordmark',
+      title: '2. Chữ logo',
+      type: 'object',
+      description: 'Quản lý chữ thương hiệu và dòng mô tả. Giá trị hiện tại là ZINI + TEK; TEK luôn dùng màu cam theo thiết kế gốc.',
+      initialValue: {
+        primaryText: 'ZINI',
+        accentText: 'TEK',
+        tagline: {
+          vi: 'Kỹ Thuật Cơ Khí',
+          en: 'Mechanical Engineering',
+          jp: '機械技術',
+          kr: '기계 공학 솔루션',
+          cn: '机械工程',
+        },
+      },
+      fields: [
+        {
+          name: 'primaryText',
+          title: 'Phần chữ chính',
+          type: 'string',
+          description: 'Nhập: ZINI',
+          validation: (Rule: any) => Rule.max(20),
+        },
+        {
+          name: 'accentText',
+          title: 'Phần chữ màu cam',
+          type: 'string',
+          description: 'Nhập: TEK',
+          validation: (Rule: any) => Rule.max(20),
+        },
+        {
+          name: 'tagline',
+          title: 'Dòng mô tả theo ngôn ngữ',
+          type: 'object',
+          fields: [
+            { name: 'vi', title: 'Tiếng Việt', type: 'string', description: 'Kỹ Thuật Cơ Khí' },
+            { name: 'en', title: 'English', type: 'string', description: 'Mechanical Engineering' },
+            { name: 'jp', title: '日本語', type: 'string', description: '機械技術' },
+            { name: 'kr', title: '한국어', type: 'string', description: '기계 공학 솔루션' },
+            { name: 'cn', title: '中文', type: 'string', description: '机械工程' },
+          ],
+        },
+      ],
+      options: {
+        collapsible: true,
+        collapsed: false,
+      },
+    },
+    {
       name: 'phoneDisplay',
       title: 'Số điện thoại hiển thị',
       type: 'string',
@@ -108,7 +163,7 @@ export default {
   ],
   preview: {
     prepare() {
-      return { title: 'Cấu hình liên hệ toàn website' }
+      return { title: 'Cấu hình toàn website' }
     },
   },
 }

@@ -3,6 +3,12 @@
 import React, { createContext, useContext } from "react"
 
 export interface SiteSettings {
+  logoMark?: string | { icon?: string; name?: string }
+  logoWordmark?: {
+    primaryText?: string
+    accentText?: string
+    tagline?: Partial<Record<"vi" | "en" | "jp" | "kr" | "cn", string>>
+  }
   phoneDisplay?: string
   phoneTel?: string
   email?: string

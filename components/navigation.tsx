@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
-import { Cog } from "lucide-react"
 import { DesktopNavigation } from "./navigation-desktop"
 import { MobileNavigation } from "./navigation-mobile"
+import { SiteLogoMark, SiteLogoWordmark } from "./site-logo"
 import { cn } from "@/lib/utils"
 import * as LucideIcons from "lucide-react"
 
@@ -173,11 +173,15 @@ export function Navigation({ lang, dict, initialServices = [] }: NavigationProps
         <div className="content-shell flex min-h-16 items-center justify-between gap-2 py-2 lg:hidden">
           <Link href={`/${lang}`} className="relative z-[110] flex min-h-11 shrink-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20">
-              <Cog className="size-4 text-primary-foreground" aria-hidden="true" />
+              <SiteLogoMark className="size-4 text-primary-foreground" />
             </div>
-            <span className="hidden text-base font-bold tracking-tight text-foreground min-[390px]:block">
-              ZINI<span className="text-primary">TEK</span>
-            </span>
+            <SiteLogoWordmark
+              lang={lang}
+              fallbackTagline={dict.common.logo_subtitle}
+              className="hidden min-[390px]:block"
+              titleClassName="text-base font-bold tracking-tight text-foreground"
+              hideTagline
+            />
           </Link>
 
           <div

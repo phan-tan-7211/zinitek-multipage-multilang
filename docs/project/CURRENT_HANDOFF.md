@@ -232,6 +232,19 @@ The Footer should not render fake `#` social links. Only configured social URLs 
 
 The map/contact controls should use `googleMapsUrl`, with address-search fallback only where already implemented.
 
+## Sanity-managed global logo
+
+The shared header and Footer logo are managed from the singleton Sanity `siteSettings` document while preserving the existing orange industrial styling.
+
+Studio exposes exactly two branding groups:
+
+- `logoMark`: the selected icon inside the existing orange gradient/glow container
+- `logoWordmark`: `primaryText`, orange `accentText`, and localized `tagline` values for `vi`, `en`, `jp`, `kr`, `cn`
+
+Rendering is centralized in `components/site-logo.tsx` and used by the desktop header, compact mobile header, mobile navigation drawer and Footer. Do not reintroduce separate hard-coded logo markup in those components.
+
+Do not store or render arbitrary HTML/SVG from Sanity for this logo. The CMS owns the safe content/icon selection; React/Tailwind owns the approved layout and visual style. Empty fields intentionally fall back to the current `ZINI` + `TEK`, Cog icon and dictionary/localized tagline so an incomplete Studio edit cannot remove the site identity.
+
 ## Multilingual rules
 
 Supported route locales are exactly:

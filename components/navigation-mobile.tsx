@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { m, AnimatePresence, LazyMotion, domAnimation, useReducedMotion } from "framer-motion"
-import { X, Cog, Menu } from "lucide-react"
+import { X, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { DynamicIcon } from "./ui/dynamic-icon"
 import { ThemeSwitcher } from "./theme-switcher"
+import { SiteLogoMark, SiteLogoWordmark } from "./site-logo"
 
 const languages = [
   { code: "vi", name: "Tiếng Việt", flag: "VN" },
@@ -68,12 +69,14 @@ export function MobileNavigation({
             <div className="flex shrink-0 items-center justify-between border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur-lg">
               <Link href={`/${lang}`} className="flex min-h-11 items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
                 <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20">
-                  <Cog className="size-5 text-primary-foreground" aria-hidden="true" />
+                  <SiteLogoMark className="size-5 text-primary-foreground" />
                 </div>
-                <div>
-                  <span className="text-xl font-bold tracking-tight text-foreground">ZINI<span className="text-primary">TEK</span></span>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{dict.common.logo_subtitle}</p>
-                </div>
+                <SiteLogoWordmark
+                  lang={lang}
+                  fallbackTagline={dict.common.logo_subtitle}
+                  titleClassName="text-xl font-bold tracking-tight text-foreground"
+                  taglineClassName="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground"
+                />
               </Link>
               <button
                 type="button"

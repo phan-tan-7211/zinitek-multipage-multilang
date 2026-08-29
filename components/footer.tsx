@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Cog, ExternalLink, Mail, MapPin, MessageCircle, Phone, Youtube, Facebook } from "lucide-react"
+import { ArrowRight, ExternalLink, Mail, MapPin, MessageCircle, Phone, Youtube, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createClient } from "next-sanity"
 import { useSiteSettings } from "@/components/site-settings-context"
+import { SiteLogoMark, SiteLogoWordmark } from "@/components/site-logo"
 
 const sanityClient = createClient({ projectId: "g4o3uumy", dataset: "production", apiVersion: "2024-01-01", useCdn: true })
 
@@ -89,8 +90,13 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
             <Link href={`/${lang}`} className="mb-6 inline-flex min-h-12 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20"><Cog className="size-6 text-primary-foreground" aria-hidden="true" /></div>
-              <div><span className="text-xl font-serif font-bold tracking-tight text-foreground">ZINI<span className="text-primary">TEK</span></span><p className="-mt-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">{common?.logo_subtitle || "Kỹ Thuật Cơ Khí"}</p></div>
+              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20"><SiteLogoMark className="size-6 text-primary-foreground" /></div>
+              <SiteLogoWordmark
+                lang={lang}
+                fallbackTagline={common?.logo_subtitle || "Kỹ Thuật Cơ Khí"}
+                titleClassName="text-xl font-serif font-bold tracking-tight text-foreground"
+                taglineClassName="-mt-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground"
+              />
             </Link>
             <p className="mb-6 max-w-sm text-sm leading-6 text-muted-foreground">{footer?.description || "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác theo tiêu chuẩn Nhật Bản."}</p>
             {socialLinks.length > 0 && (

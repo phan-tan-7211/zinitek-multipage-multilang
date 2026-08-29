@@ -31,6 +31,8 @@ async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
 async function layCauHinhWebsite() {
   return await trinhKetNoiSanity.fetch(
     `*[_type == "siteSettings" && _id == "siteSettings"][0]{
+      logoMark,
+      logoWordmark{primaryText, accentText, tagline{vi, en, jp, kr, cn}},
       phoneDisplay, phoneTel, email, zaloNumber,
       wechatId, wechatUrl, lineUrl,
       facebookUrl, youtubeUrl, tiktokUrl, twitterUrl,

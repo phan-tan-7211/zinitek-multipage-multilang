@@ -3,12 +3,13 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { ChevronDown, Cog, Globe, Phone, Mail } from "lucide-react"
+import { ChevronDown, Globe, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { DynamicIcon } from "./ui/dynamic-icon"
 import { ThemeToggle } from "./theme-toggle"
+import { SiteLogoMark, SiteLogoWordmark } from "./site-logo"
 
 const languages = [
   { code: "vi", name: "Tiếng Việt", flag: "VN" },
@@ -142,18 +143,16 @@ export function DesktopNavigation({
                 whileHover={reduceMotion ? undefined : { rotate: 180 }}
                 transition={{ duration: 0.65 }}
               >
-                <Cog className="size-6 text-primary-foreground" aria-hidden="true" />
+                <SiteLogoMark className="size-6 text-primary-foreground" />
               </motion.div>
               <div className="absolute inset-0 -z-10 rounded-xl bg-primary opacity-30 blur-lg transition-opacity group-hover:opacity-50" />
             </div>
-            <div>
-              <span className="text-2xl font-serif font-bold tracking-tight text-foreground">
-                ZINI<span className="text-primary">TEK</span>
-              </span>
-              <p className="-mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                {dict.common.logo_subtitle}
-              </p>
-            </div>
+            <SiteLogoWordmark
+              lang={lang}
+              fallbackTagline={dict.common.logo_subtitle}
+              titleClassName="text-2xl font-serif font-bold tracking-tight text-foreground"
+              taglineClassName="-mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground"
+            />
           </Link>
 
           <div className="relative z-[10030] flex items-center gap-0.5 overflow-visible">

@@ -53,7 +53,7 @@ export const structure: StructureResolver = (S) =>
           S.document()
             .schemaType('siteSettings')
             .documentId('siteSettings')
-            .title('Cấu hình liên hệ toàn website')
+            .title('Cấu hình toàn website')
         ),
 
       S.divider(),
