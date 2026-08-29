@@ -122,11 +122,11 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
             </div>
 
             <motion.div initial={shouldReduceMotion ? false : { opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.7, delay: 0.18 }} className="relative">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card shadow-card">
+              <div className="pointer-events-none absolute inset-0 translate-x-4 translate-y-4 rounded-[var(--radius-card)] border border-primary/20" aria-hidden="true" />
+              <div className="relative z-10 aspect-[4/3] overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card shadow-card">
                 <img src={service.image || "/placeholder.svg"} alt={service.title} className="h-full w-full object-cover transition-transform duration-700 lg:hover:scale-[1.035]" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" aria-hidden="true" />
               </div>
-              <div className="pointer-events-none absolute -bottom-4 -right-4 -z-10 size-32 rounded-2xl border border-primary/20" aria-hidden="true" />
             </motion.div>
           </div>
         </div>

@@ -76,7 +76,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block"
+          className="pointer-events-none absolute right-8 top-[22rem] hidden size-24 border-b border-r border-border/70 lg:block"
           aria-hidden="true"
         />
         <nav
