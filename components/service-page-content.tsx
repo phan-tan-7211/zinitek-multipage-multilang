@@ -130,6 +130,10 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
             </motion.div>
           </div>
         </div>
+        <div
+          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
+          aria-hidden="true"
+        />
       </section>
 
       <section ref={sectionRef} className="section-space relative bg-background">

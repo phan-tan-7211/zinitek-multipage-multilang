@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
-import { ArrowLeft, ArrowRight, Calendar, Clock, Tag, User } from "lucide-react"
+import { ArrowRight, Calendar, ChevronRight, Clock, Home, Tag, User } from "lucide-react"
 import Link from "next/link"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
@@ -77,13 +77,46 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ lan
   return (
     <main className="min-h-dvh bg-background text-foreground">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className="container mx-auto px-4 pb-24 pt-32 sm:px-6 lg:px-8 lg:pt-36">
-        <Link href={`/${lang}/blog`} className="inline-flex min-h-11 items-center gap-2 rounded-xl text-sm font-semibold text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <span className="flex size-10 items-center justify-center rounded-full border border-border bg-card"><ArrowLeft className="size-4" aria-hidden="true" /></span>
-          {dict.blog?.back_to_blog || "Back to Blog"}
-        </Link>
+      <article className="container relative isolate mx-auto px-4 pb-24 pt-32 sm:px-6 lg:px-8 lg:pt-36">
+        <div
+          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
+          aria-hidden="true"
+        />
+        <nav
+          className="relative z-10 mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
+          aria-label="Breadcrumb"
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <Link
+              href={`/${lang}`}
+              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {dict.common?.home || "Trang chủ"}
+            </Link>
+          </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+            <Link
+              href={`/${lang}/blog`}
+              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {dict.navigation?.blog || dict.blog?.title || "Blog"}
+            </Link>
+          </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+            <span
+              className="max-w-[70vw] truncate font-medium text-primary"
+              aria-current="page"
+              title={post.title}
+            >
+              {post.title}
+            </span>
+          </div>
+        </nav>
 
-        <header className="mx-auto mt-10 max-w-4xl text-center">
+        <header className="mx-auto max-w-4xl text-center">
           <div className="inline-flex min-h-10 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Tag className="size-4" aria-hidden="true" />{post.category?.title || "TECH"}</div>
           <h1 className="mt-6 text-balance font-serif text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">{post.title}</h1>
           <p className="mx-auto mt-6 max-w-[68ch] text-lg leading-8 text-muted-foreground">{post.excerpt}</p>

@@ -70,9 +70,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <main className="content-shell pb-24 pt-32 sm:pt-36 lg:pb-28 lg:pt-40">
+      <main className="content-shell relative isolate pb-24 pt-32 sm:pt-36 lg:pb-28 lg:pt-40">
+        <div
+          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
+          aria-hidden="true"
+        />
         <nav
-          className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
+          className="relative z-10 mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
           aria-label="Breadcrumb"
         >
           <div className="flex min-w-0 items-center gap-2">

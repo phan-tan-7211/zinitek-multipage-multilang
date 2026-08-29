@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
-import { ArrowLeft, ArrowRight, Calendar, ChevronRight, Tag, User } from "lucide-react"
+import { ArrowRight, Calendar, ChevronRight, Home, Tag, User } from "lucide-react"
 import Link from "next/link"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
@@ -150,12 +150,41 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-transparent to-transparent" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-30 dark:opacity-45" aria-hidden="true" />
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-          <Link href={`/${lang}/portfolio`} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            {dict.portfolio?.back_to_list || "Quay lại danh sách"}
-          </Link>
+          <nav
+            className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
+            aria-label="Breadcrumb"
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <Link
+                href={`/${lang}`}
+                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {dict.common?.home || "Trang chủ"}
+              </Link>
+            </div>
+            <div className="flex min-w-0 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+              <Link
+                href={`/${lang}/portfolio`}
+                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {dict.navigation?.projects || dict.portfolio?.title || "Dự án"}
+              </Link>
+            </div>
+            <div className="flex min-w-0 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+              <span
+                className="max-w-[70vw] truncate font-medium text-primary"
+                aria-current="page"
+                title={project.title}
+              >
+                {project.title}
+              </span>
+            </div>
+          </nav>
 
-          <div className="mt-8 max-w-4xl">
+          <div className="max-w-4xl">
             {project.serviceCategory?.title && (
               <div className="mb-5 inline-flex min-h-10 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
                 <Tag className="size-4" aria-hidden="true" />
@@ -172,6 +201,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
         </div>
+        <div
+          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
+          aria-hidden="true"
+        />
       </section>
 
       <section className="section-space">
