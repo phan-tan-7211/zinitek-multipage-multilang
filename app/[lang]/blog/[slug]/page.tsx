@@ -82,6 +82,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ lan
           className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
           aria-hidden="true"
         />
+        <div
+          className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block"
+          aria-hidden="true"
+        />
         <nav
           className="relative z-10 mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
           aria-label="Breadcrumb"

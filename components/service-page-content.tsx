@@ -57,9 +57,9 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
   return (
     <>
       <section className="relative isolate overflow-hidden border-b border-border/60 bg-background pt-28 pb-16 sm:pt-32 lg:pt-36 lg:pb-24">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-transparent to-transparent" aria-hidden="true" />
-        <div className="pointer-events-none absolute right-[-8rem] top-8 size-[24rem] rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-30 dark:opacity-45" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/[0.025] via-transparent to-transparent" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-primary/8 blur-3xl sm:h-96 sm:w-96" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-35 dark:opacity-55" aria-hidden="true" />
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
           <motion.nav
             {...reveal(0, 12)}
@@ -132,6 +132,10 @@ export function ServicePageContent({ service, relatedServices, lang, dict }: Ser
         </div>
         <div
           className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block"
           aria-hidden="true"
         />
       </section>
