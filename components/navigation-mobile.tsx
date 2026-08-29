@@ -67,10 +67,8 @@ export function MobileNavigation({
             aria-label="Navigation"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur-lg">
-              <Link href={`/${lang}`} className="flex min-h-11 items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-                <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20">
-                  <SiteLogoMark className="size-5 text-primary-foreground" />
-                </div>
+              <Link href={`/${lang}`} aria-label={dict.navigation.home || "Home"} className="flex min-h-11 items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
+                <SiteLogoMark size="md" />
                 <SiteLogoWordmark
                   lang={lang}
                   fallbackTagline={dict.common.logo_subtitle}

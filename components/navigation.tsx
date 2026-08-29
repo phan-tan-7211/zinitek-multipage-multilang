@@ -171,10 +171,8 @@ export function Navigation({ lang, dict, initialServices = [] }: NavigationProps
         </div>
 
         <div className="content-shell flex min-h-16 items-center justify-between gap-2 py-2 lg:hidden">
-          <Link href={`/${lang}`} className="relative z-[110] flex min-h-11 shrink-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20">
-              <SiteLogoMark className="size-4 text-primary-foreground" />
-            </div>
+          <Link href={`/${lang}`} aria-label={dict.navigation.home || "Home"} className="relative z-[110] flex min-h-11 shrink-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <SiteLogoMark size="sm" />
             <SiteLogoWordmark
               lang={lang}
               fallbackTagline={dict.common.logo_subtitle}

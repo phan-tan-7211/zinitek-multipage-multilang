@@ -1,8 +1,7 @@
 "use client"
 
-import { DynamicIcon } from "@/components/ui/dynamic-icon"
 import { useSiteSettings } from "@/components/site-settings-context"
-import { cn } from "@/lib/utils"
+import { ZLogoIcon } from "@/components/z-logo-icon"
 
 type SiteLocale = "vi" | "en" | "jp" | "kr" | "cn"
 
@@ -18,10 +17,25 @@ function cleanText(value: string | undefined, fallback: string) {
   return value?.trim() || fallback
 }
 
-export function SiteLogoMark({ className }: { className?: string }) {
+function cleanHexColor(value: string | undefined, fallback: string) {
+  const color = value?.trim()
+  return color && /^#[0-9a-fA-F]{6}$/.test(color) ? color : fallback
+}
+
+export function SiteLogoMark({ className, size = "md" }: { className?: string; size?: "sm" | "md" | "lg" }) {
   const { logoMark } = useSiteSettings()
 
-  return <DynamicIcon iconData={logoMark} className={className} />
+  return (
+    <ZLogoIcon
+      size={size}
+      letter={logoMark?.letter?.trim() || "Z"}
+      primaryColor={cleanHexColor(logoMark?.primaryColor, "#ea580c")}
+      textColor={cleanHexColor(logoMark?.textColor, "#ffffff")}
+      glowEnabled={logoMark?.glowEnabled !== false}
+      animationEnabled={logoMark?.animationEnabled !== false}
+      className={className}
+    />
+  )
 }
 
 interface SiteLogoWordmarkProps {

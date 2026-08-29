@@ -5,9 +5,56 @@ export default {
   fields: [
     {
       name: 'logoMark',
-      title: '1. Biểu tượng logo',
-      type: 'icon.manager',
-      description: 'Chọn biểu tượng dùng trong logo toàn website. Chọn Cog để giữ bánh răng hiện tại; nền cam, kích thước và hiệu ứng glow vẫn do giao diện kiểm soát.',
+      title: '1. Thiết kế biểu tượng logo',
+      type: 'object',
+      description: 'Mẫu React hình thoi chữ Z dùng chung toàn website. Có thể chỉnh nội dung, màu sắc và chuyển động mà không làm thay đổi cấu trúc an toàn của component.',
+      initialValue: {
+        template: 'zRhombus',
+        letter: 'Z',
+        primaryColor: '#ea580c',
+        textColor: '#ffffff',
+        glowEnabled: true,
+        animationEnabled: true,
+      },
+      fields: [
+        {
+          name: 'template',
+          title: 'Mẫu thiết kế',
+          type: 'string',
+          initialValue: 'zRhombus',
+          options: {
+            list: [{ title: 'Hình thoi chữ Z', value: 'zRhombus' }],
+            layout: 'radio',
+          },
+        },
+        {
+          name: 'letter',
+          title: 'Ký tự trong logo',
+          type: 'string',
+          description: 'Giá trị hiện tại: Z',
+          validation: (Rule: any) => Rule.max(2),
+        },
+        {
+          name: 'primaryColor',
+          title: 'Màu hình thoi và glow',
+          type: 'string',
+          description: 'Mã HEX, ví dụ: #ea580c',
+          validation: (Rule: any) => Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex color' }),
+        },
+        {
+          name: 'textColor',
+          title: 'Màu ký tự',
+          type: 'string',
+          description: 'Mã HEX, ví dụ: #ffffff',
+          validation: (Rule: any) => Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex color' }),
+        },
+        { name: 'glowEnabled', title: 'Bật hiệu ứng glow', type: 'boolean', initialValue: true },
+        { name: 'animationEnabled', title: 'Bật chuyển động khi hover', type: 'boolean', initialValue: true },
+      ],
+      options: {
+        collapsible: true,
+        collapsed: false,
+      },
     },
     {
       name: 'logoWordmark',

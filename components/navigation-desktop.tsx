@@ -135,18 +135,10 @@ export function DesktopNavigation({
         <div className="flex min-h-16 items-center justify-between gap-4 overflow-visible">
           <Link
             href={`/${lang}`}
+            aria-label={dict.navigation.home || "Home"}
             className="group relative z-[110] flex min-h-12 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <div className="relative">
-              <motion.div
-                className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20"
-                whileHover={reduceMotion ? undefined : { rotate: 180 }}
-                transition={{ duration: 0.65 }}
-              >
-                <SiteLogoMark className="size-6 text-primary-foreground" />
-              </motion.div>
-              <div className="absolute inset-0 -z-10 rounded-xl bg-primary opacity-30 blur-lg transition-opacity group-hover:opacity-50" />
-            </div>
+            <SiteLogoMark size="lg" />
             <SiteLogoWordmark
               lang={lang}
               fallbackTagline={dict.common.logo_subtitle}

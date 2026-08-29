@@ -2,7 +2,14 @@ import { cache } from "react"
 import { createClient } from "next-sanity"
 
 export interface GlobalSiteSettings {
-  logoMark?: string | { icon?: string; name?: string }
+  logoMark?: {
+    template?: "zRhombus"
+    letter?: string
+    primaryColor?: string
+    textColor?: string
+    glowEnabled?: boolean
+    animationEnabled?: boolean
+  }
   logoWordmark?: {
     primaryText?: string
     accentText?: string
@@ -33,7 +40,7 @@ const sanityClient = createClient({
 export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
   const settings = await sanityClient.fetch<GlobalSiteSettings | null>(
     `*[_type == "siteSettings" && _id == "siteSettings"][0]{
-      logoMark,
+      logoMark{template, letter, primaryColor, textColor, glowEnabled, animationEnabled},
       logoWordmark{primaryText, accentText, tagline{vi, en, jp, kr, cn}},
       phoneDisplay, phoneTel, email, zaloNumber,
       wechatId, wechatUrl, lineUrl,

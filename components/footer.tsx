@@ -89,8 +89,8 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
       <div className="content-shell py-14 lg:py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
-            <Link href={`/${lang}`} className="mb-6 inline-flex min-h-12 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20"><SiteLogoMark className="size-6 text-primary-foreground" /></div>
+            <Link href={`/${lang}`} aria-label={navigation?.home || "Home"} className="mb-6 inline-flex min-h-12 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <SiteLogoMark size="md" />
               <SiteLogoWordmark
                 lang={lang}
                 fallbackTagline={common?.logo_subtitle || "Kỹ Thuật Cơ Khí"}
