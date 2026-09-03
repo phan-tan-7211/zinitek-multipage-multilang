@@ -8,6 +8,7 @@ import blogCategory from './blogCategory'
 import legalDoc from './legalDoc'
 import siteSettings from './siteSettings'
 import trustedCompanies from './trustedCompanies'
+import googleReviewsSettings from './googleReviewsSettings'
 
 export const schemaTypes = [
   service,
@@ -20,4 +21,5 @@ export const schemaTypes = [
   legalDoc,
   siteSettings,
   trustedCompanies,
+  googleReviewsSettings,
 ]
