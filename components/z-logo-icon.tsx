@@ -142,7 +142,7 @@ export function ZLogoIcon({
       <motion.div
         animate={{ rotate: shouldAnimate && isHovered ? safeShapeRotate : 0 }}
         transition={shapeSpring}
-        className={cn("relative z-20 flex shrink-0 items-center justify-center shadow-lg", classes.mark)}
+        className={cn("relative z-20 flex shrink-0 items-center justify-center", classes.mark)}
         style={template === "zRhombus" ? { backgroundColor: primaryColor, clipPath: shapeClipPath } : undefined}
         aria-hidden="true"
       >
