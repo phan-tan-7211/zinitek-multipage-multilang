@@ -1,5 +1,6 @@
 import { cache } from "react"
 import { createClient } from "next-sanity"
+import { neutralBrandFallback, runtimeConfig } from "@/lib/runtime-config"
 
 export interface GlobalSiteSettings {
   _updatedAt?: string
@@ -7,7 +8,7 @@ export interface GlobalSiteSettings {
     template?: "zRhombus" | "zHexagon"
     letter?: string
     letterStyle?: "system" | "vectorZ" | "serif" | "mono"
-    colorPreset?: "zinitekOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom"
+    colorPreset?: "brandOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom" | "zinitekOrange"
     primaryColor?: string
     textColor?: string
     fillColor?: string
@@ -46,9 +47,9 @@ export interface GlobalSiteSettings {
 }
 
 const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
+  projectId: runtimeConfig.sanityProjectId,
+  dataset: runtimeConfig.sanityDataset,
+  apiVersion: runtimeConfig.sanityApiVersion,
   useCdn: false,
 })
 
@@ -76,9 +77,9 @@ export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
 })
 
 export function resolveSiteName(settings: GlobalSiteSettings) {
-  const primaryText = settings.logoWordmark?.primaryText?.trim() || "ZINI"
-  const accentText = settings.logoWordmark?.accentText?.trim() || "TEK"
-  return `${primaryText}${accentText}`
+  const primaryText = settings.logoWordmark?.primaryText?.trim() || neutralBrandFallback
+  const accentText = settings.logoWordmark?.accentText?.trim() || ""
+  return `${primaryText}${accentText}`.trim()
 }
 
 export const getSiteName = cache(async () => resolveSiteName(await getSiteSettings()))
