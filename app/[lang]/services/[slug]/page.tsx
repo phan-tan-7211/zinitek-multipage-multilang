@@ -1,17 +1,11 @@
 import { notFound } from "next/navigation"
-import { createClient } from "next-sanity"
 import { cache } from "react"
 import { ServicePageContent } from "@/components/service-page-content"
 import { getDictionary } from "@/lib/get-dictionary"
 import { getSiteName, withSiteName } from "@/lib/site-settings"
 import { Footer } from "@/components/footer"
-
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
+import { sanityClient } from "@/lib/sanity-client"
+import { getPublicSiteUrl } from "@/lib/runtime-config"
 
 type RawService = Record<string, any>
 
@@ -23,19 +17,15 @@ function normalizeService(service: RawService | null) {
     _id: typeof service._id === "string" ? service._id : "",
     _translationKey: typeof service._translationKey === "string" ? service._translationKey : undefined,
     icon: service.icon,
-    title: typeof service.title === "string" ? service.title : "Dịch vụ ZINITEK",
+    title: typeof service.title === "string" ? service.title : "Dịch vụ",
     shortTitle: typeof service.shortTitle === "string" ? service.shortTitle : undefined,
     slug: typeof service.slug === "string" ? service.slug : "",
     description: typeof service.description === "string" ? service.description : "",
     image: typeof service.image === "string" ? service.image : undefined,
     tags: Array.isArray(service.tags) ? service.tags.filter((item: unknown) => typeof item === "string") : [],
-    features: Array.isArray(service.features)
-      ? service.features.filter((item: unknown) => typeof item === "string")
-      : [],
+    features: Array.isArray(service.features) ? service.features.filter((item: unknown) => typeof item === "string") : [],
     specs: Array.isArray(service.specs)
-      ? service.specs.filter(
-          (item: any) => item && typeof item.label === "string" && typeof item.value === "string"
-        )
+      ? service.specs.filter((item: any) => item && typeof item.label === "string" && typeof item.value === "string")
       : [],
     process: Array.isArray(service.process)
       ? service.process.filter(
@@ -47,9 +37,7 @@ function normalizeService(service: RawService | null) {
         )
       : [],
     banDichTuongUng: Array.isArray(service.banDichTuongUng)
-      ? service.banDichTuongUng.filter(
-          (item: any) => item && typeof item.language === "string" && typeof item.slug === "string"
-        )
+      ? service.banDichTuongUng.filter((item: any) => item && typeof item.language === "string" && typeof item.slug === "string")
       : [],
   }
 }
@@ -60,7 +48,7 @@ function normalizeRelatedService(service: RawService | null) {
   return {
     _id: typeof service._id === "string" ? service._id : "",
     _translationKey: typeof service._translationKey === "string" ? service._translationKey : undefined,
-    title: typeof service.title === "string" ? service.title : "Dịch vụ ZINITEK",
+    title: typeof service.title === "string" ? service.title : "Dịch vụ",
     slug: typeof service.slug === "string" ? service.slug : "",
     description: typeof service.description === "string" ? service.description : "",
     icon: service.icon,
@@ -188,10 +176,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const title = withSiteName(service.title, siteName)
   const description = service.description
   const translations = Object.fromEntries(
-    (service.banDichTuongUng || []).map((item: any) => [
-      item.language,
-      `/${item.language}/services/${item.slug}`,
-    ])
+    (service.banDichTuongUng || []).map((item: any) => [item.language, `/${item.language}/services/${item.slug}`])
   )
 
   return {
@@ -223,11 +208,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-export default async function ServiceDetailPage({
-  params,
-}: {
-  params: Promise<{ lang: string; slug: string }>
-}) {
+export default async function ServiceDetailPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params
 
   const [service, relatedCandidates, dict, siteName] = await Promise.all([
@@ -243,6 +224,7 @@ export default async function ServiceDetailPage({
   const relatedServices = relatedCandidates
     .filter((item) => (item._translationKey || item._id) !== currentGroupKey)
     .slice(0, 3)
+  const siteUrl = getPublicSiteUrl()
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -252,24 +234,16 @@ export default async function ServiceDetailPage({
     provider: {
       "@type": "Organization",
       name: siteName,
-      url: `https://zinitek.vn/${lang}`,
+      url: `${siteUrl}/${lang}`,
     },
-    url: `https://zinitek.vn/${lang}/services/${service.slug || slug}`,
+    url: `${siteUrl}/${lang}/services/${service.slug || slug}`,
     image: service.image || undefined,
   }
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <ServicePageContent
-        service={service}
-        relatedServices={relatedServices}
-        lang={lang}
-        dict={dict}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ServicePageContent service={service} relatedServices={relatedServices} lang={lang} dict={dict} />
       <Footer lang={lang} dict={dict} />
     </main>
   )
