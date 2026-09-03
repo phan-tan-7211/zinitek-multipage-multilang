@@ -1,27 +1,80 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion"
 import { Clock, ExternalLink, Mail, MapPin, Phone, Send, Upload } from "lucide-react"
+import { createClient } from "next-sanity"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { useSiteSettings } from "@/components/site-settings-context"
 
-export function ContactSection({ dict }: { dict: any; lang?: string }) {
+type LocaleKey = "vi" | "en" | "jp" | "kr" | "cn"
+
+interface CompanyLocation {
+  _key?: string
+  enabled?: boolean
+  kind?: "factory" | "office" | "factory_office" | "other"
+  name?: Partial<Record<LocaleKey, string>>
+  address?: string
+  googleMapsUrl?: string
+}
+
+interface LocationsSettings {
+  locations?: CompanyLocation[]
+}
+
+const sanityClient = createClient({
+  projectId: "g4o3uumy",
+  dataset: "production",
+  apiVersion: "2024-01-01",
+  useCdn: true,
+})
+
+const defaultLocationNames: Record<LocaleKey, Record<string, string>> = {
+  vi: { factory: "Nhà máy", office: "Văn phòng", factory_office: "Nhà máy & Văn phòng", other: "Địa điểm" },
+  en: { factory: "Factory", office: "Office", factory_office: "Factory & Office", other: "Location" },
+  jp: { factory: "工場", office: "オフィス", factory_office: "工場・オフィス", other: "所在地" },
+  kr: { factory: "공장", office: "사무실", factory_office: "공장 및 사무실", other: "위치" },
+  cn: { factory: "工厂", office: "办公室", factory_office: "工厂及办公室", other: "地点" },
+}
+
+export function ContactSection({ dict, lang = "vi" }: { dict: any; lang?: string }) {
   const t = dict?.contact_section || {}
-  const { phoneDisplay, phoneTel, email, addressDisplay, googleMapsUrl } = useSiteSettings()
+  const { phoneDisplay, phoneTel, email } = useSiteSettings()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-80px" })
   const reduceMotion = useReducedMotion()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [locationsSettings, setLocationsSettings] = useState<LocationsSettings | null>(null)
   const [formData, setFormData] = useState({ name: "", company: "", email: "", phone: "", service: "", message: "", file: null as File | null })
 
+  const locale = (["vi", "en", "jp", "kr", "cn"].includes(lang) ? lang : "vi") as LocaleKey
+
+  useEffect(() => {
+    let active = true
+    sanityClient
+      .fetch<LocationsSettings>(`*[_type == "locationsSettings" && _id == "locationsSettings" && !(_id in path("drafts.**"))][0]{locations[]{_key,enabled,kind,name{vi,en,jp,kr,cn},address,googleMapsUrl}}`)
+      .then((data) => {
+        if (active) setLocationsSettings(data || {})
+      })
+      .catch((error) => {
+        console.error("Sanity locations:", error)
+        if (active) setLocationsSettings({})
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const locations = (locationsSettings?.locations || []).filter(
+    (location) => location.enabled !== false && location.address?.trim(),
+  )
+
   const update = (name: string, value: string) => setFormData((prev) => ({ ...prev, [name]: value }))
-  const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -73,23 +126,31 @@ export function ContactSection({ dict }: { dict: any; lang?: string }) {
 
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
           <motion.aside {...reveal(-36, 0.1)} className="space-y-5 lg:col-span-2">
-            {addressDisplay && mapHref && (
-              <a
-                href={mapHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block rounded-2xl border border-border/70 bg-card/80 p-5 shadow-soft transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:-translate-y-1 lg:hover:border-primary/35 lg:hover:shadow-card"
-              >
-                <h3 className="flex items-center gap-2 font-semibold text-foreground">
-                  <MapPin className="size-5 text-primary" aria-hidden="true" />
-                  {t?.offices?.[0]?.name || t?.location || "ZINITEK"}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{addressDisplay}</p>
-                <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
-                  Google Maps <ExternalLink className="size-3.5" aria-hidden="true" />
-                </span>
-              </a>
-            )}
+            {locations.map((location, index) => {
+              const kind = location.kind || "other"
+              const title = location.name?.[locale]?.trim() || defaultLocationNames[locale][kind] || defaultLocationNames[locale].other
+              const address = location.address!.trim()
+              const mapHref = location.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+
+              return (
+                <a
+                  key={location._key || `${kind}-${address}-${index}`}
+                  href={mapHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block rounded-2xl border border-border/70 bg-card/80 p-5 shadow-soft transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hover:-translate-y-1 lg:hover:border-primary/35 lg:hover:shadow-card"
+                >
+                  <h3 className="flex items-center gap-2 font-semibold text-foreground">
+                    <MapPin className="size-5 text-primary" aria-hidden="true" />
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{address}</p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+                    Google Maps <ExternalLink className="size-3.5" aria-hidden="true" />
+                  </span>
+                </a>
+              )
+            })}
 
             <div className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-soft">
               <h3 className="flex items-center gap-2 font-semibold text-foreground"><Clock className="size-5 text-primary" aria-hidden="true" />{t?.working_hours?.title || "Working hours"}</h3>
