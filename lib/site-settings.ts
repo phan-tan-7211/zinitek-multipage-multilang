@@ -1,6 +1,6 @@
 import { cache } from "react"
-import { createClient } from "next-sanity"
-import { neutralBrandFallback, runtimeConfig } from "@/lib/runtime-config"
+import { neutralBrandFallback } from "@/lib/runtime-config"
+import { sanityClient } from "@/lib/sanity-client"
 
 export interface GlobalSiteSettings {
   _updatedAt?: string
@@ -8,7 +8,7 @@ export interface GlobalSiteSettings {
     template?: "zRhombus" | "zHexagon"
     letter?: string
     letterStyle?: "system" | "vectorZ" | "serif" | "mono"
-    colorPreset?: "brandOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom"
+    colorPreset?: "brandOrange" | "zinitekOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom"
     primaryColor?: string
     textColor?: string
     fillColor?: string
@@ -46,13 +46,6 @@ export interface GlobalSiteSettings {
   googleMapsUrl?: string
 }
 
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
-
 export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
   const settings = await sanityClient.fetch<GlobalSiteSettings | null>(
     `*[_type == "siteSettings" && _id == "siteSettings"][0]{
@@ -84,6 +77,8 @@ export function resolveSiteName(settings: GlobalSiteSettings) {
 
 export const getSiteName = cache(async () => resolveSiteName(await getSiteSettings()))
 
+// Temporary migration compatibility for legacy bundled content.
+// Remove after dictionaries/data no longer contain the previous brand token.
 export function replaceLegacySiteName(value: string, siteName: string) {
   return value.replace(/ZINITEK/gi, () => siteName)
 }
