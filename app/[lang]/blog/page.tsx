@@ -4,15 +4,8 @@ import { BlogListContent } from "@/components/blog-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
 import { getSiteName, withSiteName } from "@/lib/site-settings"
-import { createClient } from "next-sanity"
-import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
-
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
+import { getPublicSiteUrl } from "@/lib/runtime-config"
+import { sanityClient } from "@/lib/sanity-client"
 
 async function getBlogPosts(lang: string) {
   const raw = await sanityClient.fetch(`*[_type == "blogPost" && defined(slug.current) && !(_id in path("drafts.**"))] {
