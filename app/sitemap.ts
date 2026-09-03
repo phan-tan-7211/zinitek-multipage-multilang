@@ -1,14 +1,7 @@
 import { MetadataRoute } from 'next'
-import { createClient } from "next-sanity"
 import { i18n } from '@/lib/i18n-config'
-import { getPublicSiteUrl, runtimeConfig } from '@/lib/runtime-config'
-
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
+import { getPublicSiteUrl } from '@/lib/runtime-config'
+import { sanityClient } from '@/lib/sanity-client'
 
 const baseUrl = getPublicSiteUrl()
 const locales = i18n.locales
