@@ -1,18 +1,11 @@
 import { notFound } from "next/navigation"
-import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
 import { Clock, ShieldCheck } from "lucide-react"
 import { NutQuayLai } from "@/components/nut-quay-lai"
 import { Footer } from "@/components/footer"
 import { getSiteName, withSiteName } from "@/lib/site-settings"
-
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
+import { sanityClient } from "@/lib/sanity-client"
 
 type LegalDoc = {
   _id: string
@@ -101,10 +94,7 @@ export default async function PolicyPage({ params }: { params: Promise<{ lang: s
   return (
     <main className="min-h-dvh bg-background text-foreground">
       <div className="container mx-auto px-4 pb-24 pt-32 sm:px-6 lg:px-8 lg:pt-36">
-        <NutQuayLai
-          nhanHienThi={dict.common?.back || (lang === "vi" ? "Quay lại" : "Back")}
-          ngonNgu={lang}
-        />
+        <NutQuayLai nhanHienThi={dict.common?.back || (lang === "vi" ? "Quay lại" : "Back")} ngonNgu={lang} />
 
         <article className="mx-auto mt-10 max-w-4xl">
           <header className="mb-8 sm:mb-10">
