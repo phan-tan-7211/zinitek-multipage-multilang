@@ -9,6 +9,7 @@ import {
   buildPageContentSeedDocuments,
   COMPANY_BOOTSTRAP_API_VERSION,
   COMPANY_BOOTSTRAP_VERSION,
+  legacyDictionaryMatchesBrand,
 } from '../bootstrap/legacyDictionaryBootstrap'
 
 const STATE_ID = 'frameworkBootstrap.companyData'
@@ -24,11 +25,20 @@ export function CompanyBootstrapLayout(props: LayoutProps) {
 
     async function bootstrap() {
       try {
-        const state = await client.fetch<{ version?: number } | null>(
-          `*[_id == $id][0]{version}`,
-          { id: STATE_ID },
-        )
+        const [state, siteSettings] = await Promise.all([
+          client.fetch<{ version?: number } | null>(`*[_id == $id][0]{version}`, { id: STATE_ID }),
+          client.fetch<{ logoWordmark?: { primaryText?: string; accentText?: string } } | null>(
+            `*[_type == "siteSettings" && _id == "siteSettings"][0]{logoWordmark{primaryText,accentText}}`,
+          ),
+        ])
+
         if ((state?.version || 0) >= COMPANY_BOOTSTRAP_VERSION) return
+
+        const siteName = `${siteSettings?.logoWordmark?.primaryText || ''}${siteSettings?.logoWordmark?.accentText || ''}`.trim()
+        if (!legacyDictionaryMatchesBrand(siteName)) {
+          console.info('[Company bootstrap] skipped: current Sanity brand does not match bundled legacy company data')
+          return
+        }
 
         const pageContentDocuments = buildPageContentSeedDocuments()
         const contactSettings = buildContactSettingsSeed()
