@@ -12,15 +12,18 @@ import { getPublicSiteUrl } from "@/lib/runtime-config"
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
   const siteName = resolveSiteName(settings)
+  const tagline = settings.logoWordmark?.tagline?.vi || settings.logoWordmark?.tagline?.en || "Sản phẩm, dịch vụ & giải pháp"
   const faviconUrl = `/api/favicon?v=${encodeURIComponent(settings._updatedAt || "default")}`
+  const title = `${siteName} | ${tagline}`
+  const description = `${siteName} — ${tagline}. Khám phá thông tin doanh nghiệp, sản phẩm, dịch vụ, dự án và kênh liên hệ chính thức.`
 
   return {
     metadataBase: new URL(getPublicSiteUrl()),
     title: {
-      default: `${siteName} - Website`,
+      default: title,
       template: `%s | ${siteName}`,
     },
-    description: `${siteName} - website chính thức.`,
+    description,
     robots: {
       index: true,
       follow: true,
@@ -29,6 +32,13 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: 'website',
       siteName,
+      title,
+      description,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
     },
     icons: {
       icon: [{ url: faviconUrl, type: 'image/svg+xml' }],
