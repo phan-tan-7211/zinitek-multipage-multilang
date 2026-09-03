@@ -3,13 +3,14 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { PageHeader } from "@/components/page-header"
 import { ServiceListContent } from "@/components/service-list-content"
 import { getDictionary } from "@/lib/get-dictionary"
-import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
+import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
 
 const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
+  projectId: runtimeConfig.sanityProjectId,
+  dataset: runtimeConfig.sanityDataset,
+  apiVersion: runtimeConfig.sanityApiVersion,
   useCdn: false,
 })
 
@@ -52,12 +53,8 @@ async function layDanhSachDichVu(lang: string) {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
-  const title = withSiteName(dict.services?.meta_title || "Dịch vụ - ZINITEK", siteName)
-  const description =
-    replaceLegacySiteName(
-      dict.services?.meta_desc || "Các giải pháp gia công CNC, khuôn mẫu và tự động hóa chất lượng Nhật Bản tại ZINITEK.",
-      siteName,
-    )
+  const title = withSiteName(dict.services?.meta_title || "Dịch vụ", siteName)
+  const description = dict.services?.meta_desc || "Thông tin về các dịch vụ và giải pháp kỹ thuật."
 
   return {
     title: { absolute: title },
@@ -72,40 +69,30 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         "zh-CN": "/cn/services",
       },
     },
-    openGraph: {
-      title,
-      description,
-      url: `/${lang}/services`,
-      siteName,
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
+    openGraph: { title, description, url: `/${lang}/services`, siteName },
+    twitter: { card: "summary", title, description },
   }
 }
 
 export default async function ServicesHubPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const [dict, services, siteName] = await Promise.all([getDictionary(lang), layDanhSachDichVu(lang), getSiteName()])
+  const siteUrl = getPublicSiteUrl()
 
   const titleMain = dict.services?.title_main || "Dịch vụ"
   const titleHighlight = dict.services?.title_highlight || "Kỹ thuật"
   const pageTitle = `${titleMain} ${titleHighlight}`
-  const description =
-    dict.services?.hub_description ||
-    "Giải pháp toàn diện từ gia công cơ khí đến tự động hóa nhà máy với kỹ thuật Nhật Bản và chi phí tối ưu."
+  const description = dict.services?.hub_description || "Giải pháp và dịch vụ kỹ thuật phù hợp với nhu cầu của khách hàng."
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: withSiteName(dict.services?.meta_title || "Dịch vụ ZINITEK", siteName),
+    name: dict.services?.meta_title || `${siteName} Services`,
     description: dict.services?.meta_desc || description,
     itemListElement: services.map((service: any, index: number) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `https://zinitek.vn/${lang}/services/${service.slug}`,
+      url: `${siteUrl}/${lang}/services/${service.slug}`,
       name: service.title,
       description: service.description,
     })),
@@ -113,15 +100,8 @@ export default async function ServicesHubPage({ params }: { params: Promise<{ la
 
   return (
     <div className="relative min-h-dvh overflow-x-clip bg-background text-foreground">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-20 dark:opacity-35" aria-hidden="true">
-        <BlueprintBackground />
-      </div>
-
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-20 dark:opacity-35" aria-hidden="true"><BlueprintBackground /></div>
       <div className="relative z-10">
         <PageHeader
           title={pageTitle}
@@ -130,11 +110,9 @@ export default async function ServicesHubPage({ params }: { params: Promise<{ la
           lang={lang}
           dict={dict}
         />
-
         <section className="section-space" aria-label={dict.navigation?.services || "Dịch vụ"}>
           <ServiceListContent danhSachDichVu={services} lang={lang} dict={dict} />
         </section>
-
         <Footer lang={lang} dict={dict} />
       </div>
     </div>
