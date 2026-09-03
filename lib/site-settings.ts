@@ -8,7 +8,7 @@ export interface GlobalSiteSettings {
     template?: "zRhombus" | "zHexagon"
     letter?: string
     letterStyle?: "system" | "vectorZ" | "serif" | "mono"
-    colorPreset?: "brandOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom" | "zinitekOrange"
+    colorPreset?: "brandOrange" | "cyberCyan" | "neonPurple" | "emerald" | "titaniumGold" | "crimson" | "custom"
     primaryColor?: string
     textColor?: string
     fillColor?: string
