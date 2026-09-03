@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { ExternalLink, Star } from "lucide-react"
 import { motion, useInView, useReducedMotion } from "framer-motion"
-import { createClient } from "next-sanity"
+import { sanityCdnClient } from "@/lib/sanity-client"
 
 interface SanityReview {
   _key?: string
@@ -45,13 +45,6 @@ interface TestimonialsSectionProps {
   dict: any
   lang?: string
 }
-
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: true,
-})
 
 const uiText: Record<string, Record<string, string>> = {
   vi: { reviews: "đánh giá trên Google", viewGoogle: "Xem trên Google", trustedBy: "Được tin tưởng bởi các doanh nghiệp hàng đầu" },
@@ -141,9 +134,9 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
     let active = true
 
     Promise.all([
-      sanityClient.fetch<ReviewSettings>(`*[_type == "googleReviewsSettings" && _id == "googleReviewsSettings" && !(_id in path("drafts.**"))][0]{enabled,badge,titlePart1,titleHighlight,description,reviewsLabel,viewGoogleLabel,googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`),
-      sanityClient.fetch<ReviewSettings>(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`),
-      sanityClient.fetch<TrustedCompaniesSettings>(`*[_type == "trustedCompanies" && _id == "trustedCompanies" && !(_id in path("drafts.**"))][0]{enabled,heading,companies[]{_key,name,url,enabled}}`),
+      sanityCdnClient.fetch<ReviewSettings>(`*[_type == "googleReviewsSettings" && _id == "googleReviewsSettings" && !(_id in path("drafts.**"))][0]{enabled,badge,titlePart1,titleHighlight,description,reviewsLabel,viewGoogleLabel,googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`),
+      sanityCdnClient.fetch<ReviewSettings>(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`),
+      sanityCdnClient.fetch<TrustedCompaniesSettings>(`*[_type == "trustedCompanies" && _id == "trustedCompanies" && !(_id in path("drafts.**"))][0]{enabled,heading,companies[]{_key,name,url,enabled}}`),
     ])
       .then(([newReviewData, legacyReviewData, trustedData]) => {
         if (!active) return
@@ -267,13 +260,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
                 const className = "font-serif text-lg font-bold text-foreground/70 transition-colors hover:text-primary sm:text-xl"
 
                 return company.url ? (
-                  <a
-                    key={key}
-                    href={company.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={className}
-                  >
+                  <a key={key} href={company.url} target="_blank" rel="noopener noreferrer" className={className}>
                     {company.name}
                   </a>
                 ) : (
