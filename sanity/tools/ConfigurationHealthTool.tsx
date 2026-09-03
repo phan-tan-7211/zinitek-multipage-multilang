@@ -26,8 +26,7 @@ export function ConfigurationHealthTool() {
           "trusted": *[_id=="trustedCompanies"][0]{enabled,companies},
           "seoCount": count(*[_type=="seoPageConfig"]),
           "pageContentCount": count(*[_type=="pageContent"]),
-          "serviceCount": count(*[_type=="service"]),
-          "bootstrap": *[_id=="frameworkBootstrap.companyData"][0]{version,completedAt}
+          "serviceCount": count(*[_type=="service"])
         }`)
         const cfg = client.config()
         const locations = (data.locations?.locations || []).filter((x:any)=>x.enabled!==false && x.address)
@@ -42,7 +41,6 @@ export function ConfigurationHealthTool() {
           { label: 'SEO page configs', ok: data.seoCount > 0, detail: `${data.seoCount} cấu hình` },
           { label: 'Nội dung động pageContent', ok: data.pageContentCount > 0, detail: `${data.pageContentCount} document` },
           { label: 'Dịch vụ', ok: data.serviceCount > 0, detail: `${data.serviceCount} document` },
-          { label: 'Migration legacy', ok: Boolean(data.bootstrap?.version), detail: data.bootstrap?.version ? `v${data.bootstrap.version}` : 'Chưa chạy / không áp dụng' },
         ]
         if (active) setChecks(next)
       } catch (error) {
@@ -54,7 +52,7 @@ export function ConfigurationHealthTool() {
 
   const passed = checks.filter(c=>c.ok).length
   return <Card padding={5} style={{minHeight:'100vh'}}><Stack space={5}>
-    <Box><Text size={4} weight="bold">Configuration Health Check</Text><Text size={1} muted style={{marginTop:8}}>Kiểm tra nhanh dữ liệu cần thiết trước khi đưa website live hoặc clone cho khách hàng khác.</Text></Box>
+    <Box><Text size={4} weight="bold">Configuration Health Check</Text><Text size={1} muted style={{marginTop:8}}>Kiểm tra dữ liệu cần thiết trước khi đưa website live hoặc clone cho khách hàng khác. Migration dữ liệu cũ không phải điều kiện bắt buộc đối với công ty mới.</Text></Box>
     <Card padding={4} radius={3} tone={passed===checks.length && checks.length>0 ? 'positive':'caution'}><Text size={2} weight="semibold">{loading?'Đang kiểm tra…':`${passed}/${checks.length} mục đạt`}</Text></Card>
     <Stack space={3}>{checks.map(check=><Card key={check.label} padding={4} radius={3} border><Flex align="center" justify="space-between" gap={3}><Box><Text weight="semibold">{check.label}</Text><Text size={1} muted style={{marginTop:6}}>{check.detail}</Text></Box><Badge tone={check.ok?'positive':'critical'}>{check.ok?'OK':'THIẾU'}</Badge></Flex></Card>)}</Stack>
   </Stack></Card>
