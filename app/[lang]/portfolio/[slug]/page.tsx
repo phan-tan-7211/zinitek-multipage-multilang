@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { createClient } from "next-sanity"
 import { cache } from "react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
@@ -9,13 +8,7 @@ import { DetailRelatedSection } from "@/components/detail-related-section"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
 import { getSiteName, withSiteName } from "@/lib/site-settings"
-
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
+import { sanityClient } from "@/lib/sanity-client"
 
 const layChiTietDuAn = cache(async (slug: string, lang: string) => {
   const source = await sanityClient.fetch(
@@ -104,7 +97,7 @@ const layChiTietDuAn = cache(async (slug: string, lang: string) => {
 
   return {
     ...project,
-    title: typeof project.title === "string" ? project.title : "ZINITEK Project",
+    title: typeof project.title === "string" ? project.title : "Dự án",
     description: typeof project.description === "string" ? project.description : "",
     gallery: Array.isArray(project.gallery) ? project.gallery.filter(Boolean) : [],
     translations: Array.isArray(project.translations) ? project.translations : [],
@@ -213,37 +206,18 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-primary/8 blur-3xl sm:h-96 sm:w-96" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 bg-blueprint-grid opacity-35 dark:opacity-55" aria-hidden="true" />
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-          <nav
-            className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
-            aria-label="Breadcrumb"
-          >
+          <nav className="mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8" aria-label="Breadcrumb">
             <div className="flex min-w-0 items-center gap-2">
               <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <Link
-                href={`/${lang}`}
-                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                {dict.common?.home || "Trang chủ"}
-              </Link>
+              <Link href={`/${lang}`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">{dict.common?.home || "Trang chủ"}</Link>
             </div>
             <div className="flex min-w-0 items-center gap-2">
               <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-              <Link
-                href={`/${lang}/portfolio`}
-                className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                {dict.navigation?.projects || dict.portfolio?.title || "Dự án"}
-              </Link>
+              <Link href={`/${lang}/portfolio`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">{dict.navigation?.projects || dict.portfolio?.title || "Dự án"}</Link>
             </div>
             <div className="flex min-w-0 items-center gap-2">
               <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-              <span
-                className="max-w-[70vw] truncate font-medium text-primary"
-                aria-current="page"
-                title={project.title}
-              >
-                {project.title}
-              </span>
+              <span className="max-w-[70vw] truncate font-medium text-primary" aria-current="page" title={project.title}>{project.title}</span>
             </div>
           </nav>
 
@@ -254,24 +228,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 {project.serviceCategory.title}
               </div>
             )}
-            <h1 className="text-balance font-serif text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              {project.title}
-            </h1>
+            <h1 className="text-balance font-serif text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">{project.title}</h1>
             {project.description && (
-              <p className="mt-6 max-w-[68ch] border-l-2 border-primary pl-5 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-                {project.description}
-              </p>
+              <p className="mt-6 max-w-[68ch] border-l-2 border-primary pl-5 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">{project.description}</p>
             )}
           </div>
         </div>
-        <div
-          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block"
-          aria-hidden="true"
-        />
+        <div className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block" aria-hidden="true" />
+        <div className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block" aria-hidden="true" />
       </section>
 
       <section className="section-space">
@@ -290,9 +254,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
               {project.gallery.length > 0 && (
                 <div className="mt-14 border-t border-border/50 pt-10">
-                  <h2 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                    {dict.portfolio?.gallery_title || "Hình ảnh thực tế"}
-                  </h2>
+                  <h2 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">{dict.portfolio?.gallery_title || "Hình ảnh thực tế"}</h2>
                   <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">
                     {project.gallery.map((image: any, index: number) => (
                       <div key={image._id || index} className="group relative aspect-square overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition-all lg:hover:-translate-y-1 lg:hover:border-primary/35 lg:hover:shadow-card">
@@ -302,38 +264,26 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                   </div>
                 </div>
               )}
-
             </article>
 
             <aside className="lg:col-span-4">
               <div className="space-y-6 lg:sticky lg:top-32">
                 <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-border/60 bg-card p-6 shadow-card sm:p-7">
                   <div className="pointer-events-none absolute right-0 top-0 size-40 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-                  <h2 className="relative border-b border-border/50 pb-4 font-serif text-xl font-bold text-foreground">
-                    {dict.portfolio?.project_info || "Thông tin dự án"}
-                  </h2>
+                  <h2 className="relative border-b border-border/50 pb-4 font-serif text-xl font-bold text-foreground">{dict.portfolio?.project_info || "Thông tin dự án"}</h2>
 
                   <dl className="relative mt-6 space-y-6">
                     <div>
-                      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                        <User className="size-4" aria-hidden="true" />
-                        {dict.portfolio?.client_label || "Khách hàng"}
-                      </dt>
+                      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"><User className="size-4" aria-hidden="true" />{dict.portfolio?.client_label || "Khách hàng"}</dt>
                       <dd className="mt-2 text-lg font-bold text-foreground">{project.client || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                        <Calendar className="size-4" aria-hidden="true" />
-                        {dict.portfolio?.year_label || "Năm thực hiện"}
-                      </dt>
+                      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"><Calendar className="size-4" aria-hidden="true" />{dict.portfolio?.year_label || "Năm thực hiện"}</dt>
                       <dd className="mt-2 text-lg font-bold text-foreground">{project.projectYear || "—"}</dd>
                     </div>
                     {project.serviceCategory?.title && project.serviceCategory?.slug && (
                       <div>
-                        <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                          <Tag className="size-4" aria-hidden="true" />
-                          {dict.portfolio?.service_label || "Dịch vụ"}
-                        </dt>
+                        <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"><Tag className="size-4" aria-hidden="true" />{dict.portfolio?.service_label || "Dịch vụ"}</dt>
                         <dd className="mt-2">
                           <Link href={`/${lang}/services/${project.serviceCategory.slug}`} className="inline-flex min-h-11 items-center gap-1 text-lg font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                             {project.serviceCategory.title}
