@@ -1,4 +1,5 @@
 import "server-only"
+import { createClient } from "next-sanity"
 import type { Locale } from './i18n-config'
 
 const dictionaries = {
@@ -7,6 +8,38 @@ const dictionaries = {
   jp: () => import('@/dictionaries/jp.json').then((module) => module.default),
   kr: () => import('@/dictionaries/kr.json').then((module) => module.default),
   cn: () => import('@/dictionaries/cn.json').then((module) => module.default),
+}
+
+const sanityClient = createClient({
+  projectId: "g4o3uumy",
+  dataset: "production",
+  apiVersion: "2024-01-01",
+  useCdn: false,
+})
+
+async function getDynamicCommonContent(locale: string) {
+  try {
+    const result = await sanityClient.fetch<{ content?: string } | null>(
+      `*[
+        _type == "pageContent" &&
+        language == $locale &&
+        key == "common" &&
+        !(_id in path("drafts.**"))
+      ][0]{content}`,
+      { locale },
+      { next: { revalidate: 60, tags: [`page-content-common-${locale}`] } },
+    )
+
+    if (!result?.content) return null
+
+    const parsed = JSON.parse(result.content)
+    const common = parsed?.common && typeof parsed.common === "object" ? parsed.common : parsed
+
+    return common && typeof common === "object" ? common : null
+  } catch (error) {
+    console.warn(`⚠️ Không thể tải pageContent/common từ Sanity cho [${locale}], dùng dictionary fallback.`)
+    return null
+  }
 }
 
 export const getDictionary = async (locale: string) => {
@@ -27,7 +60,19 @@ export const getDictionary = async (locale: string) => {
       return await dictionaries.vi();
     }
 
-    return await loadDictionary();
+    const dictionary = await loadDictionary()
+    const dynamicCommon = await getDynamicCommonContent(locale)
+    const dynamicSlogan = typeof dynamicCommon?.slogan_top === "string"
+      ? dynamicCommon.slogan_top.trim()
+      : ""
+
+    return {
+      ...dictionary,
+      common: {
+        ...dictionary.common,
+        ...(dynamicSlogan ? { slogan_top: dynamicSlogan } : {}),
+      },
+    }
   } catch (error) {
     return await dictionaries.vi();
   }
