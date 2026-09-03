@@ -1,3 +1,11 @@
+function requireEnvironmentVariable(name: string) {
+  const value = process.env[name]?.trim()
+  if (!value) {
+    throw new Error(`[CONFIG] Missing required environment variable: ${name}`)
+  }
+  return value
+}
+
 export const runtimeConfig = {
   siteUrl: (
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -5,8 +13,8 @@ export const runtimeConfig = {
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
     "http://localhost:3000"
   ).replace(/\/$/, ""),
-  sanityProjectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "g4o3uumy",
-  sanityDataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  sanityProjectId: requireEnvironmentVariable("NEXT_PUBLIC_SANITY_PROJECT_ID"),
+  sanityDataset: requireEnvironmentVariable("NEXT_PUBLIC_SANITY_DATASET"),
   sanityApiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-01-01",
   contactRecipientEmail: process.env.CONTACT_RECIPIENT_EMAIL || "",
 }
