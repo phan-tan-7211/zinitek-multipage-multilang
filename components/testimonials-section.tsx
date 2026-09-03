@@ -9,7 +9,7 @@ interface SanityReview {
   _key?: string
   author?: string
   rating?: number
-  content?: string
+  content?: string | Record<string, string>
   meta?: string
   reviewUrl?: string
 }
@@ -75,10 +75,16 @@ function Stars({ rating = 0 }: { rating?: number }) {
   )
 }
 
-function ReviewCard({ review, index }: { review: SanityReview; index: number }) {
+function resolveReviewContent(review: SanityReview, lang: string) {
+  if (typeof review.content === "string") return review.content
+  return review.content?.[lang]?.trim() || review.content?.vi?.trim() || ""
+}
+
+function ReviewCard({ review, index, lang }: { review: SanityReview; index: number; lang: string }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: "-40px" })
   const reduceMotion = useReducedMotion()
+  const content = resolveReviewContent(review, lang)
 
   return (
     <motion.article
@@ -95,7 +101,7 @@ function ReviewCard({ review, index }: { review: SanityReview; index: number }) 
         </span>
       </div>
 
-      <p className="flex-1 text-[15px] leading-7 text-foreground">“{review.content || ""}”</p>
+      <p className="flex-1 text-[15px] leading-7 text-foreground">“{content}”</p>
 
       <div className="mt-5 flex items-center gap-3 border-t border-border/60 pt-4">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
@@ -169,7 +175,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
     }
   }, [])
 
-  const reviews = (settings?.googleReviews || []).filter((review) => review.content && review.author)
+  const reviews = (settings?.googleReviews || []).filter((review) => resolveReviewContent(review, lang) && review.author)
   const trustedCompanies = (trustedSettings?.companies || []).filter((company) => company.enabled !== false && company.name?.trim())
   const showReviews = settings?.enabled !== false && reviews.length > 0
   const showTrustedCompanies = trustedSettings?.enabled !== false && trustedCompanies.length > 0
@@ -240,7 +246,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
         ) : showReviews ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {reviews.map((review, index) => (
-              <ReviewCard key={review._key || `${review.author}-${index}`} review={review} index={index} />
+              <ReviewCard key={review._key || `${review.author}-${index}`} review={review} index={index} lang={lang} />
             ))}
           </div>
         ) : null}
