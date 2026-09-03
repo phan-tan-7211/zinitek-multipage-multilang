@@ -3,15 +3,9 @@ import { BlueprintBackground } from "@/components/blueprint-background"
 import { PortfolioListContent } from "@/components/portfolio-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
-import { getSiteName, replaceLegacySiteName, withSiteName } from "@/lib/site-settings"
-import { createClient } from "next-sanity"
-
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
+import { getSiteName, withSiteName } from "@/lib/site-settings"
+import { sanityClient } from "@/lib/sanity-client"
+import { getPublicSiteUrl } from "@/lib/runtime-config"
 
 async function layDuLieuPortfolio(lang: string) {
   const projectQuery = `
@@ -73,11 +67,7 @@ async function layDuLieuPortfolio(lang: string) {
         group[0]
 
       return selected
-        ? {
-            _id: key,
-            title: selected.title,
-            orderRank: selected.orderRank || 0,
-          }
+        ? { _id: key, title: selected.title, orderRank: selected.orderRank || 0 }
         : null
     })
     .filter(Boolean)
@@ -89,8 +79,8 @@ async function layDuLieuPortfolio(lang: string) {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
-  const title = withSiteName(dict.portfolio?.meta_title || dict.portfolio?.title || "Dự án tiêu biểu - ZINITEK", siteName)
-  const description = replaceLegacySiteName(dict.portfolio?.meta_desc || dict.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK.", siteName)
+  const title = withSiteName(dict.portfolio?.meta_title || dict.portfolio?.title || "Dự án tiêu biểu", siteName)
+  const description = dict.portfolio?.meta_desc || dict.portfolio?.description || "Khám phá các dự án và giải pháp tiêu biểu của doanh nghiệp."
 
   return {
     title: { absolute: title },
@@ -105,17 +95,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         "zh-CN": "/cn/portfolio",
       },
     },
-    openGraph: {
-      title,
-      description,
-      url: `/${lang}/portfolio`,
-      siteName,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+    openGraph: { title, description, url: `/${lang}/portfolio`, siteName },
+    twitter: { card: "summary_large_image", title, description },
   }
 }
 
@@ -126,16 +107,17 @@ export default async function PortfolioPage({ params }: { params: Promise<{ lang
     layDuLieuPortfolio(lang),
     getSiteName(),
   ])
+  const siteUrl = getPublicSiteUrl()
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: replaceLegacySiteName(dict.portfolio?.title || "Dự án tiêu biểu ZINITEK", siteName),
+    name: dict.portfolio?.title || `${siteName} Projects`,
     description: dict.portfolio?.description,
     itemListElement: data.projects.map((project: any, index: number) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `https://zinitek.vn/${lang}/portfolio/${project.slug}`,
+      url: `${siteUrl}/${lang}/portfolio/${project.slug}`,
       name: project.title,
       description: project.description,
       image: project.image?.url,
@@ -152,7 +134,7 @@ export default async function PortfolioPage({ params }: { params: Promise<{ lang
       <div className="relative z-10">
         <PageHeader
           title={dict.portfolio?.title || "Dự án"}
-          description={dict.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."}
+          description={dict.portfolio?.description || "Khám phá các dự án và giải pháp tiêu biểu của doanh nghiệp."}
           subtitle={dict.portfolio?.subtitle || "Thành tựu tiêu biểu"}
           lang={lang}
           dict={dict}
