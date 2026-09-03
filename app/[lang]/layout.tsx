@@ -1,30 +1,36 @@
-import React from "react";
-import type { Metadata } from 'next';
-import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper";
-import { Navigation } from "@/components/navigation";
-import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator";
-import { FloatingContactBar } from "@/components/floating-contact-bar";
-import { SiteSettingsProvider } from "@/components/site-settings-context";
-import { getDictionary } from "@/lib/get-dictionary";
-import { getSiteSettings, resolveSiteName } from "@/lib/site-settings";
-import { createClient } from "next-sanity";
+import React from "react"
+import type { Metadata } from 'next'
+import { SmartSwipeWrapper } from "@/components/smart-swipe-wrapper"
+import { Navigation } from "@/components/navigation"
+import { MobileWidgetIndicator } from "@/components/mobile-widget-indicator"
+import { FloatingContactBar } from "@/components/floating-contact-bar"
+import { SiteSettingsProvider } from "@/components/site-settings-context"
+import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteSettings, resolveSiteName } from "@/lib/site-settings"
+import { createClient } from "next-sanity"
+import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
 
-const trinhKetNoiSanity = createClient({ projectId: 'g4o3uumy', dataset: 'production', apiVersion: '2024-01-01', useCdn: false })
+const sanityClient = createClient({
+  projectId: runtimeConfig.sanityProjectId,
+  dataset: runtimeConfig.sanityDataset,
+  apiVersion: runtimeConfig.sanityApiVersion,
+  useCdn: false,
+})
 
-async function layDanhSachDichVuTuSanity(ngonNguHienTai: string) {
-  const danhSachTho: any[] = await trinhKetNoiSanity.fetch(`
+async function getLocalizedServices(lang: string) {
+  const items: any[] = await sanityClient.fetch(`
     *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc) {
       _id, _translationKey, "slug": slug.current, icon, language, title, "desc": description, orderRank
     }
   `)
-  const cacNhom: Record<string, any[]> = {}
-  danhSachTho.forEach((item: any) => {
-    const khoa = item._translationKey || item._id
-    if (!cacNhom[khoa]) cacNhom[khoa] = []
-    cacNhom[khoa].push(item)
+  const groups: Record<string, any[]> = {}
+  items.forEach((item: any) => {
+    const key = item._translationKey || item._id
+    if (!groups[key]) groups[key] = []
+    groups[key].push(item)
   })
-  return Object.values(cacNhom)
-    .map((nhom: any[]) => nhom.find((p) => p.language === ngonNguHienTai) || nhom.find((p) => p.language === 'en') || nhom.find((p) => p.language === 'vi') || nhom[0])
+  return Object.values(groups)
+    .map((group: any[]) => group.find((item) => item.language === lang) || group.find((item) => item.language === 'en') || group.find((item) => item.language === 'vi') || group[0])
     .sort((a, b) => (a.orderRank || 0) - (b.orderRank || 0))
     .map((service) => ({ slug: service.slug, icon: service.icon, language: service.language, title: service.title, desc: service.desc }))
 }
@@ -33,19 +39,22 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params
   const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
   const siteName = resolveSiteName(siteSettings)
-  const cleanDescription = dict.hero.description.replace(/<[^>]*>?/gm, '')
-  const siteTitle = `${siteName} - ${dict.hero.title_line1} ${dict.hero.title_highlight}`
+  const cleanDescription = typeof dict.hero?.description === 'string' ? dict.hero.description.replace(/<[^>]*>?/gm, '') : `${siteName} - website chính thức.`
+  const siteTitle = `${siteName} - ${dict.hero?.title_line1 || ''} ${dict.hero?.title_highlight || ''}`.trim()
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'),
+    metadataBase: new URL(getPublicSiteUrl()),
     title: { default: siteTitle, template: `%s | ${siteName}` },
     description: cleanDescription,
-    keywords: ['CNC Machining', 'Precision Engineering', siteName, 'Gia công CNC', 'Khuôn mẫu', 'Tự động hóa', 'Ché tạo cơ khí Nhật Bản'],
+    keywords: ['Engineering', 'Manufacturing', siteName, 'Services', 'Products', 'Projects'],
     alternates: { canonical: `/${lang}`, languages: { 'vi-VN': '/vi', 'en-US': '/en', 'ja-JP': '/jp', 'ko-KR': '/kr', 'zh-CN': '/cn' } },
     openGraph: {
       type: 'website',
       locale: lang === 'vi' ? 'vi_VN' : lang === 'en' ? 'en_US' : lang === 'jp' ? 'ja_JP' : lang === 'kr' ? 'ko_KR' : 'zh_CN',
-      title: siteTitle, description: cleanDescription, url: `/${lang}`, siteName,
-      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: `${siteName} — Gia công CNC & Khuôn mẫu` }],
+      title: siteTitle,
+      description: cleanDescription,
+      url: `/${lang}`,
+      siteName,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: `${siteName} — Open Graph` }],
     },
     twitter: { card: 'summary_large_image', title: siteTitle, description: cleanDescription, images: ['/og-image.jpg'] },
   }
@@ -57,7 +66,7 @@ export async function generateStaticParams() {
 
 export default async function LanguageLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const [dict, services, siteSettings] = await Promise.all([getDictionary(lang), layDanhSachDichVuTuSanity(lang), getSiteSettings()])
+  const [dict, services, siteSettings] = await Promise.all([getDictionary(lang), getLocalizedServices(lang), getSiteSettings()])
   const settings = siteSettings || {}
   const effectiveDict = {
     ...dict,
