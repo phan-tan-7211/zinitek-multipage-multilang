@@ -8,8 +8,15 @@ import { Input } from "@/components/ui/input"
 import { createClient } from "next-sanity"
 import { useSiteSettings } from "@/components/site-settings-context"
 import { SiteLogoMark, SiteLogoWordmark } from "@/components/site-logo"
+import { resolveSiteName } from "@/lib/site-settings"
+import { runtimeConfig } from "@/lib/runtime-config"
 
-const sanityClient = createClient({ projectId: "g4o3uumy", dataset: "production", apiVersion: "2024-01-01", useCdn: true })
+const sanityClient = createClient({
+  projectId: runtimeConfig.sanityProjectId,
+  dataset: runtimeConfig.sanityDataset,
+  apiVersion: runtimeConfig.sanityApiVersion,
+  useCdn: true,
+})
 
 interface LegalDocLink { _id: string; slug: string; title: string; language: string }
 
@@ -21,10 +28,12 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
   const footer = dict?.footer || {}
   const navigation = dict?.navigation || {}
   const common = dict?.common || {}
+  const siteSettings = useSiteSettings()
+  const siteName = resolveSiteName(siteSettings)
   const {
     phoneDisplay, phoneTel, email, addressDisplay, googleMapsUrl,
     wechatId, wechatUrl, lineUrl, facebookUrl, youtubeUrl, tiktokUrl, twitterUrl,
-  } = useSiteSettings()
+  } = siteSettings
   const [services, setServices] = useState<any[]>([])
   const [legalDocs, setLegalDocs] = useState<LegalDocLink[]>([])
 
@@ -83,6 +92,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
     { name: footer?.cookie_policy || "Chính sách cookie", slug: "chinh-sach-cookie" },
   ]
   const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
+  const currentYear = new Date().getFullYear()
 
   return (
     <footer className="relative border-t border-border/60 bg-secondary/20">
@@ -93,12 +103,12 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
               <SiteLogoMark size="md" />
               <SiteLogoWordmark
                 lang={lang}
-                fallbackTagline={common?.logo_subtitle || "Kỹ Thuật Cơ Khí"}
+                fallbackTagline={common?.logo_subtitle || "Engineering Solutions"}
                 titleClassName="text-xl font-serif font-bold tracking-tight text-foreground"
                 taglineClassName="-mt-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground"
               />
             </Link>
-            <p className="mb-6 max-w-sm text-sm leading-6 text-muted-foreground">{footer?.description || "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác theo tiêu chuẩn Nhật Bản."}</p>
+            <p className="mb-6 max-w-sm text-sm leading-6 text-muted-foreground">{footer?.description || "Đối tác cung cấp sản phẩm và giải pháp kỹ thuật cho khách hàng."}</p>
             {socialLinks.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {socialLinks.map((item) => (
@@ -133,7 +143,7 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
         </div>
       </div>
 
-      <div className="border-t border-border/60 bg-secondary/35"><div className="content-shell flex flex-col items-center justify-between gap-4 py-5 md:flex-row"><p className="text-center text-xs font-medium text-muted-foreground md:text-left">{footer?.copyright || "© 2026 ZINITEK. Tất cả quyền được bảo lưu."}</p><div className="flex flex-wrap justify-center gap-x-6 gap-y-2">{legalDocs.length > 0 ? legalDocs.map((link, index) => <Link key={link._id || `${link.slug}-${index}`} href={`/${link.language || lang}/policy/${link.slug}`} className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{link.title}</Link>) : fallbackLegalLinks.map((link) => <Link key={link.slug} href={`/${lang}/policy/${link.slug}`} className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{link.name}</Link>)}</div></div></div>
+      <div className="border-t border-border/60 bg-secondary/35"><div className="content-shell flex flex-col items-center justify-between gap-4 py-5 md:flex-row"><p className="text-center text-xs font-medium text-muted-foreground md:text-left">{footer?.copyright || `© ${currentYear} ${siteName}. All rights reserved.`}</p><div className="flex flex-wrap justify-center gap-x-6 gap-y-2">{legalDocs.length > 0 ? legalDocs.map((link, index) => <Link key={link._id || `${link.slug}-${index}`} href={`/${link.language || lang}/policy/${link.slug}`} className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{link.title}</Link>) : fallbackLegalLinks.map((link) => <Link key={link.slug} href={`/${lang}/policy/${link.slug}`} className="rounded-md text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{link.name}</Link>)}</div></div></div>
       <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-primary/40 via-primary to-primary/40" aria-hidden="true" />
     </footer>
   )
