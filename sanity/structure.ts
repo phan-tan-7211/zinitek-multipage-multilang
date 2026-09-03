@@ -42,7 +42,7 @@ const taoMucDaNgonNgu = (S: any, id: string, title: string, icon: any, tenLoaiDo
 
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title('Quản lý Nội dung Zinitek')
+    .title('Quản lý Nội dung Website')
     .items([
       S.listItem()
         .id('site-settings')
@@ -68,7 +68,7 @@ export const structure: StructureResolver = (S) =>
         .id('trusted-companies')
         .title('Doanh nghiệp tin tưởng')
         .icon(UsersIcon)
-        .child(S.document().schemaType('trustedCompanies').documentId('trustedCompanies').title('Doanh nghiệp tin tưởng ZINITEK')),
+        .child(S.document().schemaType('trustedCompanies').documentId('trustedCompanies').title('Doanh nghiệp tin tưởng')),
 
       S.divider(),
       taoMucDaNgonNgu(S, 'services', 'Dịch vụ', CogIcon, 'service'),
