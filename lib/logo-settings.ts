@@ -22,7 +22,7 @@ function clamp(value: number | undefined, minimum: number, maximum: number, fall
 export function resolveLogoMark(settings: Pick<GlobalSiteSettings, "logoMark">) {
   const logoMark = settings.logoMark
   const letter = Array.from(logoMark?.letter?.trim() || "C").slice(0, 2).join("") || "C"
-  const presetKey = logoMark?.colorPreset === "brandOrange" ? "brandOrange" : logoMark?.colorPreset
+  const presetKey = logoMark?.colorPreset === "zinitekOrange" ? "brandOrange" : logoMark?.colorPreset
   const preset = presetKey && presetKey !== "custom" && presetKey in LOGO_COLOR_PRESETS
     ? LOGO_COLOR_PRESETS[presetKey as keyof typeof LOGO_COLOR_PRESETS]
     : undefined
