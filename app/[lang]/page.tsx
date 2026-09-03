@@ -9,13 +9,14 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { fetchSeoData } from "@/lib/fetch-seo-data"
-import { getSiteSettings, replaceLegacySiteName, resolveSiteName, withSiteName } from "@/lib/site-settings"
+import { getSiteSettings, resolveSiteName, withSiteName } from "@/lib/site-settings"
 import { createClient } from "next-sanity"
+import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
 
 const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
+  projectId: runtimeConfig.sanityProjectId,
+  dataset: runtimeConfig.sanityDataset,
+  apiVersion: runtimeConfig.sanityApiVersion,
   useCdn: false,
 })
 
@@ -39,11 +40,7 @@ type Project = LocalizedContent & {
   categoryName?: string
 }
 
-function selectLocalizedItems<T extends LocalizedContent>(
-  items: T[],
-  lang: string,
-  limit: number,
-): T[] {
+function selectLocalizedItems<T extends LocalizedContent>(items: T[], lang: string, limit: number): T[] {
   const grouped = new Map<string, T[]>()
 
   items.forEach((item, index) => {
@@ -65,21 +62,14 @@ function selectLocalizedItems<T extends LocalizedContent>(
     .slice(0, limit)
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const [seo, siteSettings] = await Promise.all([fetchSeoData(lang, "home"), getSiteSettings()])
   const siteName = resolveSiteName(siteSettings)
-
-  const fallbackTitle =
-    "ZINITEK - Kỹ thuật Nhật Bản, Chi phí Việt Nam | Gia công CNC & Khuôn mẫu"
-  const fallbackDescription =
-    "ZINITEK cung cấp giải pháp gia công CNC chính xác, thiết kế khuôn mẫu và tự động hóa nhà máy theo tiêu chuẩn chất lượng Nhật Bản."
+  const fallbackTitle = `${siteName} - Website`
+  const fallbackDescription = `${siteName} cung cấp thông tin, sản phẩm và dịch vụ cho khách hàng.`
   const title = withSiteName(seo?.metaTitle || fallbackTitle, siteName)
-  const description = replaceLegacySiteName(seo?.metaDescription || fallbackDescription, siteName)
+  const description = seo?.metaDescription || fallbackDescription
   const ogImage = seo?.openGraphImage?.asset?.url
 
   return {
@@ -112,17 +102,13 @@ export async function generateMetadata({
   }
 }
 
-export default async function Home({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const [dictionary, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
   const siteName = resolveSiteName(siteSettings)
+  const siteUrl = getPublicSiteUrl()
   const blogDictionary = (dictionary.blog as Record<string, string>) || {}
-  const newsDictionary =
-    (dictionary.news_section as Record<string, string>) || {}
+  const newsDictionary = (dictionary.news_section as Record<string, string>) || {}
 
   const blogQuery = `
     *[_type == "blogPost" && defined(slug.current) && !(_id in path("drafts.**"))] | order(publishedAt desc) {
@@ -165,6 +151,7 @@ export default async function Home({
     siteSettings.wechatUrl,
     siteSettings.zaloNumber ? `https://zalo.me/${encodeURIComponent(siteSettings.zaloNumber.replace(/\s+/g, ""))}` : undefined,
   ].filter((url): url is string => Boolean(url))
+
   const contactPoint = siteSettings.phoneTel || siteSettings.email
     ? {
         "@type": "ContactPoint",
@@ -174,12 +161,13 @@ export default async function Home({
         availableLanguage: ["Vietnamese", "English", "Japanese", "Korean", "Chinese"],
       }
     : undefined
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": ["Organization", "LocalBusiness"],
     name: siteName,
-    url: `https://zinitek.vn/${lang}`,
-    image: "https://zinitek.vn/og-image.jpg",
+    url: `${siteUrl}/${lang}`,
+    image: `${siteUrl}/og-image.jpg`,
     description: typeof dictionary.hero?.description === "string"
       ? dictionary.hero.description.replace(/<[^>]*>?/gm, "")
       : undefined,
@@ -192,61 +180,36 @@ export default async function Home({
 
   return (
     <>
-      <main
-        id="main-content"
-        className="relative min-h-dvh overflow-x-clip bg-background text-foreground"
-      >
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+      <main id="main-content" className="relative min-h-dvh overflow-x-clip bg-background text-foreground">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-        <div
-          className="pointer-events-none absolute inset-0 z-0 opacity-30"
-          aria-hidden="true"
-        >
+        <div className="pointer-events-none absolute inset-0 z-0 opacity-30" aria-hidden="true">
           <BlueprintBackground />
         </div>
 
         <div className="relative z-10 pt-20 lg:pt-24">
           <HeroSection dict={dictionary} lang={lang} />
           <AboutSummary dict={dictionary} lang={lang} />
-          <FeaturedProjects
-            dict={dictionary}
-            projects={latestProjects}
-            lang={lang}
-          />
+          <FeaturedProjects dict={dictionary} projects={latestProjects} lang={lang} />
 
-          <section
-            aria-labelledby="news-section-title"
-            className="relative border-y border-border/70 bg-card/40 py-20 sm:py-24 lg:py-28"
-          >
+          <section aria-labelledby="news-section-title" className="relative border-y border-border/70 bg-card/40 py-20 sm:py-24 lg:py-28">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="mb-10 flex flex-col gap-7 md:mb-12 md:flex-row md:items-end md:justify-between">
                 <div className="max-w-2xl">
                   <div className="mb-4 flex items-center gap-3">
-                    <span
-                      className="h-px w-10 bg-primary sm:w-12"
-                      aria-hidden="true"
-                    />
+                    <span className="h-px w-10 bg-primary sm:w-12" aria-hidden="true" />
                     <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                       {newsDictionary.badge || "Kiến thức & Tin tức"}
                     </span>
                   </div>
 
-                  <h2
-                    id="news-section-title"
-                    className="max-w-xl text-balance font-serif text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl"
-                  >
+                  <h2 id="news-section-title" className="max-w-xl text-balance font-serif text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl">
                     {newsDictionary.title_main || "Góc nhìn"}{" "}
-                    <span className="text-primary">
-                      {newsDictionary.title_highlight || "Chuyên gia"}
-                    </span>
+                    <span className="text-primary">{newsDictionary.title_highlight || "Chuyên gia"}</span>
                   </h2>
 
                   <p className="mt-5 max-w-[65ch] text-base leading-7 text-muted-foreground sm:text-lg">
-                    {newsDictionary.description ||
-                      "Cập nhật xu hướng công nghệ cơ khí và kinh nghiệm gia công từ đội ngũ ZINITEK."}
+                    {newsDictionary.description || "Cập nhật xu hướng, kiến thức và kinh nghiệm chuyên môn từ đội ngũ của chúng tôi."}
                   </p>
                 </div>
 
@@ -255,15 +218,9 @@ export default async function Home({
                   variant="outline"
                   className="group min-h-12 w-fit rounded-full border-primary/40 bg-background/70 px-6 text-base font-semibold text-primary shadow-sm transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                  <Link
-                    href={`/${lang}/blog`}
-                    aria-label={newsDictionary.view_all || "Xem tất cả bài viết"}
-                  >
+                  <Link href={`/${lang}/blog`} aria-label={newsDictionary.view_all || "Xem tất cả bài viết"}>
                     {newsDictionary.view_all || "Xem tất cả bài viết"}
-                    <ArrowRight
-                      className="ml-2 size-4 transition-transform group-hover:translate-x-1"
-                      aria-hidden="true"
-                    />
+                    <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                   </Link>
                 </Button>
               </div>
@@ -277,9 +234,7 @@ export default async function Home({
                 />
               ) : (
                 <div className="rounded-2xl border border-dashed border-border bg-background/70 px-6 py-12 text-center">
-                  <p className="text-base text-muted-foreground">
-                    {blogDictionary.no_posts || "Đang cập nhật bài viết mới..."}
-                  </p>
+                  <p className="text-base text-muted-foreground">{blogDictionary.no_posts || "Đang cập nhật bài viết mới..."}</p>
                 </div>
               )}
             </div>
