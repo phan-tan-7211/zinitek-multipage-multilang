@@ -5,18 +5,10 @@ import Link from "next/link"
 import { ArrowRight, ExternalLink, Mail, MapPin, MessageCircle, Phone, Youtube, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { createClient } from "next-sanity"
 import { useSiteSettings } from "@/components/site-settings-context"
 import { SiteLogoMark, SiteLogoWordmark } from "@/components/site-logo"
 import { resolveSiteName } from "@/lib/site-settings"
-import { runtimeConfig } from "@/lib/runtime-config"
-
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: true,
-})
+import { sanityCdnClient } from "@/lib/sanity-client"
 
 interface LegalDocLink { _id: string; slug: string; title: string; language: string }
 
@@ -41,8 +33,8 @@ export function Footer({ lang, dict }: { lang: string; dict: any }) {
     async function loadFooterData() {
       try {
         const [allServices, allLegalDocs] = await Promise.all([
-          sanityClient.fetch(`*[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc){_id,_translationKey,language,"slug":slug.current,title}`),
-          sanityClient.fetch(`*[_type == "legalDoc" && defined(slug.current) && !(_id in path("drafts.**"))] | order(_createdAt asc){_id,language,"slug":slug.current,title}`),
+          sanityCdnClient.fetch(`*[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc){_id,_translationKey,language,"slug":slug.current,title}`),
+          sanityCdnClient.fetch(`*[_type == "legalDoc" && defined(slug.current) && !(_id in path("drafts.**"))] | order(_createdAt asc){_id,language,"slug":slug.current,title}`),
         ])
         const groups: Record<string, any[]> = {}
         allServices.forEach((item: any) => {
