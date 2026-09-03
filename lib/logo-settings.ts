@@ -1,7 +1,7 @@
 import type { GlobalSiteSettings } from "@/lib/site-settings"
 
 export const LOGO_COLOR_PRESETS = {
-  zinitekOrange: { primary: "#ea580c", text: "#ffffff", fill: "#1e0f0a", glow: "#f97316" },
+  brandOrange: { primary: "#ea580c", text: "#ffffff", fill: "#1e0f0a", glow: "#f97316" },
   cyberCyan: { primary: "#06b6d4", text: "#22d3ee", fill: "#0f172a", glow: "#22d3ee" },
   neonPurple: { primary: "#9333ea", text: "#c084fc", fill: "#190a23", glow: "#c084fc" },
   emerald: { primary: "#059669", text: "#10b981", fill: "#061e14", glow: "#10b981" },
@@ -21,9 +21,10 @@ function clamp(value: number | undefined, minimum: number, maximum: number, fall
 
 export function resolveLogoMark(settings: Pick<GlobalSiteSettings, "logoMark">) {
   const logoMark = settings.logoMark
-  const letter = Array.from(logoMark?.letter?.trim() || "Z").slice(0, 2).join("") || "Z"
-  const preset = logoMark?.colorPreset && logoMark.colorPreset !== "custom"
-    ? LOGO_COLOR_PRESETS[logoMark.colorPreset]
+  const letter = Array.from(logoMark?.letter?.trim() || "C").slice(0, 2).join("") || "C"
+  const presetKey = logoMark?.colorPreset === "brandOrange" ? "brandOrange" : logoMark?.colorPreset
+  const preset = presetKey && presetKey !== "custom" && presetKey in LOGO_COLOR_PRESETS
+    ? LOGO_COLOR_PRESETS[presetKey as keyof typeof LOGO_COLOR_PRESETS]
     : undefined
   const primaryColor = preset?.primary || cleanHexColor(logoMark?.primaryColor, "#ea580c")
 
@@ -44,7 +45,7 @@ export function resolveLogoMark(settings: Pick<GlobalSiteSettings, "logoMark">) 
     shineEnabled: logoMark?.shineEnabled === true,
     animationEnabled: logoMark?.animationEnabled !== false,
     shapeHoverRotate: clamp(logoMark?.shapeHoverRotate, -360, 360, 180),
-    letterHoverRotate: clamp(logoMark?.letterHoverRotate, -180, 180, 90),
+    letterHoverRotate: clamp(logoMark?.letterHoverRotate, -180, 180, 0),
     springStiffness: clamp(logoMark?.springStiffness, 100, 800, 400),
     springDamping: clamp(logoMark?.springDamping, 10, 80, 30),
   }
