@@ -15,6 +15,13 @@ interface SanityReview {
 }
 
 interface ReviewSettings {
+  enabled?: boolean
+  badge?: Record<string, string>
+  titlePart1?: Record<string, string>
+  titleHighlight?: Record<string, string>
+  description?: Record<string, string>
+  reviewsLabel?: Record<string, string>
+  viewGoogleLabel?: Record<string, string>
   googleRating?: number
   googleReviewCount?: number
   googleMapsUrl?: string
@@ -128,12 +135,26 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
     let active = true
 
     Promise.all([
+      sanityClient.fetch<ReviewSettings>(`*[_type == "googleReviewsSettings" && _id == "googleReviewsSettings" && !(_id in path("drafts.**"))][0]{enabled,badge,titlePart1,titleHighlight,description,reviewsLabel,viewGoogleLabel,googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`),
       sanityClient.fetch<ReviewSettings>(`*[_type == "siteSettings" && !(_id in path("drafts.**"))][0]{googleRating,googleReviewCount,googleMapsUrl,googleReviews[]{_key,author,rating,content,meta,reviewUrl}}`),
       sanityClient.fetch<TrustedCompaniesSettings>(`*[_type == "trustedCompanies" && _id == "trustedCompanies" && !(_id in path("drafts.**"))][0]{enabled,heading,companies[]{_key,name,url,enabled}}`),
     ])
-      .then(([reviewData, trustedData]) => {
+      .then(([newReviewData, legacyReviewData, trustedData]) => {
         if (!active) return
-        setSettings(reviewData || {})
+
+        const mergedReviewData: ReviewSettings = {
+          ...(legacyReviewData || {}),
+          ...(newReviewData || {}),
+          googleRating: newReviewData?.googleRating ?? legacyReviewData?.googleRating,
+          googleReviewCount: newReviewData?.googleReviewCount ?? legacyReviewData?.googleReviewCount,
+          googleMapsUrl: newReviewData?.googleMapsUrl || legacyReviewData?.googleMapsUrl,
+          googleReviews:
+            newReviewData?.googleReviews && newReviewData.googleReviews.length > 0
+              ? newReviewData.googleReviews
+              : legacyReviewData?.googleReviews || [],
+        }
+
+        setSettings(mergedReviewData)
         setTrustedSettings(trustedData || {})
       })
       .catch((error) => {
@@ -150,18 +171,25 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
 
   const reviews = (settings?.googleReviews || []).filter((review) => review.content && review.author)
   const trustedCompanies = (trustedSettings?.companies || []).filter((company) => company.enabled !== false && company.name?.trim())
+  const showReviews = settings?.enabled !== false && reviews.length > 0
   const showTrustedCompanies = trustedSettings?.enabled !== false && trustedCompanies.length > 0
   const trustedHeading = trustedSettings?.heading?.[lang]?.trim() || t.trusted_by || labels.trustedBy
+  const badge = settings?.badge?.[lang]?.trim() || t.badge || "Google Reviews"
+  const titlePart1 = settings?.titlePart1?.[lang]?.trim() || t.title_part1 || "Đối tác"
+  const titleHighlight = settings?.titleHighlight?.[lang]?.trim() || t.title_highlight || "tin cậy"
+  const description = settings?.description?.[lang]?.trim() || t.description || "Những đánh giá thực tế từ khách hàng và đối tác trên Google."
+  const reviewsLabel = settings?.reviewsLabel?.[lang]?.trim() || labels.reviews
+  const viewGoogleLabel = settings?.viewGoogleLabel?.[lang]?.trim() || labels.viewGoogle
   const loading = settings === null || trustedSettings === null
 
-  if (!loading && reviews.length === 0 && !showTrustedCompanies) return null
+  if (!loading && !showReviews && !showTrustedCompanies) return null
 
   return (
     <section className="relative overflow-hidden border-y border-border/60 bg-secondary/20 py-20 sm:py-24 lg:py-28">
       <div className="pointer-events-none absolute left-1/2 top-1/2 size-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.045] blur-[140px]" aria-hidden="true" />
 
       <div ref={ref} className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-        {(loading || reviews.length > 0) && (
+        {(loading || showReviews) && (
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 24 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -170,15 +198,15 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
           >
             <div className="mb-4 inline-flex items-center gap-3">
               <span className="h-px w-10 bg-gradient-to-r from-transparent to-primary" aria-hidden="true" />
-              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">{t.badge || "Google Reviews"}</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">{badge}</span>
               <span className="h-px w-10 bg-gradient-to-l from-transparent to-primary" aria-hidden="true" />
             </div>
 
             <h2 className="text-balance font-serif text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
-              {t.title_part1 || "Đối tác"} <span className="italic text-primary">{t.title_highlight || "tin cậy"}</span>
+              {titlePart1} <span className="italic text-primary">{titleHighlight}</span>
             </h2>
             <p className="mx-auto mt-4 max-w-[65ch] text-base leading-7 text-muted-foreground sm:text-lg">
-              {t.description || "Những đánh giá thực tế từ khách hàng và đối tác trên Google."}
+              {description}
             </p>
 
             {settings && (settings.googleRating || settings.googleReviewCount || settings.googleMapsUrl) && (
@@ -188,7 +216,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
                   <strong className="text-lg text-foreground">{settings.googleRating.toFixed(1)}</strong>
                 )}
                 {typeof settings.googleReviewCount === "number" && (
-                  <span className="text-sm text-muted-foreground">· {settings.googleReviewCount} {labels.reviews}</span>
+                  <span className="text-sm text-muted-foreground">· {settings.googleReviewCount} {reviewsLabel}</span>
                 )}
                 {settings.googleMapsUrl && (
                   <a
@@ -197,7 +225,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
                     rel="noopener noreferrer nofollow"
                     className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    {labels.viewGoogle}<ExternalLink className="size-3.5" aria-hidden="true" />
+                    {viewGoogleLabel}<ExternalLink className="size-3.5" aria-hidden="true" />
                   </a>
                 )}
               </div>
@@ -209,7 +237,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((item) => <div key={item} className="h-64 animate-pulse rounded-[var(--radius-card)] border border-border/60 bg-card/60" />)}
           </div>
-        ) : reviews.length > 0 ? (
+        ) : showReviews ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {reviews.map((review, index) => (
               <ReviewCard key={review._key || `${review.author}-${index}`} review={review} index={index} />
@@ -222,7 +250,7 @@ export function TestimonialsSection({ dict, lang = "vi" }: TestimonialsSectionPr
             initial={reduceMotion ? false : { opacity: 0, y: 24 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.15 }}
-            className={`${reviews.length > 0 ? "mt-16" : "mt-0"} border-t border-border/60 pt-10 sm:pt-12`}
+            className={`${showReviews ? "mt-16" : "mt-0"} border-t border-border/60 pt-10 sm:pt-12`}
           >
             <p className="mb-7 text-center text-sm font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {trustedHeading}
