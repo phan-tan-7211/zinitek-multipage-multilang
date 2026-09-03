@@ -29,9 +29,7 @@ const taoMucDaNgonNgu = (S: any, id: string, title: string, icon: any, tenLoaiDo
                 .title(`Nhóm ${title}`)
                 .filter(`_type == "translation.metadata" && "${tenLoaiDoc}" in schemaTypes`)
                 .initialValueTemplates([
-                  S.initialValueTemplateItem('translation.metadata', {
-                    schemaTypes: [tenLoaiDoc],
-                  })
+                  S.initialValueTemplateItem('translation.metadata', { schemaTypes: [tenLoaiDoc] })
                 ])
             ),
           S.listItem()
@@ -50,42 +48,27 @@ export const structure: StructureResolver = (S) =>
         .id('site-settings')
         .title('Cấu hình website')
         .icon(CogIcon)
-        .child(
-          S.document()
-            .schemaType('siteSettings')
-            .documentId('siteSettings')
-            .title('Cấu hình toàn website')
-        ),
+        .child(S.document().schemaType('siteSettings').documentId('siteSettings').title('Cấu hình toàn website')),
+      S.listItem()
+        .id('contact-settings')
+        .title('Liên hệ & Báo giá')
+        .icon(CaseIcon)
+        .child(S.document().schemaType('contactSettings').documentId('contactSettings').title('Liên hệ · Giờ làm việc · Form báo giá')),
       S.listItem()
         .id('locations-settings')
         .title('Địa điểm')
         .icon(EarthGlobeIcon)
-        .child(
-          S.document()
-            .schemaType('locationsSettings')
-            .documentId('locationsSettings')
-            .title('Nhà máy & Văn phòng')
-        ),
+        .child(S.document().schemaType('locationsSettings').documentId('locationsSettings').title('Nhà máy & Văn phòng')),
       S.listItem()
         .id('google-reviews-settings')
         .title('Đánh giá Google')
         .icon(EarthGlobeIcon)
-        .child(
-          S.document()
-            .schemaType('googleReviewsSettings')
-            .documentId('googleReviewsSettings')
-            .title('Đánh giá Google hiển thị trên website')
-        ),
+        .child(S.document().schemaType('googleReviewsSettings').documentId('googleReviewsSettings').title('Đánh giá Google hiển thị trên website')),
       S.listItem()
         .id('trusted-companies')
         .title('Doanh nghiệp tin tưởng')
         .icon(UsersIcon)
-        .child(
-          S.document()
-            .schemaType('trustedCompanies')
-            .documentId('trustedCompanies')
-            .title('Doanh nghiệp tin tưởng ZINITEK')
-        ),
+        .child(S.document().schemaType('trustedCompanies').documentId('trustedCompanies').title('Doanh nghiệp tin tưởng ZINITEK')),
 
       S.divider(),
       taoMucDaNgonNgu(S, 'services', 'Dịch vụ', CogIcon, 'service'),
@@ -104,7 +87,7 @@ export const structure: StructureResolver = (S) =>
           'service', 'product', 'project', 'blogPost',
           'blogCategory', 'seoPageConfig', 'legalDoc',
           'pageContent', 'translation.metadata', 'siteSettings',
-          'trustedCompanies', 'googleReviewsSettings', 'locationsSettings'
+          'trustedCompanies', 'googleReviewsSettings', 'locationsSettings', 'contactSettings'
         ].includes(listItem.getId() || '')
       ),
     ])
