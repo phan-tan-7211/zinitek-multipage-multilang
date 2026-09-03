@@ -4,15 +4,8 @@ import { PageHeader } from "@/components/page-header"
 import { ServiceListContent } from "@/components/service-list-content"
 import { getDictionary } from "@/lib/get-dictionary"
 import { getSiteName, withSiteName } from "@/lib/site-settings"
-import { createClient } from "next-sanity"
-import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
-
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
+import { getPublicSiteUrl } from "@/lib/runtime-config"
+import { sanityClient } from "@/lib/sanity-client"
 
 async function layDanhSachDichVu(lang: string) {
   const query = `
