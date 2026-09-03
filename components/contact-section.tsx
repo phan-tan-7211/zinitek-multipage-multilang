@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AnimatePresence, motion, useInView } from "framer-motion"
 import { ChevronRight, Clock, ExternalLink, Mail, MapPin, Phone, Upload } from "lucide-react"
-import { createClient } from "next-sanity"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { useSiteSettings } from "@/components/site-settings-context"
+import { sanityCdnClient } from "@/lib/sanity-client"
 
 type LocaleKey = "vi" | "en" | "jp" | "kr" | "cn"
 type Localized = Partial<Record<LocaleKey, string>>
@@ -71,13 +71,6 @@ interface ContactSettings {
   form?: Partial<Record<LocaleKey, FormCopy>>
 }
 
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: true,
-})
-
 const kindLabels: Record<LocaleKey, Record<string, string>> = {
   vi: { factory: "Nhà máy", office: "Văn phòng", factory_office: "Nhà máy & Văn phòng", other: "Địa điểm" },
   en: { factory: "Factory", office: "Office", factory_office: "Factory & Office", other: "Location" },
@@ -101,8 +94,8 @@ export function ContactSection({ dict, lang = "vi" }: { dict: any; lang?: string
   useEffect(() => {
     let active = true
     Promise.all([
-      sanityClient.fetch<ContactSettings | null>(`*[_type == "contactSettings" && _id == "contactSettings" && !(_id in path("drafts.**"))][0]{enabled,badge,title,titleHighlight,description,workingHoursTitle,workingHours[]{_key,enabled,label,value,accent},form}`),
-      sanityClient.fetch<{ locations?: CompanyLocation[] } | null>(`*[_type == "locationsSettings" && _id == "locationsSettings" && !(_id in path("drafts.**"))][0]{locations[]{_key,enabled,kind,name,address,googleMapsUrl}}`),
+      sanityCdnClient.fetch<ContactSettings | null>(`*[_type == "contactSettings" && _id == "contactSettings" && !(_id in path("drafts.**"))][0]{enabled,badge,title,titleHighlight,description,workingHoursTitle,workingHours[]{_key,enabled,label,value,accent},form}`),
+      sanityCdnClient.fetch<{ locations?: CompanyLocation[] } | null>(`*[_type == "locationsSettings" && _id == "locationsSettings" && !(_id in path("drafts.**"))][0]{locations[]{_key,enabled,kind,name,address,googleMapsUrl}}`),
     ]).then(([contactData, locationData]) => {
       if (!active) return
       setSettings(contactData || {})
