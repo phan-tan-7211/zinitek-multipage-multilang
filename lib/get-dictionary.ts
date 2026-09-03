@@ -1,6 +1,6 @@
 import "server-only"
-import { createClient } from "next-sanity"
 import type { Locale } from './i18n-config'
+import { sanityClient } from '@/lib/sanity-client'
 
 const dictionaries = {
   vi: () => import('@/dictionaries/vi.json').then((module) => module.default),
@@ -10,70 +10,71 @@ const dictionaries = {
   cn: () => import('@/dictionaries/cn.json').then((module) => module.default),
 }
 
-const sanityClient = createClient({
-  projectId: "g4o3uumy",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-})
+function isPlainObject(value: unknown): value is Record<string, any> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
 
-async function getDynamicCommonContent(locale: string) {
+function deepMerge<T>(base: T, override: any): T {
+  if (!isPlainObject(base) || !isPlainObject(override)) return (override ?? base) as T
+  const output: Record<string, any> = { ...(base as Record<string, any>) }
+  for (const [key, value] of Object.entries(override)) {
+    output[key] = isPlainObject(output[key]) && isPlainObject(value)
+      ? deepMerge(output[key], value)
+      : value
+  }
+  return output as T
+}
+
+async function getDynamicPageContent(locale: string) {
   try {
-    const result = await sanityClient.fetch<{ content?: string } | null>(
+    const rows = await sanityClient.fetch<Array<{ key?: string; content?: string }>>(
       `*[
         _type == "pageContent" &&
         language == $locale &&
-        key == "common" &&
+        defined(key) &&
+        defined(content) &&
         !(_id in path("drafts.**"))
-      ][0]{content}`,
+      ]{key,content}`,
       { locale },
-      { next: { revalidate: 60, tags: [`page-content-common-${locale}`] } },
+      { next: { revalidate: 60, tags: [`page-content-${locale}`] } },
     )
 
-    if (!result?.content) return null
-
-    const parsed = JSON.parse(result.content)
-    const common = parsed?.common && typeof parsed.common === "object" ? parsed.common : parsed
-
-    return common && typeof common === "object" ? common : null
+    return rows.reduce((output: Record<string, any>, row) => {
+      if (!row?.key || !row?.content) return output
+      try {
+        const parsed = JSON.parse(row.content)
+        output[row.key] = isPlainObject(parsed?.[row.key]) ? parsed[row.key] : parsed
+      } catch {
+        console.warn(`⚠️ pageContent/${row.key} [${locale}] không phải JSON hợp lệ, bỏ qua document này.`)
+      }
+      return output
+    }, {})
   } catch (error) {
-    console.warn(`⚠️ Không thể tải pageContent/common từ Sanity cho [${locale}], dùng dictionary fallback.`)
-    return null
+    console.warn(`⚠️ Không thể tải pageContent từ Sanity cho [${locale}], dùng dictionary fallback.`)
+    return {}
   }
 }
 
 export const getDictionary = async (locale: string) => {
-  // 1. CHẶN SPAM: Nếu là file hệ thống thì trả về dữ liệu mặc định ngay, không báo lỗi
   if (locale.includes('.') || locale === 'favicon.ico' || locale === 'studio') {
-    return await dictionaries.vi();
+    return await dictionaries.vi()
   }
 
   try {
     const loadDictionary = dictionaries[locale as keyof typeof dictionaries]
-    
-    // 2. Nếu không tìm thấy ngôn ngữ phù hợp
+
     if (!loadDictionary) {
-      // Chỉ hiện cảnh báo nếu nó thực sự là một mã ngôn ngữ lạ (không phải file)
-      if (locale.length <= 5) {
-        console.warn(`⚠️ Ngôn ngữ [${locale}] không hỗ trợ, dùng mặc định [vi]`);
-      }
-      return await dictionaries.vi();
+      if (locale.length <= 5) console.warn(`⚠️ Ngôn ngữ [${locale}] không hỗ trợ, dùng mặc định [vi]`)
+      return await dictionaries.vi()
     }
 
-    const dictionary = await loadDictionary()
-    const dynamicCommon = await getDynamicCommonContent(locale)
-    const dynamicSlogan = typeof dynamicCommon?.slogan_top === "string"
-      ? dynamicCommon.slogan_top.trim()
-      : ""
+    const [dictionary, dynamicSections] = await Promise.all([
+      loadDictionary(),
+      getDynamicPageContent(locale),
+    ])
 
-    return {
-      ...dictionary,
-      common: {
-        ...dictionary.common,
-        ...(dynamicSlogan ? { slogan_top: dynamicSlogan } : {}),
-      },
-    }
-  } catch (error) {
-    return await dictionaries.vi();
+    return deepMerge(dictionary, dynamicSections)
+  } catch {
+    return await dictionaries.vi()
   }
 }
