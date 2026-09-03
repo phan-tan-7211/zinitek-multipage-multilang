@@ -7,15 +7,8 @@ import { FloatingContactBar } from "@/components/floating-contact-bar"
 import { SiteSettingsProvider } from "@/components/site-settings-context"
 import { getDictionary } from "@/lib/get-dictionary"
 import { getSiteSettings, resolveSiteName } from "@/lib/site-settings"
-import { createClient } from "next-sanity"
-import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
-
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
+import { getPublicSiteUrl } from "@/lib/runtime-config"
+import { sanityClient } from "@/lib/sanity-client"
 
 async function getLocalizedServices(lang: string) {
   const items: any[] = await sanityClient.fetch(`
