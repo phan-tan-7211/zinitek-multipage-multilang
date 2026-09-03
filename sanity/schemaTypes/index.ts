@@ -11,6 +11,7 @@ import trustedCompanies from './trustedCompanies'
 import googleReviewsSettings from './googleReviewsSettings'
 import locationsSettings from './locationsSettings'
 import contactSettings from './contactSettings'
+import organizationSettings from './organizationSettings'
 
 export const schemaTypes = [
   service,
@@ -26,4 +27,5 @@ export const schemaTypes = [
   googleReviewsSettings,
   locationsSettings,
   contactSettings,
+  organizationSettings,
 ]
