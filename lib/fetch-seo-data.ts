@@ -1,14 +1,6 @@
-import { createClient } from "next-sanity"
-import { runtimeConfig } from "@/lib/runtime-config"
+import { sanityClient } from "@/lib/sanity-client"
 
 export type PageIdentifier = 'home' | 'about' | 'contact' | 'servicesHub' | 'productsHub' | string
-
-const client = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
 
 export async function fetchSeoData(language: string, identifier: PageIdentifier) {
   const query = `
@@ -23,8 +15,8 @@ export async function fetchSeoData(language: string, identifier: PageIdentifier)
     }
   `
 
-  let data = await client.fetch(query, { language, identifier })
-  if (!data) data = await client.fetch(query, { language: 'en', identifier })
-  if (!data) data = await client.fetch(query, { language: 'vi', identifier })
+  let data = await sanityClient.fetch(query, { language, identifier })
+  if (!data) data = await sanityClient.fetch(query, { language: 'en', identifier })
+  if (!data) data = await sanityClient.fetch(query, { language: 'vi', identifier })
   return data
 }
