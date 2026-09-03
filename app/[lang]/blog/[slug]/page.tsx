@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { createClient } from "next-sanity"
 import { getDictionary } from "@/lib/get-dictionary"
 import { PortableText } from "@portabletext/react"
 import { ArrowRight, Calendar, ChevronRight, Clock, Home, Tag, User } from "lucide-react"
@@ -7,8 +6,8 @@ import Link from "next/link"
 import { SanityImage } from "@/components/sanity-image"
 import { Footer } from "@/components/footer"
 import { getSiteName, withSiteName } from "@/lib/site-settings"
-
-const sanityClient = createClient({ projectId: "g4o3uumy", dataset: "production", apiVersion: "2024-01-01", useCdn: false })
+import { sanityClient } from "@/lib/sanity-client"
+import { getPublicSiteUrl } from "@/lib/runtime-config"
 
 type RawPost = Record<string, any>
 
@@ -73,51 +72,27 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ lan
   const related = await getRelated(post._id, post.language || lang)
   const locale = lang === "vi" ? "vi-VN" : lang === "jp" ? "ja-JP" : lang === "kr" ? "ko-KR" : lang === "cn" ? "zh-CN" : "en-US"
   const date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" }) : ""
-  const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description: post.excerpt, image: post.mainImage?.url, author: { "@type": "Organization", name: post.author || `${siteName} Team` }, publisher: { "@type": "Organization", name: siteName }, datePublished: post.publishedAt, mainEntityOfPage: `https://zinitek.vn/${lang}/blog/${post.slug || slug}` }
+  const siteUrl = getPublicSiteUrl()
+  const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description: post.excerpt, image: post.mainImage?.url, author: { "@type": "Organization", name: post.author || `${siteName} Team` }, publisher: { "@type": "Organization", name: siteName }, datePublished: post.publishedAt, mainEntityOfPage: `${siteUrl}/${lang}/blog/${post.slug || slug}` }
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="container relative isolate mx-auto px-4 pb-24 pt-32 sm:px-6 lg:px-8 lg:pt-36">
-        <div
-          className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block"
-          aria-hidden="true"
-        />
-        <nav
-          className="relative z-10 mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8"
-          aria-label="Breadcrumb"
-        >
+        <div className="pointer-events-none absolute left-8 top-32 hidden size-24 border-l border-t border-primary/20 lg:block" aria-hidden="true" />
+        <div className="pointer-events-none absolute bottom-8 right-8 hidden size-24 border-b border-r border-border/70 lg:block" aria-hidden="true" />
+        <nav className="relative z-10 mb-7 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm sm:mb-8" aria-label="Breadcrumb">
           <div className="flex min-w-0 items-center gap-2">
             <Home className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <Link
-              href={`/${lang}`}
-              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              {dict.common?.home || "Trang chủ"}
-            </Link>
+            <Link href={`/${lang}`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">{dict.common?.home || "Trang chủ"}</Link>
           </div>
           <div className="flex min-w-0 items-center gap-2">
             <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-            <Link
-              href={`/${lang}/blog`}
-              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              {dict.navigation?.blog || dict.blog?.title || "Blog"}
-            </Link>
+            <Link href={`/${lang}/blog`} className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">{dict.navigation?.blog || dict.blog?.title || "Blog"}</Link>
           </div>
           <div className="flex min-w-0 items-center gap-2">
             <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-            <span
-              className="max-w-[70vw] truncate font-medium text-primary"
-              aria-current="page"
-              title={post.title}
-            >
-              {post.title}
-            </span>
+            <span className="max-w-[70vw] truncate font-medium text-primary" aria-current="page" title={post.title}>{post.title}</span>
           </div>
         </nav>
 
