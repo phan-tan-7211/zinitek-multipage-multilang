@@ -101,7 +101,7 @@ export function Navigation({ lang, dict, initialServices = [] }: NavigationProps
     setIsLangOpen(false)
     setIsMobileMenuOpen(false)
     const segments = pathname.split("/")
-    const translationMap = (window as any).companyTranslations
+    const translationMap = (window as any).companyTranslations || (window as any).zinitekTranslations
 
     if (segments.length === 4 && segments[2] === "services" && translationMap?.[nextLang]) {
       segments[1] = nextLang
