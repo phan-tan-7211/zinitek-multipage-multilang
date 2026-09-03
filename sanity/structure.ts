@@ -7,7 +7,8 @@ import {
   DocumentIcon,
   TagIcon,
   SearchIcon,
-  DatabaseIcon
+  DatabaseIcon,
+  UsersIcon
 } from '@sanity/icons'
 
 const taoMucDaNgonNgu = (S: any, id: string, title: string, icon: any, tenLoaiDoc: string) =>
@@ -55,6 +56,16 @@ export const structure: StructureResolver = (S) =>
             .documentId('siteSettings')
             .title('Cấu hình toàn website')
         ),
+      S.listItem()
+        .id('trusted-companies')
+        .title('Doanh nghiệp tin tưởng')
+        .icon(UsersIcon)
+        .child(
+          S.document()
+            .schemaType('trustedCompanies')
+            .documentId('trustedCompanies')
+            .title('Doanh nghiệp tin tưởng ZINITEK')
+        ),
 
       S.divider(),
       taoMucDaNgonNgu(S, 'services', 'Dịch vụ', CogIcon, 'service'),
@@ -72,7 +83,7 @@ export const structure: StructureResolver = (S) =>
         (listItem: any) => ![
           'service', 'product', 'project', 'blogPost',
           'blogCategory', 'seoPageConfig', 'legalDoc',
-          'pageContent', 'translation.metadata', 'siteSettings'
+          'pageContent', 'translation.metadata', 'siteSettings', 'trustedCompanies'
         ].includes(listItem.getId() || '')
       ),
     ])
