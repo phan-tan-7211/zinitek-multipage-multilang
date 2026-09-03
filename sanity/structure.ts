@@ -57,6 +57,16 @@ export const structure: StructureResolver = (S) =>
             .title('Cấu hình toàn website')
         ),
       S.listItem()
+        .id('google-reviews-settings')
+        .title('Đánh giá Google')
+        .icon(EarthGlobeIcon)
+        .child(
+          S.document()
+            .schemaType('googleReviewsSettings')
+            .documentId('googleReviewsSettings')
+            .title('Đánh giá Google hiển thị trên website')
+        ),
+      S.listItem()
         .id('trusted-companies')
         .title('Doanh nghiệp tin tưởng')
         .icon(UsersIcon)
@@ -83,7 +93,8 @@ export const structure: StructureResolver = (S) =>
         (listItem: any) => ![
           'service', 'product', 'project', 'blogPost',
           'blogCategory', 'seoPageConfig', 'legalDoc',
-          'pageContent', 'translation.metadata', 'siteSettings', 'trustedCompanies'
+          'pageContent', 'translation.metadata', 'siteSettings',
+          'trustedCompanies', 'googleReviewsSettings'
         ].includes(listItem.getId() || '')
       ),
     ])
