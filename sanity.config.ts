@@ -6,6 +6,7 @@ import { documentInternationalization } from '@sanity/document-internationalizat
 import { IconManager } from 'sanity-plugin-icon-manager'
 import { schemaTypes } from './sanity/schemaTypes'
 import { ImportExportTool } from './sanity/tools/ImportExportTool'
+import { CompanyBootstrapLayout } from './sanity/components/CompanyBootstrapLayout'
 import { structure } from './sanity/structure'
 import { runtimeConfig } from './lib/runtime-config'
 
@@ -15,6 +16,12 @@ export default defineConfig({
   projectId: runtimeConfig.sanityProjectId,
   dataset: runtimeConfig.sanityDataset,
   basePath: '/studio',
+
+  studio: {
+    components: {
+      layout: CompanyBootstrapLayout,
+    },
+  },
 
   tools: (previousTools) => [
     ...previousTools,
