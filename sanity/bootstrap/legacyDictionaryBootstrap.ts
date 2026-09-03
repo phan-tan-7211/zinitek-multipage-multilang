@@ -12,6 +12,12 @@ type Dictionary = Record<string, any>
 
 const dictionaries: Record<LocaleKey, Dictionary> = { vi, en, jp, kr, cn }
 const locales = Object.keys(dictionaries) as LocaleKey[]
+const legacyText = JSON.stringify(dictionaries).toLocaleLowerCase()
+
+export function legacyDictionaryMatchesBrand(siteName: string) {
+  const normalized = siteName.trim().toLocaleLowerCase()
+  return normalized.length >= 3 && legacyText.includes(normalized)
+}
 
 function safeIdPart(value: string) {
   return value.replace(/[^a-zA-Z0-9_-]+/g, '-')
