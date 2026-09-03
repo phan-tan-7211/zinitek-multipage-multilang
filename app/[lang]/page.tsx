@@ -10,15 +10,8 @@ import { ArrowRight } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
 import { fetchSeoData } from "@/lib/fetch-seo-data"
 import { getSiteSettings, resolveSiteName, withSiteName } from "@/lib/site-settings"
-import { createClient } from "next-sanity"
-import { getPublicSiteUrl, runtimeConfig } from "@/lib/runtime-config"
-
-const sanityClient = createClient({
-  projectId: runtimeConfig.sanityProjectId,
-  dataset: runtimeConfig.sanityDataset,
-  apiVersion: runtimeConfig.sanityApiVersion,
-  useCdn: false,
-})
+import { getPublicSiteUrl } from "@/lib/runtime-config"
+import { sanityClient } from "@/lib/sanity-client"
 
 type LocalizedContent = {
   language?: string
@@ -39,6 +32,8 @@ type Project = LocalizedContent & {
   imageUrl?: string
   categoryName?: string
 }
+
+type SiteLocale = "vi" | "en" | "jp" | "kr" | "cn"
 
 function selectLocalizedItems<T extends LocalizedContent>(items: T[], lang: string, limit: number): T[] {
   const grouped = new Map<string, T[]>()
@@ -66,8 +61,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params
   const [seo, siteSettings] = await Promise.all([fetchSeoData(lang, "home"), getSiteSettings()])
   const siteName = resolveSiteName(siteSettings)
-  const fallbackTitle = `${siteName} - Website`
-  const fallbackDescription = `${siteName} cung cấp thông tin, sản phẩm và dịch vụ cho khách hàng.`
+  const locale = (["vi", "en", "jp", "kr", "cn"].includes(lang) ? lang : "vi") as SiteLocale
+  const tagline = siteSettings.logoWordmark?.tagline?.[locale]
+    || siteSettings.logoWordmark?.tagline?.en
+    || siteSettings.logoWordmark?.tagline?.vi
+    || "Engineering Solutions"
+  const fallbackTitle = `${siteName} | ${tagline}`
+  const fallbackDescription = `${siteName} — ${tagline}. Khám phá thông tin doanh nghiệp, sản phẩm, dịch vụ và dự án nổi bật.`
   const title = withSiteName(seo?.metaTitle || fallbackTitle, siteName)
   const description = seo?.metaDescription || fallbackDescription
   const ogImage = seo?.openGraphImage?.asset?.url
