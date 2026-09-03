@@ -34,6 +34,9 @@ export interface GlobalSiteSettings {
   phoneDisplay?: string
   phoneTel?: string
   email?: string
+  countryCode?: string
+  addressDisplay?: string
+  googleMapsUrl?: string
   zaloNumber?: string
   wechatId?: string
   wechatUrl?: string
@@ -42,8 +45,6 @@ export interface GlobalSiteSettings {
   youtubeUrl?: string
   tiktokUrl?: string
   twitterUrl?: string
-  addressDisplay?: string
-  googleMapsUrl?: string
 }
 
 export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
@@ -57,10 +58,9 @@ export const getSiteSettings = cache(async (): Promise<GlobalSiteSettings> => {
         animationEnabled, shapeHoverRotate, letterHoverRotate, springStiffness, springDamping
       },
       logoWordmark{primaryText, accentText, tagline{vi, en, jp, kr, cn}},
-      phoneDisplay, phoneTel, email, zaloNumber,
+      phoneDisplay, phoneTel, email, countryCode, addressDisplay, googleMapsUrl, zaloNumber,
       wechatId, wechatUrl, lineUrl,
-      facebookUrl, youtubeUrl, tiktokUrl, twitterUrl,
-      addressDisplay, googleMapsUrl
+      facebookUrl, youtubeUrl, tiktokUrl, twitterUrl
     }`,
     {},
     { next: { revalidate: 60, tags: ["site-settings"] } },
