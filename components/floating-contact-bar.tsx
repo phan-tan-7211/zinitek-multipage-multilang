@@ -1,108 +1,140 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { Phone, MapPin, ArrowUp } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { ArrowUp, MapPin, Phone } from "lucide-react"
+import { useSiteSettings } from "@/components/site-settings-context"
+
+const itemBase = "group relative flex size-16 flex-col items-center justify-center p-3 text-center transition-all duration-300 sm:size-20"
 
 export function FloatingContactBar() {
-  const [hienThiNutTop, setHienThiNutTop] = useState(false)
+  const { phoneDisplay, phoneTel, zaloNumber, addressDisplay, googleMapsUrl } = useSiteSettings()
+  const [showTop, setShowTop] = useState(false)
+  const [nearFooter, setNearFooter] = useState(false)
 
-  // Theo dõi sự kiện cuộn trang để hiện/ẩn nút "Lên Top"
   useEffect(() => {
-    const kiemTraCuonTrang = () => {
-      if (window.scrollY > 300) {
-        setHienThiNutTop(true)
-      } else {
-        setHienThiNutTop(false)
-      }
+    let raf = 0
+    let previousFooter: HTMLElement | null = null
+    let previousDockState: boolean | null = null
+
+    const publishDockState = (active: boolean) => {
+      if (previousDockState === active) return
+      previousDockState = active
+      window.dispatchEvent(new CustomEvent("zinitek-contact-dock", { detail: { active } }))
+      document.documentElement.dataset.contactDocked = active ? "true" : "false"
     }
 
-    window.addEventListener("scroll", kiemTraCuonTrang)
-    return () => window.removeEventListener("scroll", kiemTraCuonTrang)
+    const update = () => {
+      raf = 0
+      setShowTop(window.scrollY > 300)
+
+      const footer = document.querySelector("footer") as HTMLElement | null
+      const isMobileLayout = window.innerWidth < 1280
+      const rect = footer?.getBoundingClientRect()
+      const active = Boolean(isMobileLayout && rect && rect.top <= window.innerHeight - 12)
+
+      if (previousFooter && previousFooter !== footer) previousFooter.style.paddingBottom = ""
+      previousFooter = footer
+
+      if (footer) {
+        footer.style.paddingBottom = active
+          ? "calc(5.25rem + env(safe-area-inset-bottom))"
+          : ""
+      }
+
+      setNearFooter(active)
+      publishDockState(active)
+    }
+
+    const schedule = () => {
+      if (!raf) raf = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule, { passive: true })
+
+    return () => {
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      if (raf) window.cancelAnimationFrame(raf)
+      if (previousFooter) previousFooter.style.paddingBottom = ""
+      delete document.documentElement.dataset.contactDocked
+      window.dispatchEvent(new CustomEvent("zinitek-contact-dock", { detail: { active: false } }))
+    }
   }, [])
 
-  // Hàm cuộn lên đầu trang mượt mà
-  const cuonLenTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    })
+  const scrollTop = () => {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" })
   }
 
+  const shellClass = nearFooter
+    ? "fixed bottom-0 left-1/2 z-50 flex -translate-x-1/2 flex-row overflow-visible rounded-t-xl border border-b-0 border-border bg-background shadow-lg transition-all duration-300 xl:bottom-auto xl:left-auto xl:right-0 xl:top-1/2 xl:-translate-x-0 xl:-translate-y-1/2 xl:flex-col xl:rounded-l-xl xl:rounded-r-none xl:border-r-0 xl:border-b"
+    : "fixed right-0 top-1/2 z-50 flex -translate-y-1/2 flex-col overflow-visible rounded-l-xl border border-r-0 border-border bg-background shadow-lg transition-all duration-300"
+
+  const separatorClass = nearFooter ? "border-l border-border" : "border-t border-border"
+
+  const expandClass = nearFooter
+    ? "absolute bottom-full left-[-1px] z-[-1] mb-0 flex h-12 min-w-[calc(100%+2px)] items-center justify-center whitespace-nowrap rounded-t-xl border px-5 text-sm font-bold text-white opacity-0 invisible translate-y-2 transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:visible group-focus-visible:translate-y-0 group-focus-visible:opacity-100 sm:h-14 sm:text-base"
+    : "absolute right-full top-[-1px] z-[-1] flex h-[calc(100%+2px)] items-center whitespace-nowrap rounded-l-xl border px-6 text-sm font-bold text-white opacity-0 invisible translate-x-2 transition-all duration-300 group-hover:visible group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:visible group-focus-visible:translate-x-0 group-focus-visible:opacity-100 sm:text-base"
+
+  const zaloHref = zaloNumber ? `https://zalo.me/${zaloNumber.replace(/\D/g, "")}` : undefined
+  const mapHref = googleMapsUrl || (addressDisplay ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressDisplay)}` : undefined)
+
   return (
-    // Bỏ overflow-hidden để các tooltip (absolute) có thể tràn ra ngoài
-    <div className="fixed left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col bg-background border border-l-0 border-border rounded-r-xl shadow-lg transition-all duration-300">
-      {/* 1. Nút Hotline */}
-      <a
-        href="tel:+84776220031"
-        className="relative flex flex-col items-center justify-center p-3 w-16 h-16 sm:w-20 sm:h-20 border-b border-border hover:bg-orange-50 dark:hover:bg-orange-950/20 group transition-colors text-center rounded-tr-xl"
-      >
-        <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-[#f97316] mb-1 group-hover:scale-110 transition-transform relative z-10" />
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-[#f97316] transition-colors relative z-10">
-          Hotline
-        </span>
+    <aside className={shellClass} aria-label="Quick contact">
+      {phoneDisplay && phoneTel && (
+        <a
+          href={`tel:${phoneTel}`}
+          aria-label={`Hotline ${phoneDisplay}`}
+          className={`${itemBase} ${nearFooter ? "rounded-tl-xl" : "rounded-tl-xl"} hover:bg-orange-50 dark:hover:bg-orange-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f97316]`}
+        >
+          <Phone className="relative z-10 mb-1 size-5 text-[#f97316] transition-transform group-hover:scale-110 sm:size-6" aria-hidden="true" />
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-[#f97316] sm:text-xs">Hotline</span>
+          <span className={`${expandClass} border-[#f97316] bg-[#f97316] shadow-[0_8px_24px_rgba(249,115,22,0.35)]`}>{phoneDisplay}</span>
+        </a>
+      )}
 
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-[#f97316] text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-[#f97316] -z-10">
-          +84 77 622 0031
-        </div>
-      </a>
+      {zaloHref && (
+        <a
+          href={zaloHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat Zalo"
+          className={`${itemBase} ${separatorClass} hover:bg-blue-50 dark:hover:bg-blue-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0068ff]`}
+        >
+          <span className="relative z-10 mb-1 flex size-7 items-center justify-center rounded-full bg-[#0068ff] text-[9px] font-black leading-none text-white shadow-sm transition-transform group-hover:scale-110 sm:size-8 sm:text-[10px]">Zalo</span>
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-[#0068ff] sm:text-xs">Zalo</span>
+          <span className={`${expandClass} border-[#0068ff] bg-[#0068ff] shadow-[0_8px_24px_rgba(0,104,255,0.35)]`}>Chat Zalo ngay</span>
+        </a>
+      )}
 
-      {/* 2. Nút Zalo */}
-      <a
-        href="https://zalo.me/0776220031"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="relative flex flex-col items-center justify-center p-3 w-16 h-16 sm:w-20 sm:h-20 border-b border-border hover:bg-blue-50 dark:hover:bg-blue-900/20 group transition-colors text-center"
-      >
-        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#0068ff] rounded-full flex items-center justify-center text-white mb-1 group-hover:scale-110 transition-transform shadow-sm relative z-10">
-          <span className="text-[10px] sm:text-xs font-bold leading-none">Zalo</span>
-        </div>
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-[#0068ff] transition-colors relative z-10">
-          Zalo
-        </span>
+      {mapHref && (
+        <a
+          href={mapHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={addressDisplay ? `Open Google Maps: ${addressDisplay}` : "Open Google Maps"}
+          className={`${itemBase} ${separatorClass} hover:bg-red-50 dark:hover:bg-red-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500`}
+        >
+          <MapPin className="relative z-10 mb-1 size-5 text-red-500 transition-transform group-hover:scale-110 sm:size-6" aria-hidden="true" />
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-red-500 sm:text-xs">Map</span>
+          <span className={`${expandClass} border-red-500 bg-red-500 shadow-[0_8px_24px_rgba(239,68,68,0.35)]`}>Chỉ đường Google Maps</span>
+        </a>
+      )}
 
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-[#0068ff] text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-[#0068ff] -z-10">
-          Chat Zalo ngay
-        </div>
-      </a>
-
-      {/* 3. Nút Bản đồ (Map) */}
-      <a
-        href="https://maps.google.com/?q=KCN+My+Phuoc+3+Ben+Cat+Binh+Duong"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`relative flex flex-col items-center justify-center p-3 w-16 h-16 sm:w-20 sm:h-20 hover:bg-red-50 dark:hover:bg-red-950/20 group transition-colors text-center ${!hienThiNutTop ? 'border-none rounded-br-xl' : 'border-b border-border'}`}
-      >
-        <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 mb-1 group-hover:scale-110 transition-transform relative z-10" />
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-red-500 transition-colors relative z-10">
-          Map
-        </span>
-
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-red-500 text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-red-500 -z-10">
-          Chỉ đường Google Maps
-        </div>
-      </a>
-
-      {/* 4. Nút Lên Top (Chỉ hiện khi cuộn xuống) */}
-      <button
-        onClick={cuonLenTop}
-        className={`relative flex flex-col items-center justify-center p-3 w-16 sm:w-20 hover:bg-secondary/50 group transition-all duration-300 text-center rounded-br-xl ${
-          hienThiNutTop ? "opacity-100 h-16 sm:h-20 border-t border-border" : "opacity-0 h-0 py-0 border-0 overflow-hidden"
-        }`}
-        aria-hidden={!hienThiNutTop}
-      >
-        <ArrowUp className="w-5 h-5 sm:w-6 sm:h-6 text-[#f97316] mb-1 group-hover:-translate-y-1 transition-transform relative z-10" />
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-[#f97316] transition-colors relative z-10">
-          Lên Top
-        </span>
-
-        {/* Tooltip hiển thị khi Hover */}
-        <div className="absolute left-full top-[-1px] h-[calc(100%+2px)] flex items-center px-4 sm:px-6 bg-[#f97316] text-white text-sm sm:text-base font-bold rounded-r-xl shadow-md whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible -translate-x-2 group-hover:translate-x-0 transition-all duration-300 border border-[#f97316] -z-10">
-          Lên đầu trang
-        </div>
-      </button>
-    </div>
+      {showTop && (
+        <button
+          type="button"
+          onClick={scrollTop}
+          aria-label="Back to top"
+          className={`${itemBase} ${separatorClass} ${nearFooter ? "rounded-tr-xl" : "rounded-bl-xl"} hover:bg-orange-50 dark:hover:bg-orange-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f97316]`}
+        >
+          <ArrowUp className="relative z-10 mb-1 size-5 text-[#f97316] transition-transform group-hover:-translate-y-1 sm:size-6" aria-hidden="true" />
+          <span className="relative z-10 text-[10px] font-bold uppercase tracking-wider text-foreground transition-colors group-hover:text-[#f97316] sm:text-xs">Lên Top</span>
+          <span className={`${expandClass} border-[#f97316] bg-[#f97316] shadow-[0_8px_24px_rgba(249,115,22,0.35)]`}>Lên đầu trang</span>
+        </button>
+      )}
+    </aside>
   )
 }

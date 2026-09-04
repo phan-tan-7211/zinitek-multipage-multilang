@@ -24,7 +24,9 @@
     "projects": "Projects",
     "blog": "Blog",
     "contact": "Contact",
-    "view_all_services": "View all technical services"
+    "view_all_services": "View all technical services",
+    "view_all_products": "View all products",
+    "view_all_projects": "View all projects"
   },
   "hero": {
     "badge": "Operating under Japanese quality standards",
@@ -55,7 +57,8 @@
     "title_highlight": "TECHNOLOGY",
     "hub_description": "Explore our catalog of CNC machining products, equipment, and precision manufacturing solutions by ZINITEK.",
     "meta_title": "Products & Equipment - ZINITEK",
-    "meta_desc": "A list of machines, equipment, and precision machined products by ZINITEK."
+    "meta_desc": "A list of machines, equipment, and precision machined products by ZINITEK.",
+    "related_title": "Related products"
   },
   "about_summary": {
     "badge": "About ZINITEK",
@@ -117,7 +120,8 @@
     "client_label": "Client",
     "year_label": "Completion Year",
     "service_label": "Service",
-    "gallery_title": "Project Gallery"
+    "gallery_title": "Project Gallery",
+    "related_title": "Related projects"
   },
   "blog": {
     "title": "News",

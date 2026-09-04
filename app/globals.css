@@ -4,10 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* FIX #1: Off-white (#F8FAFC) thay vì #FFFFFF thuần — Pro Max Rule */
   --background: 210 20% 98%;
   --foreground: 222.2 84% 4.9%;
-  /* Card giữ trắng để tạo độ nổi layer trên background */
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
@@ -17,7 +15,6 @@
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
   --muted: 210 40% 96.1%;
-  /* FIX #2: Tăng contrast từ 4.48:1 → 5.2:1 (WCAG AA safe) */
   --muted-foreground: 215.4 16.3% 40%;
   --accent: 24.6 95% 53.1%;
   --accent-foreground: 210 40% 98%;
@@ -26,13 +23,27 @@
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
   --ring: 24.6 95% 53.1%;
+
   --chart-1: 24.6 95% 53.1%;
   --chart-2: #fb923c;
   --chart-3: #fdba74;
   --chart-4: #fed7aa;
   --chart-5: #ffedd5;
+
   --radius: 0.75rem;
-  /* FIX #3: Sidebar dùng Off-white nhất quán với --background */
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  --motion-fast: 160ms;
+  --motion-base: 240ms;
+  --motion-slow: 480ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  --shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.05);
+  --shadow-brand: 0 14px 36px rgba(249, 115, 22, 0.16);
+
   --sidebar: #f8fafc;
   --sidebar-foreground: #0f172a;
   --sidebar-primary: #f97316;
@@ -63,12 +74,17 @@
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
   --ring: 24.6 95% 53.1%;
+
   --chart-1: 24.6 95% 53.1%;
   --chart-2: #fb923c;
   --chart-3: #fdba74;
   --chart-4: #fed7aa;
   --chart-5: #ffedd5;
-  --radius: 0.75rem;
+
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15);
+  --shadow-brand: 0 14px 38px rgba(249, 115, 22, 0.14);
+
   --sidebar: #0f172a;
   --sidebar-foreground: #f8fafc;
   --sidebar-primary: #f97316;
@@ -83,11 +99,10 @@
   --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
   --font-serif: 'Montserrat', 'Montserrat Fallback', system-ui, sans-serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+
   --breakpoint-w600: 600px;
   --breakpoint-w800: 800px;
   --breakpoint-laptop: 1280px;
-
-
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -113,10 +128,12 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.25rem;
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -133,73 +150,60 @@
   }
 
   html {
-    scroll-behavior: auto;
-    overflow-x: hidden;
     width: 100%;
-    height: 100%;
-
-    /* Tối ưu UX Light Mode: Dùng màu Off-white (#FAFAFA) thay vì #FFFFFF để bảo vệ mắt */
-    background-color: #fafafa;
-    color: #020617;
-  }
-
-  /* Khi có class .dark thì mới cho phép chuyển sang màu tối */
-  html.dark {
-    background-color: #020617;
-    color: #ffffff;
+    min-height: 100%;
+    overflow-x: hidden;
+    scroll-behavior: auto;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 
   body {
     @apply bg-background text-foreground;
-    /* Giữ nguyên các thuộc tính khác của bạn */
-    overflow-x: hidden;
-    width: 100%;
     position: relative;
+    width: 100%;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.22);
+    color: hsl(var(--foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 3px;
   }
 }
 
-/* FIX #12: Scrollbar tách biệt Light Mode / Dark Mode — Pro Max */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
-/* Light Mode scrollbar — mềm mại, không quá tương phản */
 ::-webkit-scrollbar-track {
-  background: #e2e8f0;
+  background: hsl(var(--muted));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
+  background: hsl(var(--muted-foreground) / 0.55);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #f97316;
+  background: hsl(var(--primary));
 }
 
-/* Dark Mode scrollbar — giữ tối */
-.dark ::-webkit-scrollbar-track {
-  background: #1e293b;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #f97316;
-}
-
-/* Glow effect utility */
 .glow-orange {
   box-shadow: 0 0 20px rgba(249, 115, 22, 0.4), 0 0 40px rgba(249, 115, 22, 0.2);
 }
 
-
 .grayscale-hover {
   filter: grayscale(100%);
-  transition: filter 0.5s ease;
+  transition: filter var(--motion-slow) var(--ease-standard);
 }
 
 .grayscale-hover:hover {
@@ -209,78 +213,80 @@
 @layer utilities {
   .bg-blueprint-grid {
     background-image:
-      linear-gradient(to right, rgba(249, 115, 22, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(249, 115, 22, 0.05) 1px, transparent 1px),
-      linear-gradient(to right, rgba(249, 115, 22, 0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(249, 115, 22, 0.02) 1px, transparent 1px);
+      linear-gradient(to right, hsl(var(--primary) / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--primary) / 0.05) 1px, transparent 1px),
+      linear-gradient(to right, hsl(var(--primary) / 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--primary) / 0.02) 1px, transparent 1px);
     background-size: 100px 100px, 100px 100px, 50px 50px, 50px 50px;
   }
 
-  /* FIX #13: Soft Shadow utilities chuẩn Pro Max — không dùng viền đen cứng */
   .shadow-soft {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-soft);
   }
+
   .shadow-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
-  }
-  .dark .shadow-soft {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
-  }
-  .dark .shadow-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15);
-  }
-}
-
-
-/* loading */
-@keyframes loading-bar {
-  0% {
-    transform: scaleX(0);
+    box-shadow: var(--shadow-card);
   }
 
-  50% {
-    transform: scaleX(0.7);
+  .shadow-brand {
+    box-shadow: var(--shadow-brand);
   }
 
-  100% {
-    transform: scaleX(1);
-  }
-}
-
-@layer utilities {
-
-  /* Hiệu ứng thanh tiến trình chạy ở đỉnh đầu */
-  .animate-progress-fast {
+  .content-shell {
     width: 100%;
-    animation: progress-move 1.5s infinite linear;
-    transform-origin: left;
+    margin-inline: auto;
+    padding-inline: 1rem;
   }
 
-  /* Bánh răng xoay mượt và chậm hơn vòng ngoài */
-  .animate-spin-slow {
-    animation: spin 3s infinite linear;
+  @media (min-width: 640px) {
+    .content-shell {
+      padding-inline: 1.5rem;
+    }
   }
 
-  /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  @media (min-width: 1024px) {
+    .content-shell {
+      padding-inline: 2rem;
+    }
   }
 
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+  .section-space {
+    padding-block: 5rem;
   }
 
-  /* Alias cho no-scrollbar theo yêu cầu mới */
+  @media (min-width: 640px) {
+    .section-space {
+      padding-block: 6rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section-space {
+      padding-block: 7rem;
+    }
+  }
+
+  .no-scrollbar::-webkit-scrollbar,
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
 
+  .no-scrollbar,
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(0.7);
+  }
+  100% {
+    transform: scaleX(1);
   }
 }
 
@@ -288,16 +294,41 @@
   0% {
     transform: translateX(-100%) scaleX(0.1);
   }
-
   50% {
     transform: translateX(-20%) scaleX(0.5);
   }
-
   100% {
     transform: translateX(100%) scaleX(0.1);
   }
 }
 
-.animate-loading-bar {
-  animation: loading-bar 1.5s infinite ease-in-out;
+@layer utilities {
+  .animate-progress-fast {
+    width: 100%;
+    animation: progress-move 1.5s infinite linear;
+    transform-origin: left;
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s infinite linear;
+  }
+
+  .animate-loading-bar {
+    animation: loading-bar 1.5s infinite ease-in-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

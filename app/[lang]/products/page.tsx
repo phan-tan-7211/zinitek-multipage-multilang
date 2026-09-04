@@ -1,23 +1,13 @@
-
-import Link from "next/link"
 import { ProductHero } from "@/components/product-hero"
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
-import { ArrowRight, HardHat } from "lucide-react"
+import { HardHat } from "lucide-react"
 import { getDictionary } from "@/lib/get-dictionary"
-import { createClient } from "next-sanity"
-import { FallbackBadge } from "@/components/fallback-badge"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 import { ProductListContent } from "@/components/product-list-content"
+import { sanityClient } from "@/lib/sanity-client"
+import { getPublicSiteUrl } from "@/lib/runtime-config"
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
-const khachHangSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: false,
-})
-
-// --- 2. HÀM LẤY VÀ LỌC DỮ LIỆU THÔNG MINH ---
 async function layDanhSachSanPham(ngonNguHienTai: string) {
   const cauTruyVanTheoNhom = `
     *[_type == "translation.metadata" && "product" in schemaTypes] {
@@ -40,18 +30,18 @@ async function layDanhSachSanPham(ngonNguHienTai: string) {
         select(defined(translations[_key == "vi"][0].value) => "vi")
       )
     }[defined(banDich)]
-  `;
+  `
 
   try {
-    const ketQuaNhom: any[] = await khachHangSanity.fetch(cauTruyVanTheoNhom, { ngonNguHienTai });
+    const ketQuaNhom: any[] = await sanityClient.fetch(cauTruyVanTheoNhom, { ngonNguHienTai })
     if (ketQuaNhom.length > 0) {
       return ketQuaNhom.map((nhom: any) => ({
         ...nhom.banDich,
         language: nhom.ngonNguThucTe || nhom.banDich?.language,
-      }));
+      }))
     }
   } catch (loi) {
-    console.warn('Truy vấn theo metadata thất bại, dùng phương pháp dự phòng:', loi);
+    console.warn('Truy vấn theo metadata thất bại, dùng phương pháp dự phòng:', loi)
   }
 
   const cauTruyVanDuPhong = `
@@ -65,27 +55,24 @@ async function layDanhSachSanPham(ngonNguHienTai: string) {
       "image": image.asset->{ url },
       "serviceCategory": serviceCategory->{ _id, title }
     }
-  `;
+  `
 
-  const tatCaSanPham: any[] = await khachHangSanity.fetch(cauTruyVanDuPhong);
-  const nhomTheoKey: Record<string, any[]> = {};
+  const tatCaSanPham: any[] = await sanityClient.fetch(cauTruyVanDuPhong)
+  const nhomTheoKey: Record<string, any[]> = {}
   tatCaSanPham.forEach((sp) => {
-    const khoa = sp._translationKey || sp._id;
-    if (!nhomTheoKey[khoa]) nhomTheoKey[khoa] = [];
-    nhomTheoKey[khoa].push(sp);
-  });
+    const khoa = sp._translationKey || sp._id
+    if (!nhomTheoKey[khoa]) nhomTheoKey[khoa] = []
+    nhomTheoKey[khoa].push(sp)
+  })
 
-  return Object.values(nhomTheoKey).map((cacPhienBan) => {
-    return (
-      cacPhienBan.find((v) => v.language === ngonNguHienTai) ||
-      cacPhienBan.find((v) => v.language === 'en') ||
-      cacPhienBan.find((v) => v.language === 'vi') ||
-      cacPhienBan[0]
-    );
-  });
+  return Object.values(nhomTheoKey).map((cacPhienBan) =>
+    cacPhienBan.find((v) => v.language === ngonNguHienTai) ||
+    cacPhienBan.find((v) => v.language === 'en') ||
+    cacPhienBan.find((v) => v.language === 'vi') ||
+    cacPhienBan[0]
+  )
 }
 
-// --- 2.1. HÀM LẤY DANH MỤC DỊCH VỤ (CATEGORIES) ---
 async function layDanhSachDanhMuc(ngonNguHienTai: string) {
   const cauTruyVan = `
     *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] {
@@ -94,95 +81,75 @@ async function layDanhSachDanhMuc(ngonNguHienTai: string) {
       language,
       _translationKey
     }
-  `;
-  const tatCaDanhMuc: any[] = await khachHangSanity.fetch(cauTruyVan);
-  
-  const nhomTheoKey: Record<string, any[]> = {};
+  `
+  const tatCaDanhMuc: any[] = await sanityClient.fetch(cauTruyVan)
+  const nhomTheoKey: Record<string, any[]> = {}
   tatCaDanhMuc.forEach((dm) => {
-    const khoa = dm._translationKey || dm._id;
-    if (!nhomTheoKey[khoa]) nhomTheoKey[khoa] = [];
-    nhomTheoKey[khoa].push(dm);
-  });
+    const khoa = dm._translationKey || dm._id
+    if (!nhomTheoKey[khoa]) nhomTheoKey[khoa] = []
+    nhomTheoKey[khoa].push(dm)
+  })
 
-  return Object.values(nhomTheoKey).map((cacPhienBan) => {
-    return (
-      cacPhienBan.find((v) => v.language === ngonNguHienTai) ||
-      cacPhienBan.find((v) => v.language === 'en') ||
-      cacPhienBan.find((v) => v.language === 'vi') ||
-      cacPhienBan[0]
-    );
-  });
+  return Object.values(nhomTheoKey).map((cacPhienBan) =>
+    cacPhienBan.find((v) => v.language === ngonNguHienTai) ||
+    cacPhienBan.find((v) => v.language === 'en') ||
+    cacPhienBan.find((v) => v.language === 'vi') ||
+    cacPhienBan[0]
+  )
 }
 
-// --- 3. TẠO THÔNG TIN SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dictionary = await getDictionary(lang)
-  
-  const title = dictionary.products?.meta_title || "Sản phẩm & Thiết bị - ZINITEK"
-  const description = dictionary.products?.meta_desc || "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK."
+  const [dictionary, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
+  const title = withSiteName(dictionary.products?.meta_title || "Sản phẩm & Thiết bị", siteName)
+  const description = dictionary.products?.meta_desc || "Danh mục sản phẩm, thiết bị và giải pháp được cung cấp bởi doanh nghiệp."
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/products`,
       languages: {
-        'vi': '/vi/products',
-        'en': '/en/products',
-        'cn': '/cn/products',
+        'vi-VN': '/vi/products',
+        'en-US': '/en/products',
+        'ja-JP': '/jp/products',
+        'ko-KR': '/kr/products',
+        'zh-CN': '/cn/products',
       },
     },
-    openGraph: {
-      title,
-      description,
-      url: `/${lang}/products`,
-      siteName: 'ZINITEK',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
+    openGraph: { title, description, url: `/${lang}/products`, siteName },
+    twitter: { card: 'summary_large_image', title, description },
   }
 }
 
-// --- 4. COMPONENT CHÍNH ---
-export default async function ProductsListPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+export default async function ProductsListPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const [dictionary, danhSachSanPham, danhSachDanhMuc] = await Promise.all([
+  const [dictionary, danhSachSanPham, danhSachDanhMuc, siteName] = await Promise.all([
     getDictionary(lang),
     layDanhSachSanPham(lang),
-    layDanhSachDanhMuc(lang)
+    layDanhSachDanhMuc(lang),
+    getSiteName(),
   ])
+  const siteUrl = getPublicSiteUrl()
 
-  // Khởi tạo Schema.org (JSON-LD) cho danh sách sản phẩm
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": dictionary.products?.title_main || "Danh mục Sản phẩm ZINITEK",
+    "name": dictionary.products?.title_main || `${siteName} Products`,
     "description": dictionary.products?.hub_description,
     "itemListElement": danhSachSanPham.map((sp: any, index: number) => ({
       "@type": "ListItem",
       "position": index + 1,
-      "url": `https://zinitek.vn/${lang}/products/${sp.slug}`,
+      "url": `${siteUrl}/${lang}/products/${sp.slug}`,
       "name": sp.title,
       "description": sp.description,
       "image": sp.image?.url
     }))
-  };
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground relative">
-      {/* Chèn JSON-LD ItemList */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="absolute inset-0 z-0 opacity-50 dark:opacity-10 pointer-events-none">
         <BlueprintBackground />
       </div>
@@ -198,12 +165,11 @@ export default async function ProductsListPage({
         }}
       />
 
-      {/* Hero Section - Tối ưu pt-32 thay vì pt-44 để khớp Header mới */}
       <section className="pt-32 md:pt-44 pb-16 relative z-10">
         <ProductHero
           titleMain={dictionary.products?.title_main || "SẢN PHẨM"}
           titleHighlight={dictionary.products?.title_highlight || "CÔNG NGHỆ"}
-          description={dictionary.products?.hub_description || "Khám phá danh mục máy móc và các sản phẩm gia công CNC tiêu biểu được thực hiện bởi ZINITEK."}
+          description={dictionary.products?.hub_description || "Khám phá danh mục sản phẩm, thiết bị và các giải pháp tiêu biểu của doanh nghiệp."}
         />
       </section>
 

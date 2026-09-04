@@ -1,187 +1,250 @@
-
-
 import { notFound } from "next/navigation"
-import { createClient } from "next-sanity"
+import { cache } from "react"
 import { ServicePageContent } from "@/components/service-page-content"
 import { getDictionary } from "@/lib/get-dictionary"
-// SỬA LỖI: Thêm Footer vào trang chi tiết dịch vụ
-// ServicePageContent là "use client" nên Footer phải đặt ở server component (page.tsx) này
+import { getSiteName, withSiteName } from "@/lib/site-settings"
 import { Footer } from "@/components/footer"
+import { sanityClient } from "@/lib/sanity-client"
+import { getPublicSiteUrl } from "@/lib/runtime-config"
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
-const trinhKetNoiSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: false,
-})
+type RawService = Record<string, any>
 
-// --- 2. HÀM LẤY CHI TIẾT DỊCH VỤ VỚI LOGIC DỰ PHÒNG THÔNG MINH ---
-async function layChiTietDichVu(duongDanSlug: string, ngonNguHienTai: string) {
+function normalizeService(service: RawService | null) {
+  if (!service) return null
 
-  // BƯỚC A: Tìm tài liệu gốc dựa trên slug để lấy mã liên kết dịch thuật (_translationKey)
-  const dichVuGoc = await trinhKetNoiSanity.fetch(
-    `*[_type == "service" && slug.current == $duongDanSlug][0] { _translationKey }`,
-    { duongDanSlug }
-  );
-
-  if (!dichVuGoc) return null;
-
-  const khoaLienKet = dichVuGoc._translationKey;
-
-  // BƯỚC B: Truy vấn bản dịch tốt nhất và lấy thông tin ánh xạ ngôn ngữ
-  const cauTruyVanGroq = `
-    coalesce(
-      *[_type == "service" && _translationKey == $khoaLienKet && language == $ngonNguHienTai][0],
-      *[_type == "service" && _translationKey == $khoaLienKet && language == "en"][0],
-      *[_type == "service" && _translationKey == $khoaLienKet && language == "vi"][0]
-    ) {
-      _id,
-      title,
-      shortTitle,
-      "slug": slug.current,
-      icon,
-      description,
-      "image": image.asset->url,
-      "tags": coalesce(tags, []),
-      "features": coalesce(features, []),
-      "specs": coalesce(specs, []),
-      "process": coalesce(process, []),
-      "labels": coalesce(labels, {
-        "featuresTitle": "Tính năng nổi bật",
-        "specsTitle": "Thông số kỹ thuật",
-        "processTitle": "Quy trình làm việc",
-        "relatedTitle": "Dịch vụ liên quan"
-      }),
-      language,
-      "banDichTuongUng": *[_type == "service" && _translationKey == ^._translationKey && defined(slug.current)] {
-        language,
-        "slug": slug.current
-      }
-    }
-  `;
-
-  return await trinhKetNoiSanity.fetch(cauTruyVanGroq, { khoaLienKet, ngonNguHienTai });
+  return {
+    ...service,
+    _id: typeof service._id === "string" ? service._id : "",
+    _translationKey: typeof service._translationKey === "string" ? service._translationKey : undefined,
+    icon: service.icon,
+    title: typeof service.title === "string" ? service.title : "Dịch vụ",
+    shortTitle: typeof service.shortTitle === "string" ? service.shortTitle : undefined,
+    slug: typeof service.slug === "string" ? service.slug : "",
+    description: typeof service.description === "string" ? service.description : "",
+    image: typeof service.image === "string" ? service.image : undefined,
+    tags: Array.isArray(service.tags) ? service.tags.filter((item: unknown) => typeof item === "string") : [],
+    features: Array.isArray(service.features) ? service.features.filter((item: unknown) => typeof item === "string") : [],
+    specs: Array.isArray(service.specs)
+      ? service.specs.filter((item: any) => item && typeof item.label === "string" && typeof item.value === "string")
+      : [],
+    process: Array.isArray(service.process)
+      ? service.process.filter(
+          (item: any) =>
+            item &&
+            (typeof item.step === "number" || typeof item.step === "string") &&
+            typeof item.title === "string" &&
+            typeof item.description === "string"
+        )
+      : [],
+    banDichTuongUng: Array.isArray(service.banDichTuongUng)
+      ? service.banDichTuongUng.filter((item: any) => item && typeof item.language === "string" && typeof item.slug === "string")
+      : [],
+  }
 }
 
-// --- 3. HÀM LẤY DỊCH VỤ LIÊN QUAN ---
-async function layDichVuLienQuan(slugHienTai: string, ngonNgu: string) {
-  const cauTruyVan = `
-    *[_type == "service" && defined(slug.current) && slug.current != $slugHienTai] | order(_createdAt desc)[0...3] {
+function normalizeRelatedService(service: RawService | null) {
+  if (!service) return null
+
+  return {
+    _id: typeof service._id === "string" ? service._id : "",
+    _translationKey: typeof service._translationKey === "string" ? service._translationKey : undefined,
+    title: typeof service.title === "string" ? service.title : "Dịch vụ",
+    slug: typeof service.slug === "string" ? service.slug : "",
+    description: typeof service.description === "string" ? service.description : "",
+    icon: service.icon,
+  }
+}
+
+const layChiTietDichVu = cache(async (slug: string, lang: string) => {
+  const source = await sanityClient.fetch(
+    `*[_type == "service" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
       _id,
       _translationKey,
       language
-    }
-  `;
+    }`,
+    { slug }
+  )
 
-  const danhSachTho = await trinhKetNoiSanity.fetch(cauTruyVan, { slugHienTai });
+  if (!source) return null
 
-  const danhSachLienQuan = await Promise.all(danhSachTho.map(async (item: any) => {
-    const khoa = item._translationKey || item._id;
-    const queryOne = `
-      coalesce(
-        *[_type == "service" && _translationKey == $khoa && language == $ngonNgu][0],
-        *[_type == "service" && _translationKey == $khoa && language == "en"][0],
-        *[_type == "service" && _translationKey == $khoa && language == "vi"][0]
+  const query = source._translationKey
+    ? `coalesce(
+        *[_type == "service" && _translationKey == $translationKey && language == $lang && !(_id in path("drafts.**"))][0],
+        *[_type == "service" && _translationKey == $translationKey && language == "en" && !(_id in path("drafts.**"))][0],
+        *[_type == "service" && _translationKey == $translationKey && language == "vi" && !(_id in path("drafts.**"))][0],
+        *[_type == "service" && slug.current == $slug && !(_id in path("drafts.**"))][0]
       ) {
+        _id,
+        _translationKey,
         title,
-        description,
+        shortTitle,
         "slug": slug.current,
         icon,
-        "image": image.asset->url
-      }
-    `;
-    return await trinhKetNoiSanity.fetch(queryOne, { khoa, ngonNgu });
-  }));
+        description,
+        "image": coalesce(image.asset->url, image),
+        "tags": coalesce(tags, []),
+        "features": coalesce(features, []),
+        "specs": coalesce(specs, []),
+        "process": coalesce(process, []),
+        "labels": coalesce(labels, {
+          "featuresTitle": "Tính năng nổi bật",
+          "specsTitle": "Thông số kỹ thuật",
+          "processTitle": "Quy trình làm việc",
+          "relatedTitle": "Dịch vụ liên quan"
+        }),
+        language,
+        "banDichTuongUng": *[_type == "service" && _translationKey == ^._translationKey && defined(slug.current) && !(_id in path("drafts.**"))] {
+          language,
+          "slug": slug.current
+        }
+      }`
+    : `*[_type == "service" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
+        _id,
+        _translationKey,
+        title,
+        shortTitle,
+        "slug": slug.current,
+        icon,
+        description,
+        "image": coalesce(image.asset->url, image),
+        "tags": coalesce(tags, []),
+        "features": coalesce(features, []),
+        "specs": coalesce(specs, []),
+        "process": coalesce(process, []),
+        "labels": coalesce(labels, {
+          "featuresTitle": "Tính năng nổi bật",
+          "specsTitle": "Thông số kỹ thuật",
+          "processTitle": "Quy trình làm việc",
+          "relatedTitle": "Dịch vụ liên quan"
+        }),
+        language,
+        "banDichTuongUng": []
+      }`
 
-  return danhSachLienQuan.filter(Boolean);
+  const service = await sanityClient.fetch(query, {
+    slug,
+    lang,
+    translationKey: source._translationKey || "",
+  })
+
+  return normalizeService(service)
+})
+
+async function layDichVuLienQuan(slugHienTai: string, lang: string) {
+  const rawServices: RawService[] = await sanityClient.fetch(
+    `*[_type == "service" && defined(slug.current) && slug.current != $slugHienTai && !(_id in path("drafts.**"))] | order(orderRank asc, _createdAt desc) {
+      _id,
+      _translationKey,
+      language,
+      title,
+      description,
+      "slug": slug.current,
+      icon,
+      "image": coalesce(image.asset->url, image)
+    }`,
+    { slugHienTai }
+  )
+
+  const groups: Record<string, RawService[]> = {}
+  rawServices.forEach((item) => {
+    const key = item._translationKey || item._id
+    if (!groups[key]) groups[key] = []
+    groups[key].push(item)
+  })
+
+  return Object.values(groups)
+    .map(
+      (group) =>
+        group.find((item) => item.language === lang) ||
+        group.find((item) => item.language === "en") ||
+        group.find((item) => item.language === "vi") ||
+        group[0]
+    )
+    .filter(Boolean)
+    .flatMap((item) => {
+      const normalized = normalizeRelatedService(item)
+      return normalized ? [normalized] : []
+    })
 }
 
-// --- 4. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const thamSoUrl = await params
-  const dichVu = await layChiTietDichVu(thamSoUrl.slug, thamSoUrl.lang)
+  const { lang, slug } = await params
+  const [service, siteName] = await Promise.all([layChiTietDichVu(slug, lang), getSiteName()])
 
-  if (!dichVu) return { title: "Dịch vụ không tồn tại | ZINITEK" }
+  if (!service) return { title: { absolute: withSiteName("Dịch vụ không tồn tại", siteName) } }
 
-  const title = `${dichVu.title} | ZINITEK`
-  const description = dichVu.description
+  const title = withSiteName(service.title, siteName)
+  const description = service.description
+  const translations = Object.fromEntries(
+    (service.banDichTuongUng || []).map((item: any) => [item.language, `/${item.language}/services/${item.slug}`])
+  )
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
-      canonical: `/${thamSoUrl.lang}/services/${thamSoUrl.slug}`,
+      canonical: `/${lang}/services/${service.slug || slug}`,
       languages: {
-        'vi': `/vi/services/${thamSoUrl.slug}`,
-        'en': `/en/services/${thamSoUrl.slug}`,
-        'cn': `/cn/services/${thamSoUrl.slug}`,
+        ...(translations.vi ? { "vi-VN": translations.vi } : {}),
+        ...(translations.en ? { "en-US": translations.en } : {}),
+        ...(translations.jp ? { "ja-JP": translations.jp } : {}),
+        ...(translations.kr ? { "ko-KR": translations.kr } : {}),
+        ...(translations.cn ? { "zh-CN": translations.cn } : {}),
       },
     },
     openGraph: {
       title,
       description,
-      url: `/${thamSoUrl.lang}/services/${thamSoUrl.slug}`,
-      siteName: 'ZINITEK',
-      images: dichVu.image ? [{ url: dichVu.image }] : [],
+      url: `/${lang}/services/${service.slug || slug}`,
+      siteName,
+      images: service.image ? [{ url: service.image }] : [],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
-      images: dichVu.image ? [dichVu.image] : [],
+      images: service.image ? [service.image] : [],
     },
   }
 }
 
-// --- 5. THÀNH PHẦN TRANG CHÍNH ---
-export default async function ServiceDetailPage({
-  params
-}: {
-  params: Promise<{ lang: string; slug: string }>
-}) {
-  const thamSoUrl = await params
-  const { lang, slug } = thamSoUrl
+export default async function ServiceDetailPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
+  const { lang, slug } = await params
 
-  const [duLieuDichVu, danhSachLienQuan, tuDien] = await Promise.all([
+  const [service, relatedCandidates, dict, siteName] = await Promise.all([
     layChiTietDichVu(slug, lang),
     layDichVuLienQuan(slug, lang),
-    getDictionary(lang)
+    getDictionary(lang),
+    getSiteName(),
   ])
 
-  if (!duLieuDichVu) {
-    notFound()
-  }
+  if (!service) notFound()
 
-  // Khởi tạo Schema.org (JSON-LD) cho dịch vụ
+  const currentGroupKey = service._translationKey || service._id
+  const relatedServices = relatedCandidates
+    .filter((item) => (item._translationKey || item._id) !== currentGroupKey)
+    .slice(0, 3)
+  const siteUrl = getPublicSiteUrl()
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": duLieuDichVu.title,
-    "description": duLieuDichVu.description,
-    "provider": {
+    name: service.title,
+    description: service.description,
+    provider: {
       "@type": "Organization",
-      "name": "ZINITEK",
-      "url": `https://zinitek.vn/${lang}`
+      name: siteName,
+      url: `${siteUrl}/${lang}`,
     },
-    "url": `https://zinitek.vn/${lang}/services/${slug}`,
-    "image": duLieuDichVu.image || ""
-  };
+    url: `${siteUrl}/${lang}/services/${service.slug || slug}`,
+    image: service.image || undefined,
+  }
 
   return (
-    <main className="bg-background text-foreground min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <ServicePageContent
-        service={duLieuDichVu}
-        relatedServices={danhSachLienQuan}
-        lang={lang}
-        dict={tuDien}
-      />
-      {/* SỬA LỖI: Footer được đặt ở đây, ở ngoài ServicePageContent (là client component) */}
-      <Footer lang={lang} dict={tuDien} />
+    <main className="min-h-dvh bg-background text-foreground">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ServicePageContent service={service} relatedServices={relatedServices} lang={lang} dict={dict} />
+      <Footer lang={lang} dict={dict} />
     </main>
   )
 }

@@ -164,7 +164,7 @@ export function ProductListContent({ danhSachSanPham, danhSachDanhMuc, lang, dic
           <motion.div
             key="grid"
             layout
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6"
+            className="grid grid-cols-2 gap-3 landscape:grid-cols-3 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:landscape:grid-cols-4"
           >
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((sanPham) => (
@@ -190,7 +190,7 @@ export function ProductListContent({ danhSachSanPham, danhSachDanhMuc, lang, dic
                           alt={sanPham.title}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                          sizes="(max-width: 767px) and (orientation: landscape) 33vw, (max-width: 767px) 50vw, (max-width: 1023px) 33vw, 25vw"
                         />
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground/40">
@@ -200,8 +200,11 @@ export function ProductListContent({ danhSachSanPham, danhSachDanhMuc, lang, dic
                       )}
 
                       {/* Category Badge */}
-                      <div className="absolute top-3 left-3 z-20">
-                        <span className="px-2 py-1 backdrop-blur-md bg-background/60 dark:bg-[#020617]/60 border border-white/10 dark:border-white/5 rounded-full text-[10px] md:text-[11px] font-bold text-[#f97316] uppercase tracking-wider shadow-sm">
+                      <div className="absolute left-2 top-2 z-20 max-w-[calc(100%_-_1rem)] md:left-3 md:top-3">
+                        <span
+                          title={sanPham.serviceCategory?.title || "INDUSTRIAL"}
+                          className="block max-w-full truncate rounded-full border border-white/10 bg-background/60 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#f97316] shadow-sm backdrop-blur-md dark:border-white/5 dark:bg-[#020617]/60 md:text-[11px]"
+                        >
                           {sanPham.serviceCategory?.title || "INDUSTRIAL"}
                         </span>
                       </div>
@@ -214,16 +217,16 @@ export function ProductListContent({ danhSachSanPham, danhSachDanhMuc, lang, dic
 
                     {/* Content Section */}
                     <div className="p-3 md:p-5 flex flex-col flex-grow">
-                      <h3 className="text-[14px] md:text-lg font-bold text-foreground mb-1.5 md:mb-2 leading-tight group-hover:text-[#f97316] transition-colors line-clamp-2">
+                      <h3 className="mb-1.5 line-clamp-2 text-[13px] font-bold leading-[1.35] text-foreground transition-colors group-hover:text-[#f97316] sm:text-sm md:mb-2 md:text-lg">
                         {sanPham.title}
                       </h3>
 
-                      <p className="text-muted-foreground text-[11px] md:text-sm leading-relaxed mb-4 line-clamp-2 flex-grow">
+                      <p className="mb-3 line-clamp-2 flex-grow text-[11px] leading-5 text-muted-foreground md:mb-4 md:text-sm md:leading-relaxed">
                         {sanPham.description}
                       </p>
 
                       <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                        <div className="flex items-center gap-1.5 text-[#f97316] font-bold text-[11px] md:text-sm">
+                        <div className="flex min-w-0 items-center gap-1 text-[10px] font-bold text-[#f97316] sm:text-[11px] md:gap-1.5 md:text-sm">
                           <span>{dict.common?.read_more || "Chi tiết"}</span>
                           <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform duration-300 group-hover:translate-x-1" />
                         </div>

@@ -24,7 +24,9 @@
     "projects": "Dự án",
     "blog": "Blog",
     "contact": "Liên hệ",
-    "view_all_services": "Xem tất cả dịch vụ kỹ thuật"
+    "view_all_services": "Xem tất cả dịch vụ kỹ thuật",
+    "view_all_products": "Xem tất cả sản phẩm",
+    "view_all_projects": "Xem tất cả dự án"
   },
   "hero": {
     "badge": "Vận hành theo tiêu chuẩn chất lượng Nhật Bản",
@@ -55,7 +57,8 @@
     "title_highlight": "CHẤT LƯỢNG",
     "hub_description": "Khám phá danh mục máy móc và các sản phẩm gia công CNC tiêu biểu được thực hiện bởi ZINITEK.",
     "meta_title": "Sản phẩm & Thiết bị - ZINITEK",
-    "meta_desc": "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK."
+    "meta_desc": "Danh sách các máy móc, thiết bị và sản phẩm gia công chính xác của ZINITEK.",
+    "related_title": "Sản phẩm liên quan"
   },
   "about_summary": {
     "badge": "Về ZINITEK",
@@ -117,7 +120,8 @@
     "client_label": "Khách hàng",
     "year_label": "Năm thực hiện",
     "service_label": "Dịch vụ",
-    "gallery_title": "Hình ảnh thực tế"
+    "gallery_title": "Hình ảnh thực tế",
+    "related_title": "Dự án liên quan"
   },
   "blog": {
     "title": "Tin tức",

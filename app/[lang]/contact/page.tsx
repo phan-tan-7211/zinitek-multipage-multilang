@@ -1,105 +1,86 @@
-
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { ContactSection } from "@/components/contact-section"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
+import { getSiteSettings, replaceLegacySiteName, resolveSiteName, withSiteName } from "@/lib/site-settings"
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
-  const dict = await getDictionary(lang)
-
-  const title = dict.contact?.title || "Liên hệ - ZINITEK"
-  const description = dict.contact?.description || "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn."
+  const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
+  const title = withSiteName(dict.contact?.title || "Liên hệ - ZINITEK", siteName)
+  const description = replaceLegacySiteName(dict.contact?.description || "Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết cho dự án của bạn.", siteName)
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/contact`,
       languages: {
-        'vi': '/vi/contact',
-        'en': '/en/contact',
-        'cn': '/cn/contact',
+        "vi-VN": "/vi/contact",
+        "en-US": "/en/contact",
+        "ja-JP": "/jp/contact",
+        "ko-KR": "/kr/contact",
+        "zh-CN": "/cn/contact",
+        "x-default": "/vi/contact",
       },
     },
-    openGraph: {
-      title,
-      description,
-      url: `/${lang}/contact`,
-      siteName: 'ZINITEK',
-    },
-    twitter: {
-      card: 'summary',
-      title,
-      description,
-    },
+    openGraph: { title, description, url: `/${lang}/contact`, siteName, type: "website" },
+    twitter: { card: "summary_large_image", title, description },
   }
 }
 
-export default async function ContactPage({
-  params
-}: {
-  params: Promise<{ lang: string }> | { lang: string }
-}) {
-  const resolvedParams = await params
-  const { lang } = resolvedParams
-  const dict = await getDictionary(lang)
+export default async function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const [dict, siteSettings] = await Promise.all([getDictionary(lang), getSiteSettings()])
+  const siteName = resolveSiteName(siteSettings)
+  const localBusiness: Record<string, any> = {
+    "@type": "LocalBusiness",
+    "@id": "https://zinitek.vn/#localbusiness",
+    name: siteName,
+    url: "https://zinitek.vn",
+  }
+  if (siteSettings?.phoneTel) localBusiness.telephone = siteSettings.phoneTel
+  if (siteSettings?.addressDisplay) {
+    localBusiness.address = {
+      "@type": "PostalAddress",
+      streetAddress: siteSettings.addressDisplay,
+      addressCountry: "VN",
+    }
+  }
+  if (siteSettings?.googleMapsUrl) localBusiness.hasMap = siteSettings.googleMapsUrl
 
-  // Khởi tạo Schema.org (JSON-LD) cho trang Liên hệ & Local Business
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "ContactPage",
         "@id": `https://zinitek.vn/${lang}/contact/#webpage`,
-        "url": `https://zinitek.vn/${lang}/contact`,
-        "name": dict.contact?.title || "Liên hệ - ZINITEK",
-        "description": dict.contact?.description
+        url: `https://zinitek.vn/${lang}/contact`,
+        name: withSiteName(dict.contact?.title || "Liên hệ - ZINITEK", siteName),
+        description: dict.contact?.description,
       },
-      {
-        "@type": "LocalBusiness",
-        "@id": "https://zinitek.vn/#localbusiness",
-        "name": "ZINITEK",
-        "image": "https://zinitek.vn/logo.png",
-        "url": "https://zinitek.vn",
-        "telephone": "+84776220031",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Số 200, Đường 2, KP. Nội Hóa 1, Phường Bình An",
-          "addressLocality": "Dĩ An",
-          "addressRegion": "Bình Dương",
-          "postalCode": "820000",
-          "addressCountry": "VN"
-        }
-      }
-    ]
-  };
+      localBusiness,
+    ],
+  }
 
   return (
-    <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Chèn JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <div className="absolute inset-0 z-0 opacity-50 dark:opacity-10 pointer-events-none">
+    <main className="relative min-h-dvh overflow-x-clip bg-background text-foreground">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-25 dark:opacity-15" aria-hidden="true">
         <BlueprintBackground />
       </div>
-
-      {/* Loai bỏ pt-20 thừa thãi */}
       <div className="relative z-10">
         <PageHeader
-          title={dict.contact?.title || (lang === 'vi' ? "Liên hệ" : "Contact")}
-          subtitle={dict.contact?.subtitle || (lang === 'vi' ? "Kết nối" : "Get in touch")}
-          description={dict.contact?.description || (lang === 'vi' ? "ZINITEK luôn sẵn sàng lắng nghe và tư vấn các giải pháp kỹ thuật tối ưu cho dự án của bạn." : "ZINITEK is always ready to listen and provide optimal technical solutions for your projects.")}
+          title={dict.contact?.title || "Contact"}
+          subtitle={dict.contact?.subtitle || "Get in touch"}
+          description={dict.contact?.description || "ZINITEK is ready to discuss the right technical solution for your project."}
           lang={lang}
           dict={dict}
         />
-
         <ContactSection lang={lang} dict={dict} />
       </div>
-
       <Footer lang={lang} dict={dict} />
     </main>
   )

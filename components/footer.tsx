@@ -1,292 +1,44 @@
-
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import {
-  Cog,
-  MapPin,
-  Phone,
-  Mail,
-  Facebook,
-  Youtube,
-  Linkedin,
-  ArrowRight
-} from "lucide-react"
+import { ArrowRight, ExternalLink, Mail, MapPin, MessageCircle, Phone, Youtube, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { createClient } from "next-sanity"
+import { useSiteSettings } from "@/components/site-settings-context"
+import { SiteLogoMark, SiteLogoWordmark } from "@/components/site-logo"
+import { resolveSiteName } from "@/lib/site-settings"
+import { sanityCdnClient } from "@/lib/sanity-client"
 
-// --- CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
-const trinhKetNoiSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: true,
-})
+interface LegalDocLink { _id: string; slug: string; title: string; language: string }
+interface FooterLocation { _key?: string; enabled?: boolean; name?: Record<string,string>; address?: string; googleMapsUrl?: string }
+function TextSocialIcon({ text }: { text: string }) { return <span className="text-[9px] font-black uppercase tracking-tight" aria-hidden="true">{text}</span> }
 
 export function Footer({ lang, dict }: { lang: string; dict: any }) {
-  // Khai báo các biến con từ từ điển để mã nguồn gọn gàng
-  const tuDienFooter = dict?.footer || {}
-  const tuDienDieuHuong = dict?.navigation || {}
-  const tuDienChung = dict?.common || {}
+  const footer = dict?.footer || {}; const navigation = dict?.navigation || {}; const common = dict?.common || {}
+  const siteSettings = useSiteSettings(); const siteName = resolveSiteName(siteSettings)
+  const { phoneDisplay, phoneTel, email, wechatId, wechatUrl, lineUrl, facebookUrl, youtubeUrl, tiktokUrl, twitterUrl } = siteSettings
+  const [services,setServices]=useState<any[]>([]); const [legalDocs,setLegalDocs]=useState<LegalDocLink[]>([]); const [locations,setLocations]=useState<FooterLocation[]>([])
 
-  // Trạng thái lưu trữ danh sách dịch vụ và văn bản pháp lý động từ Sanity
-  const [danhSachDichVuDong, setDanhSachDichVuDong] = useState<any[]>([])
-  const [danhSachPhapLyDong, setDanhSachPhapLyDong] = useState<any[]>([])
+  useEffect(()=>{ async function loadFooterData(){ try {
+    const [allServices,allLegalDocs,locationDoc]=await Promise.all([
+      sanityCdnClient.fetch(`*[_type=="service"&&defined(slug.current)&&!(_id in path("drafts.**"))]|order(orderRank asc){_id,_translationKey,language,"slug":slug.current,title}`),
+      sanityCdnClient.fetch(`*[_type=="legalDoc"&&defined(slug.current)&&!(_id in path("drafts.**"))]|order(_createdAt asc){_id,language,"slug":slug.current,title}`),
+      sanityCdnClient.fetch(`*[_type=="locationsSettings"&&_id=="locationsSettings"&&!(_id in path("drafts.**"))][0]{locations[]{_key,enabled,name,address,googleMapsUrl}}`),
+    ])
+    const groups:Record<string,any[]>={}; allServices.forEach((i:any)=>{const k=i._translationKey||i._id;(groups[k] ||= []).push(i)}); setServices(Object.values(groups).map((g:any[])=>g.find(i=>i.language===lang)||g.find(i=>i.language==="en")||g.find(i=>i.language==="vi")||g[0]))
+    const normalized:LegalDocLink[]=allLegalDocs.map((i:any)=>({...i,language:typeof i.language==="string"?i.language:"vi",slug:typeof i.slug==="string"&&i.slug.includes("/")?i.slug.split("/").filter(Boolean).pop():i.slug})).filter((i:LegalDocLink)=>i.slug&&i.title); const byLang=(l:string)=>normalized.filter(i=>i.language===l); setLegalDocs((byLang(lang).length?byLang(lang):byLang("en").length?byLang("en"):byLang("vi").length?byLang("vi"):normalized).slice(0,3))
+    setLocations((locationDoc?.locations||[]).filter((i:FooterLocation)=>i.enabled!==false&&i.address?.trim()))
+  } catch(e){console.error("Footer data:",e);setLegalDocs([]);setLocations([])} } loadFooterData() },[lang])
 
-  // --- FETCH DỮ LIỆU DỊCH VỤ ĐỘNG CHO FOOTER ---
-  useEffect(() => {
-    async function layDuLieuFooter() {
-      try {
-        // 1. LẤY DANH SÁCH DỊCH VỤ
-        const truyVanDichVu = `*[_type == "service" && defined(slug.current)] | order(orderRank asc) {
-          _id, _translationKey, language, "slug": slug.current, title
-        }`
+  const quickLinks=[{name:navigation?.home||"Trang chủ",href:`/${lang}`},{name:navigation?.about||"Giới thiệu",href:`/${lang}/about`},{name:navigation?.services||"Dịch vụ",href:`/${lang}/services`},{name:navigation?.products||"Sản phẩm",href:`/${lang}/products`},{name:navigation?.projects||"Dự án",href:`/${lang}/portfolio`},{name:navigation?.blog||"Blog",href:`/${lang}/blog`}]
+  const socialLinks=[facebookUrl?{href:facebookUrl,label:"Facebook",icon:<Facebook className="size-4"/>}:null,youtubeUrl?{href:youtubeUrl,label:"YouTube",icon:<Youtube className="size-4"/>}:null,tiktokUrl?{href:tiktokUrl,label:"TikTok",icon:<TextSocialIcon text="TT"/>}:null,lineUrl?{href:lineUrl,label:"LINE",icon:<TextSocialIcon text="LINE"/>}:null,twitterUrl?{href:twitterUrl,label:"X / Twitter",icon:<TextSocialIcon text="X"/>}:null,wechatUrl?{href:wechatUrl,label:wechatId?`WeChat ${wechatId}`:"WeChat",icon:<MessageCircle className="size-4"/>}:null].filter(Boolean) as Array<{href:string;label:string;icon:React.ReactNode}>
+  const fallbackLegalLinks=[{name:footer?.privacy_policy||"Chính sách bảo mật",slug:"chinh-sach-bao-mat"},{name:footer?.terms_of_use||"Điều khoản sử dụng",slug:"dieu-khoan-su-dung"},{name:footer?.cookie_policy||"Chính sách cookie",slug:"chinh-sach-cookie"}]; const currentYear=new Date().getFullYear()
 
-        // 2. LẤY DANH SÁCH VĂN BẢN PHÁP LÝ (Lọc theo ngôn ngữ hiện tại)
-        const truyVanPhapLy = `*[_type == "legalDoc" && language == $lang && defined(slug.current)] {
-          _id, "slug": slug.current, title
-        }`
-
-        const [tatCaDichVu, danhSachPhapLy] = await Promise.all([
-          trinhKetNoiSanity.fetch(truyVanDichVu),
-          trinhKetNoiSanity.fetch(truyVanPhapLy, { lang })
-        ])
-
-        // Thuật toán Smart Fallback cho Dịch vụ
-        const nhomDichVu: Record<string, any[]> = {};
-        tatCaDichVu.forEach((muc: any) => {
-          const khoa = muc._translationKey || muc._id;
-          if (!nhomDichVu[khoa]) nhomDichVu[khoa] = [];
-          nhomDichVu[khoa].push(muc);
-        });
-        const dvSauCung = Object.values(nhomDichVu).map((nhom: any[]) =>
-          nhom.find((p) => p.language === lang) || nhom.find((p) => p.language === 'en') || nhom.find((p) => p.language === 'vi') || nhom[0]
-        );
-        setDanhSachDichVuDong(dvSauCung);
-
-        // Làm sạch Slug: Loại bỏ tiền tố ngôn ngữ (ví dụ "vi/", "en/") nếu có để tránh URL trùng lặp kiểu /vi/policy/vi/slug
-        const phapLyDaLamSach = danhSachPhapLy.map((item: any) => ({
-          ...item,
-          slug: item.slug.includes('/') ? item.slug.split('/').pop() : item.slug
-        }));
-
-        setDanhSachPhapLyDong(phapLyDaLamSach);
-
-      } catch (loi) {
-        console.error("Lỗi tải dữ liệu tại Footer:", loi)
-      }
-    }
-
-    layDuLieuFooter()
-  }, [lang])
-
-  // Mảng liên kết nhanh (Đồng bộ theo ngôn ngữ)
-  const lienKetNhanh = [
-    { name: tuDienDieuHuong?.home || "Trang chủ", href: `/${lang}` },
-    { name: tuDienDieuHuong?.about || "Giới thiệu", href: `/${lang}/about` },
-    { name: tuDienDieuHuong?.services || "Dịch vụ", href: `/${lang}/services` },
-    { name: tuDienDieuHuong?.products || "Sản phẩm", href: `/${lang}/products` },
-    { name: tuDienDieuHuong?.projects || "Dự án", href: `/${lang}/portfolio` },
-    { name: tuDienDieuHuong?.blog || "Blog", href: `/${lang}/blog` },
-  ]
-
-  // Mảng chính sách pháp lý (Dùng tạm thời cho đến khi CMS tải xong) - KHÔNG CÒN CẦN THIẾT NHƯNG GIỮ ĐỂ TRÁNH LỖI PHỤ THUỘC NẾU CÓ
-  const lienKetPhapLy = [
-    { name: tuDienFooter?.privacy_policy || "Chính sách bảo mật", href: "#" },
-    { name: tuDienFooter?.terms_of_use || "Điều khoản sử dụng", href: "#" },
-    { name: tuDienFooter?.cookie_policy || "Chính sách cookie", href: "#" },
-  ]
-
-  return (
-    <footer className="relative bg-secondary/20 border-t border-border/50">
-      {/* Nội dung chính của Footer */}
-      <div className="container mx-auto px-4 lg:px-6 py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-
-          {/* Cột 1: Thông tin thương hiệu */}
-          <div className="lg:col-span-1">
-            <Link href={`/${lang}`} className="flex items-center gap-3 mb-6">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-lg flex items-center justify-center shadow-lg shadow-[#f97316]/20">
-                  <Cog className="w-6 h-6 text-[#020617]" />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-serif font-bold tracking-tight text-foreground">
-                  ZINI<span className="text-[#f97316]">TEK</span>
-                </span>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground -mt-0.5 font-medium">
-                  {tuDienChung?.logo_subtitle || "Kỹ Thuật Cơ Khí"}
-                </p>
-              </div>
-            </Link>
-
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-              {tuDienFooter?.description || "Đối tác tin cậy trong lĩnh vực gia công cơ khí chính xác theo tiêu chuẩn Nhật Bản."}
-            </p>
-
-            {/* Các biểu tượng mạng xã hội */}
-            <div className="flex gap-3">
-              {[
-                { icon: Facebook, href: "#", label: "Facebook" },
-                { icon: Youtube, href: "#", label: "Youtube" },
-                { icon: Linkedin, href: "#", label: "LinkedIn" },
-              ].map((mangXaHoi) => (
-                <a
-                  key={mangXaHoi.label}
-                  href={mangXaHoi.href}
-                  aria-label={mangXaHoi.label}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-card text-muted-foreground hover:text-[#f97316] hover:bg-[#f97316]/10 transition-all duration-300 shadow-sm border border-border/50"
-                >
-                  <mangXaHoi.icon className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Cột 2: Danh mục liên kết nhanh */}
-          <div>
-            <h4 className="font-serif font-bold text-foreground mb-6 uppercase tracking-wider text-sm">
-              {tuDienFooter?.quick_links || "Liên kết nhanh"}
-            </h4>
-            <ul className="space-y-3">
-              {lienKetNhanh.map((link, chiSo) => (
-                <li key={chiSo}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-[#f97316] transition-all duration-300 flex items-center gap-1.5 group"
-                  >
-                    <ArrowRight className="w-3 h-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Cột 3: Danh sách dịch vụ kỹ thuật (ĐÃ ĐỤC LỖ ĐỘNG) */}
-          <div>
-            <h4 className="font-serif font-bold text-foreground mb-6 uppercase tracking-wider text-sm">
-              {tuDienDieuHuong?.services || "Dịch vụ"}
-            </h4>
-            <div className="group/scroll">
-              <ul className="space-y-3 max-height-[250px] overflow-y-auto pr-2 
-                scrollbar-thin scrollbar-thumb-transparent group-hover/scroll:scrollbar-thumb-[#f97316] scrollbar-track-transparent
-                [&::-webkit-scrollbar]:w-1
-                [&::-webkit-scrollbar-track]:bg-transparent
-                [&::-webkit-scrollbar-thumb]:bg-transparent
-                [&::-webkit-scrollbar-thumb]:rounded-full
-                group-hover/scroll:[&::-webkit-scrollbar-thumb]:bg-[#f97316]
-                transition-all duration-300"
-                style={{ maxHeight: '250px' }}
-              >
-                {danhSachDichVuDong.length > 0 ? (
-                  danhSachDichVuDong.map((dichVu, chiSo) => (
-                    <li key={dichVu._id || chiSo}>
-                      <Link
-                        href={`/${lang}/services/${dichVu.slug}`}
-                        className="text-sm text-muted-foreground hover:text-[#f97316] transition-all duration-300 flex items-center gap-1.5 group/item hover:translate-x-1"
-                      >
-                        <ArrowRight className="w-3 h-3 opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all" />
-                        {dichVu.title}
-                      </Link>
-                    </li>
-                  ))
-                ) : (
-                  // Hiển thị trạng thái chờ nếu dữ liệu chưa tải xong
-                  <li className="text-xs text-slate-600 italic">Đang tải dữ liệu...</li>
-                )}
-              </ul>
-            </div>
-          </div>
-
-          {/* Cột 4: Thông tin liên hệ & Đăng ký bản tin */}
-          <div>
-            <h4 className="font-serif font-bold text-foreground mb-6 uppercase tracking-wider text-sm">
-              {tuDienDieuHuong?.contact || "Liên hệ"}
-            </h4>
-            <div className="space-y-4 mb-8">
-              <div className="flex gap-3">
-                <MapPin className="w-5 h-5 text-[#f97316] flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {tuDienFooter?.address_label || "KCN Mỹ Phước 3, Bến Cát, Bình Dương"}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Phone className="w-5 h-5 text-[#f97316] flex-shrink-0" />
-                <a href={`tel:${tuDienChung?.phone_label}`} className="text-sm text-muted-foreground hover:text-[#f97316] transition-colors">
-                  {tuDienChung?.phone_label || "+84 77 622 0031"}
-                </a>
-              </div>
-              <div className="flex gap-3">
-                <Mail className="w-5 h-5 text-[#f97316] flex-shrink-0" />
-                <a href={`mailto:${tuDienChung?.email_label}`} className="text-sm text-muted-foreground hover:text-[#f97316] transition-colors">
-                  {tuDienChung?.email_label || "phantan7211@gmail.com"}
-                </a>
-              </div>
-            </div>
-
-            <h4 className="font-serif font-bold text-foreground mb-3 text-xs uppercase tracking-widest">
-              {tuDienFooter?.newsletter || "Bản tin"}
-            </h4>
-            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <Input
-                type="email"
-                placeholder={tuDienFooter?.placeholder_email || "Email của bạn"}
-                className="bg-background border-border focus:border-[#f97316] text-sm flex-1 h-10 rounded-lg"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="bg-[#f97316] hover:bg-[#ea580c] text-[#020617] h-10 w-10 rounded-lg transition-transform active:scale-95"
-              >
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      {/* Thanh bản quyền và chính sách dưới cùng */}
-      <div className="border-t border-border/50 bg-secondary/40">
-        <div className="container mx-auto px-4 lg:px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-muted-foreground text-center md:text-left font-medium">
-              {tuDienFooter?.copyright || "© 2026 ZINITEK. Tất cả quyền được bảo lưu."}
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-              {danhSachPhapLyDong.length > 0 ? (
-                danhSachPhapLyDong.map((link, chiSo) => (
-                  <Link
-                    key={link._id || chiSo}
-                    href={`/${lang}/policy/${link.slug}`}
-                    className="text-[11px] uppercase tracking-widest text-slate-500 hover:text-[#f97316] transition-colors font-bold"
-                  >
-                    {link.title}
-                  </Link>
-                ))
-              ) : (
-                // Hiển thị fallback từ từ điển nếu CMS chưa có dữ liệu
-                [
-                  { name: tuDienFooter?.privacy_policy || "Privacy", href: "#" },
-                  { name: tuDienFooter?.terms_of_use || "Terms", href: "#" },
-                  { name: tuDienFooter?.cookie_policy || "Cookies", href: "#" },
-                ].map((link, chiSo) => (
-                  <span key={chiSo} className="text-[11px] uppercase tracking-widest text-slate-600 font-bold opacity-50 cursor-not-allowed">
-                    {link.name}
-                  </span>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Đường kẻ trang trí màu cam thương hiệu */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-[#f97316] via-[#ea580c] to-[#f97316]" />
-    </footer>
-  )
+  return <footer className="relative border-t border-border/60 bg-secondary/20"><div className="content-shell py-14 lg:py-16"><div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+    <div><Link href={`/${lang}`} aria-label={navigation?.home||"Home"} className="mb-6 inline-flex min-h-12 items-center gap-3 rounded-xl"><SiteLogoMark size="md"/><SiteLogoWordmark lang={lang} fallbackTagline={common?.logo_subtitle||"Engineering Solutions"} titleClassName="text-xl font-serif font-bold tracking-tight text-foreground" taglineClassName="-mt-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground"/></Link><p className="mb-6 max-w-sm text-sm leading-6 text-muted-foreground">{footer?.description||"Đối tác cung cấp sản phẩm và giải pháp kỹ thuật cho khách hàng."}</p>{socialLinks.length>0&&<div className="flex flex-wrap gap-2">{socialLinks.map(i=><a key={i.label} href={i.href} target="_blank" rel="noopener noreferrer" aria-label={i.label} className="inline-flex size-11 items-center justify-center rounded-xl border border-border/60 bg-card text-muted-foreground">{i.icon}</a>)}</div>}</div>
+    <div><h4 className="mb-5 text-sm font-serif font-bold uppercase tracking-wider">{footer?.quick_links||"Liên kết nhanh"}</h4><ul className="space-y-1">{quickLinks.map(l=><li key={l.href}><Link href={l.href} className="group inline-flex min-h-10 items-center gap-2 text-sm text-muted-foreground hover:text-primary"><ArrowRight className="size-3"/>{l.name}</Link></li>)}</ul></div>
+    <div><h4 className="mb-5 text-sm font-serif font-bold uppercase tracking-wider">{navigation?.services||"Dịch vụ"}</h4><ul className="max-h-[250px] space-y-1 overflow-y-auto pr-2">{services.map((s,i)=><li key={s._id||i}><Link href={`/${lang}/services/${s.slug}`} className="inline-flex min-h-10 items-center gap-2 text-sm text-muted-foreground hover:text-primary"><ArrowRight className="size-3"/>{s.title}</Link></li>)}</ul></div>
+    <div><h4 className="mb-5 text-sm font-serif font-bold uppercase tracking-wider">{navigation?.contact||"Liên hệ"}</h4><div className="mb-7 space-y-3">{locations.map((location,index)=>{const mapHref=location.googleMapsUrl||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address||"")}`;return <a key={location._key||index} href={mapHref} target="_blank" rel="noopener noreferrer" className="group flex min-h-10 items-start gap-3 text-sm text-muted-foreground hover:text-primary"><MapPin className="mt-0.5 size-5 shrink-0 text-primary"/><span>{location.name?.[lang]&&<strong className="mr-1 font-medium text-foreground">{location.name[lang]}:</strong>}{location.address}<span className="ml-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-primary">Map <ExternalLink className="size-3"/></span></span></a>})}{phoneDisplay&&phoneTel&&<a href={`tel:${phoneTel}`} className="flex min-h-10 items-center gap-3 text-sm text-muted-foreground hover:text-primary"><Phone className="size-5 text-primary"/>{phoneDisplay}</a>}{email&&<a href={`mailto:${email}`} className="flex min-h-10 items-center gap-3 text-sm text-muted-foreground hover:text-primary"><Mail className="size-5 text-primary"/><span className="break-all">{email}</span></a>}</div><h4 className="mb-3 text-xs font-serif font-bold uppercase tracking-widest">{footer?.newsletter||"Bản tin"}</h4><form className="flex gap-2" onSubmit={e=>e.preventDefault()}><Input type="email" placeholder={footer?.placeholder_email||"Email của bạn"}/><Button type="submit" size="icon"><ArrowRight className="size-4"/></Button></form></div>
+  </div></div><div className="border-t border-border/60 bg-secondary/35"><div className="content-shell flex flex-col items-center justify-between gap-4 py-5 md:flex-row"><p className="text-xs text-muted-foreground">{footer?.copyright||`© ${currentYear} ${siteName}. All rights reserved.`}</p><div className="flex flex-wrap gap-x-6 gap-y-2">{legalDocs.length?legalDocs.map(l=><Link key={l._id} href={`/${l.language||lang}/policy/${l.slug}`} className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{l.title}</Link>):fallbackLegalLinks.map(l=><Link key={l.slug} href={`/${lang}/policy/${l.slug}`} className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{l.name}</Link>)}</div></div></div></footer>
 }

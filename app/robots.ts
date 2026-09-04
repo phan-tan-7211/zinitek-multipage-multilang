@@ -1,20 +1,17 @@
-// app/robots.ts
 import { MetadataRoute } from 'next'
+import { getPublicSiteUrl } from '@/lib/runtime-config'
 
 export default function robots(): MetadataRoute.Robots {
-  // Nhất quán với metadataBase và sitemap.ts
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zinitek.vn'
+  const baseUrl = getPublicSiteUrl()
 
   return {
     rules: [
       {
-        // Cho phép Googlebot crawl toàn bộ nội dung công khai
         userAgent: 'Googlebot',
         allow: '/',
         disallow: ['/api/', '/_next/', '/studio/'],
       },
       {
-        // Cho phép các bot lành tính khác (Bing, Yahoo...)
         userAgent: '*',
         allow: '/',
         disallow: ['/api/', '/_next/', '/studio/'],

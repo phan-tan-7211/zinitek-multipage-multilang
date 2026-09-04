@@ -1,25 +1,14 @@
-
-
-
 import { Footer } from "@/components/footer"
 import { BlueprintBackground } from "@/components/blueprint-background"
 import { PortfolioListContent } from "@/components/portfolio-list-content"
 import { PageHeader } from "@/components/page-header"
 import { getDictionary } from "@/lib/get-dictionary"
-import { createClient } from "next-sanity"
+import { getSiteName, withSiteName } from "@/lib/site-settings"
+import { sanityClient } from "@/lib/sanity-client"
+import { getPublicSiteUrl } from "@/lib/runtime-config"
 
-// --- 1. CẤU HÌNH TRÌNH KẾT NỐI SANITY ---
-const trinhKetNoiSanity = createClient({
-  projectId: 'g4o3uumy',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: false, // Tắt CDN để đảm bảo dữ liệu hiển thị ngay lập tức sau khi Publish
-})
-
-// --- 2. HÀM TRUY VẤN DỮ LIỆU DỰ ÁN VÀ DANH MỤC LỌC ---
-async function layDuLieuPortfolio(ngonNguHienTai: string) {
-  // A. Truy vấn lấy toàn bộ các dự án (không lọc ngôn ngữ ở đây để làm Fallback)
-  const cauTruyVanDuAn = `
+async function layDuLieuPortfolio(lang: string) {
+  const projectQuery = `
     *[_type == "project" && defined(slug.current) && !(_id in path("drafts.**"))] {
       _id,
       _translationKey,
@@ -29,155 +18,139 @@ async function layDuLieuPortfolio(ngonNguHienTai: string) {
       "slug": slug.current,
       language,
       "image": mainImage.asset->{ url },
-      "categoryIdentifier": serviceCategory->_id // Lấy ID của dịch vụ để làm mã lọc
+      "categoryIdentifier": coalesce(serviceCategory->_translationKey, serviceCategory->_id)
     }
-  `;
+  `
 
-  // B. Truy vấn lấy danh sách Dịch vụ hiện có để làm các nút bấm bộ lọc
-  const cauTruyVanDanhMuc = `
-    *[_type == "service" && language == $ngonNguHienTai] | order(orderRank asc) {
+  const categoryQuery = `
+    *[_type == "service" && defined(slug.current) && !(_id in path("drafts.**"))] | order(orderRank asc) {
       _id,
-      title
+      _translationKey,
+      language,
+      title,
+      orderRank
     }
-  `;
+  `
 
-  const [danhSachDuAnTho, danhSachDanhMucLoc] = await Promise.all([
-    trinhKetNoiSanity.fetch(cauTruyVanDuAn),
-    trinhKetNoiSanity.fetch(cauTruyVanDanhMuc, { ngonNguHienTai })
-  ]);
+  const [rawProjects, rawCategories] = await Promise.all([
+    sanityClient.fetch(projectQuery),
+    sanityClient.fetch(categoryQuery),
+  ])
 
-  // --- THUẬT TOÁN GOM NHÓM VÀ LỌC BẢN DỊCH TỐT NHẤT (SMART FALLBACK) ---
-  const nhomDuAn: Record<string, any[]> = {};
+  const projectGroups: Record<string, any[]> = {}
+  rawProjects.forEach((project: any) => {
+    const key = project._translationKey || project._id
+    if (!projectGroups[key]) projectGroups[key] = []
+    projectGroups[key].push(project)
+  })
 
-  danhSachDuAnTho.forEach((duAn: any) => {
-    // Gom các dự án là bản dịch của nhau vào chung một nhóm dựa trên _translationKey
-    const khoaDinhDanh = duAn._translationKey || duAn._id;
-    if (!nhomDuAn[khoaDinhDanh]) {
-      nhomDuAn[khoaDinhDanh] = [];
-    }
-    nhomDuAn[khoaDinhDanh].push(duAn);
-  });
+  const projects = Object.values(projectGroups).map((group: any[]) =>
+    group.find((item) => item.language === lang) ||
+    group.find((item) => item.language === "en") ||
+    group.find((item) => item.language === "vi") ||
+    group[0]
+  )
 
-  const danhSachDuAnCuoiCung = Object.values(nhomDuAn).map((danhSachPhienBan: any[]) => {
-    // Thứ tự ưu tiên: Ngôn ngữ đang xem -> Tiếng Anh -> Tiếng Việt -> Bản đầu tiên
-    const banDichDungNgonNgu = danhSachPhienBan.find((phienBan) => phienBan.language === ngonNguHienTai);
-    const banDichTiengAnh = danhSachPhienBan.find((phienBan) => phienBan.language === 'en');
-    const banDichTiengViet = danhSachPhienBan.find((phienBan) => phienBan.language === 'vi');
+  const categoryGroups: Record<string, any[]> = {}
+  rawCategories.forEach((category: any) => {
+    const key = category._translationKey || category._id
+    if (!categoryGroups[key]) categoryGroups[key] = []
+    categoryGroups[key].push(category)
+  })
 
-    return banDichDungNgonNgu || banDichTiengAnh || banDichTiengViet || danhSachPhienBan[0];
-  });
+  const categories = Object.entries(categoryGroups)
+    .map(([key, group]) => {
+      const selected =
+        group.find((item) => item.language === lang) ||
+        group.find((item) => item.language === "en") ||
+        group.find((item) => item.language === "vi") ||
+        group[0]
 
-  return {
-    danhSachDuAn: danhSachDuAnCuoiCung,
-    danhSachDanhMuc: danhSachDanhMucLoc
-  };
+      return selected
+        ? { _id: key, title: selected.title, orderRank: selected.orderRank || 0 }
+        : null
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => a.orderRank - b.orderRank)
+
+  return { projects, categories }
 }
 
-// --- 3. TẠO THÔNG TIN MÔ TẢ SEO ---
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
-  const thamSoUrl = await params;
-  const { lang } = thamSoUrl;
-  const title = "Dự án tiêu biểu - ZINITEK";
-  const description = "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK.";
+  const { lang } = await params
+  const [dict, siteName] = await Promise.all([getDictionary(lang), getSiteName()])
+  const title = withSiteName(dict.portfolio?.meta_title || dict.portfolio?.title || "Dự án tiêu biểu", siteName)
+  const description = dict.portfolio?.meta_desc || dict.portfolio?.description || "Khám phá các dự án và giải pháp tiêu biểu của doanh nghiệp."
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `/${lang}/portfolio`,
       languages: {
-        'vi': '/vi/portfolio',
-        'en': '/en/portfolio',
-        'cn': '/cn/portfolio',
+        "vi-VN": "/vi/portfolio",
+        "en-US": "/en/portfolio",
+        "ja-JP": "/jp/portfolio",
+        "ko-KR": "/kr/portfolio",
+        "zh-CN": "/cn/portfolio",
       },
     },
-    openGraph: {
-      title,
-      description,
-      url: `/${lang}/portfolio`,
-      siteName: 'ZINITEK',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-  };
+    openGraph: { title, description, url: `/${lang}/portfolio`, siteName },
+    twitter: { card: "summary_large_image", title, description },
+  }
 }
 
-// --- 4. THÀNH PHẦN TRANG CHÍNH ---
-export default async function PortfolioPage({
-  params
-}: {
-  params: Promise<{ lang: string }>
-}) {
-  const thamSoUrl = await params;
-  const { lang } = thamSoUrl;
-
-  // Lấy từ điển và dữ liệu Sanity song song
-  const [tuDien, duLieuPortfolio] = await Promise.all([
+export default async function PortfolioPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const [dict, data, siteName] = await Promise.all([
     getDictionary(lang),
-    layDuLieuPortfolio(lang)
-  ]);
+    layDuLieuPortfolio(lang),
+    getSiteName(),
+  ])
+  const siteUrl = getPublicSiteUrl()
 
-  // Khởi tạo Schema.org (JSON-LD) cho danh sách dự án
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": tuDien.portfolio?.title || "Dự án tiêu biểu ZINITEK",
-    "description": tuDien.portfolio?.description,
-    "itemListElement": duLieuPortfolio.danhSachDuAn.map((project: any, index: number) => ({
+    name: dict.portfolio?.title || `${siteName} Projects`,
+    description: dict.portfolio?.description,
+    itemListElement: data.projects.map((project: any, index: number) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "url": `https://zinitek.vn/${lang}/portfolio/${project.slug}`,
-      "name": project.title,
-      "description": project.description,
-      "image": project.image?.url
-    }))
-  };
+      position: index + 1,
+      url: `${siteUrl}/${lang}/portfolio/${project.slug}`,
+      name: project.title,
+      description: project.description,
+      image: project.image?.url,
+    })),
+  }
 
   return (
-    <main className="min-h-screen bg-background text-foreground relative">
-      {/* Chèn JSON-LD ItemList */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      {/* Nền bản vẽ Blueprint đặc trưng */}
-      <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
+    <main className="relative min-h-dvh bg-background text-foreground">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-25 dark:opacity-45" aria-hidden="true">
         <BlueprintBackground />
       </div>
 
-      {/* Loai bỏ pt-20 thừa thãi gây ra "ghost strip" */}
       <div className="relative z-10">
-        {/* Phần đầu trang: Lấy tiêu đề và mô tả từ file JSON theo ngôn ngữ */}
         <PageHeader
-          // Sửa heading thành title
-          title={tuDien.portfolio?.title || "Dự án"}
-          // Sửa text thành description
-          description={tuDien.portfolio?.description || "Khám phá các dự án gia công cơ khí chính xác và giải pháp tự động hóa tiêu biểu của ZINITEK."}
-          // Bổ sung subtitle (vì linh kiện PageHeader yêu cầu)
-          subtitle={tuDien.portfolio?.subtitle || "Thành tựu tiêu biểu"}
+          title={dict.portfolio?.title || "Dự án"}
+          description={dict.portfolio?.description || "Khám phá các dự án và giải pháp tiêu biểu của doanh nghiệp."}
+          subtitle={dict.portfolio?.subtitle || "Thành tựu tiêu biểu"}
           lang={lang}
-          dict={tuDien}
+          dict={dict}
         />
 
-        {/* 
-            TRUYỀN DỮ LIỆU ĐỘNG VÀO COMPONENT HIỂN THỊ:
-            - projects: Danh sách dự án đã qua xử lý Fallback.
-            - categories: Danh sách dịch vụ thực tế để làm bộ lọc.
-        */}
-        <section className="pb-32 relative z-10">
+        <section className="relative z-10 pb-24 sm:pb-28 lg:pb-32">
           <PortfolioListContent
-            projects={duLieuPortfolio.danhSachDuAn}
-            categories={duLieuPortfolio.danhSachDanhMuc}
+            projects={data.projects}
+            categories={data.categories as any}
             lang={lang}
-            dict={tuDien}
+            dict={dict}
           />
         </section>
       </div>
 
-      <Footer lang={lang} dict={tuDien} />
+      <Footer lang={lang} dict={dict} />
     </main>
-  );
+  )
 }
